@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Environment files with real local secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build and cache artifacts
+dist/
+build/
+.next/
+out/
+coverage/
+.cache/
+
+# OS and editor files
+.DS_Store
+.idea/
+.vscode/
