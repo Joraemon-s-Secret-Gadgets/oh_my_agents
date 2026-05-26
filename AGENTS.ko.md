@@ -222,6 +222,188 @@ It inherits the root `AGENTS.md`; local rules must not weaken root-level securit
 - Note local assumptions, known risks, or follow-up requirements for the next agent.
 ````
 
+### Frontend React + Tailwind Folder-Level `AGENTS.md` Template
+
+프론트엔드 루트 폴더인 `frontend/AGENTS.md` 또는 프론트엔드 기능 폴더용 `AGENTS.md`를 만들 때 사용하는 템플릿입니다.
+
+````md
+# AGENTS.md
+
+This file defines local frontend agent instructions for this folder.
+It inherits the root `AGENTS.md`; local rules must not weaken root-level security, workflow, review, environment variable, or Workspace Boundary rules.
+
+## Agent Focus
+
+This folder is frontend-focused.
+Agents working here must prioritize React component structure, user-facing behavior, UI state, accessibility, API integration, and TailwindCSS consistency.
+
+## Project Stack
+
+- Framework: React
+- Styling: TailwindCSS
+- Language: Use the project's existing JavaScript or TypeScript choice.
+- Package Manager: Detect from lockfile before running commands.
+
+## Folder Purpose
+
+- Describe the frontend domain, feature, route, or UI module owned by this folder.
+
+## Ownership Scope
+
+- Owned files:
+- Related backend/API contracts:
+- Explicitly out of scope:
+
+## Local Rules
+
+- Follow existing React component patterns.
+- Prefer small, focused components with clear props.
+- Keep UI state local unless shared state is clearly required.
+- Handle loading, error, empty, and success states.
+- Treat client-side validation as UX support only; backend validation remains required.
+- Do not expose server-only environment variables or secrets to client-side code.
+- Use Tailwind utility classes consistently with existing design tokens and layout patterns.
+- Avoid introducing a component library, state library, or styling framework unless explicitly approved.
+- Preserve accessibility with semantic HTML, labels, focus states, keyboard navigation, and readable error text.
+
+## Allowed Changes
+
+- React components, hooks, client utilities, route/view files, styles, tests, and frontend documentation within this folder's scope.
+
+## Forbidden Changes
+
+- Do not change backend API behavior from frontend folders.
+- Do not hardcode API secrets, tokens, or server-only environment variables.
+- Do not bypass root security, environment, or Workspace Boundary rules.
+- Do not introduce new global styling conventions without approval.
+
+## Local Verification
+
+- Use project-defined frontend commands when available.
+- If commands are unknown, inspect package scripts before running tests.
+- Suggested checks once configured:
+  - frontend lint
+  - frontend unit/component tests
+  - frontend build
+  - manual UI state and accessibility check
+
+## Primary Agent Roles
+
+- Primary: Implementation Agent for frontend Tasks and Subtasks.
+- Review: Review Agent with frontend UX, accessibility, state, and API-integration focus.
+- Security-sensitive areas: client environment variables, auth UI, token handling, forms, redirects, user-generated content.
+
+## Handover Notes
+
+- Document API assumptions, unverified UI states, accessibility gaps, and any required backend coordination.
+````
+
+### Backend Django Folder-Level `AGENTS.md` Template
+
+백엔드 루트 폴더인 `backend/AGENTS.md` 또는 Django app/module 폴더용 `AGENTS.md`를 만들 때 사용하는 템플릿입니다.
+
+````md
+# AGENTS.md
+
+This file defines local backend agent instructions for this folder.
+It inherits the root `AGENTS.md`; local rules must not weaken root-level security, workflow, review, environment variable, or Workspace Boundary rules.
+
+## Agent Focus
+
+This folder is backend-focused.
+Agents working here must prioritize Django app boundaries, API contracts, validation, authentication, authorization, data integrity, error handling, observability, and server-side security.
+
+## Project Stack
+
+- Framework: Django
+- API Layer: Use the project's existing Django API pattern, such as Django REST Framework if already present.
+- Database: Use the configured project database.
+- Package Manager: Detect from project files before running commands.
+
+## Folder Purpose
+
+- Describe the backend domain, Django app, API area, or service module owned by this folder.
+
+## Ownership Scope
+
+- Owned files:
+- Related frontend/API consumers:
+- Explicitly out of scope:
+
+## Local Rules
+
+- Follow Django app boundaries and existing project structure.
+- Keep business logic out of views when it grows; prefer services, selectors, forms, serializers, managers, or existing local patterns.
+- Validate all user input server-side.
+- Enforce authentication and authorization server-side.
+- Never log passwords, tokens, API keys, secrets, or sensitive user data.
+- Use Django migrations for model changes and review migrations before applying them.
+- Use Django settings and environment variables safely; never hardcode secrets in settings or source code.
+- Use Django's built-in password hashing and security mechanisms.
+- Consider rate limiting or abuse protection for authentication-sensitive or costly endpoints.
+- Return consistent error responses without leaking stack traces or internal details.
+
+## Allowed Changes
+
+- Django apps, models, migrations, views, serializers/forms, services, selectors, permissions, tests, and backend documentation within this folder's scope.
+
+## Forbidden Changes
+
+- Do not change frontend behavior from backend folders unless explicitly scoped.
+- Do not bypass authentication, authorization, validation, or migration review.
+- Do not commit real `.env` files, credentials, local databases, or generated secrets.
+- Do not weaken root security, environment, or Workspace Boundary rules.
+
+## Local Verification
+
+- Use project-defined backend commands when available.
+- If commands are unknown, inspect project scripts or Django management configuration before running tests.
+- Suggested checks once configured:
+  - backend lint
+  - Django system checks
+  - migrations check
+  - backend unit/API tests
+  - security-sensitive manual checks for auth, permissions, and validation
+
+## Primary Agent Roles
+
+- Primary: Implementation Agent for backend Tasks and Subtasks.
+- Review: Review Agent with backend correctness, API contract, data integrity, and security focus.
+- Security-sensitive areas: settings, environment variables, authentication, authorization, permissions, password handling, tokens, sessions, migrations, file access, external APIs.
+
+## Handover Notes
+
+- Document API contracts, migration status, auth/permission assumptions, unverified edge cases, and required frontend coordination.
+````
+
+역할별 하위 `AGENTS.md` 생성은 이렇게 요청하면 됩니다.
+
+```md
+frontend/AGENTS.md를 생성해줘.
+루트 AGENTS.md의 Frontend React + Tailwind Folder-Level Template을 기반으로 작성하고,
+frontend 영역의 로컬 규칙만 포함해줘.
+루트 보안, 워크플로우, 환경 변수, Workspace Boundary 규칙은 약화하지 마.
+```
+
+```md
+backend/AGENTS.md를 생성해줘.
+루트 AGENTS.md의 Backend Django Folder-Level Template을 기반으로 작성하고,
+backend 영역의 로컬 규칙만 포함해줘.
+루트 보안, 워크플로우, 환경 변수, Workspace Boundary 규칙은 약화하지 마.
+```
+
+기능별로 더 내려갈 때는 이렇게 요청합니다.
+
+```md
+frontend/src/features/auth/AGENTS.md를 생성해줘.
+Frontend React + Tailwind 템플릿을 기반으로 auth 프론트엔드 규칙만 작성해줘.
+```
+
+```md
+backend/src/modules/auth/AGENTS.md를 생성해줘.
+Backend Django 템플릿을 기반으로 auth 백엔드 규칙만 작성해줘.
+```
+
 ## File Synchronization Rule
 
 `File Synchronization Rule`은 루트 실행 지침인 `AGENTS.md`와 한국어 설명서인 `AGENTS.ko.md`의 내용이 서로 어긋나지 않도록 관리하는 규칙입니다.
