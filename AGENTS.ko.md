@@ -92,6 +92,12 @@ Spec 작성
 [optional footer(s)]
 ```
 
+각 구간의 의미는 다음과 같습니다.
+
+- Header: 첫 줄인 `<type>(<optional scope>): <description>`이며, 이 커밋이 무엇인지 한 줄로 요약합니다.
+- Body: 한 줄을 비운 뒤 전체 변경 맥락, 주요 변경 내용, 구현 메모, 검증 내용을 자세히 설명합니다.
+- Footer: 한 줄을 비운 뒤 메타데이터를 적습니다. 해당 작업과 연결된 GitHub 이슈가 있으면 `Refs: #123`, `Closes: #123`, `Fixes: #123` 같은 형식으로 이슈 번호를 추가합니다.
+
 작성 규칙은 다음과 같습니다.
 
 - 각 커밋은 가능하면 하나의 완료된 `Subtask`에 대응해야 합니다.
@@ -104,6 +110,7 @@ Spec 작성
 - `description`은 간결한 한 줄 요약이어야 하며, 대문자로 시작하지 않고 마침표로 끝나지 않아야 합니다.
 - 추가 설명이 필요하면 한 줄을 비운 뒤 body를 작성할 수 있습니다.
 - footer는 한 줄을 비운 뒤 git trailer 형식으로 작성합니다.
+- 해당 Task 또는 Subtask에 연결된 GitHub 이슈가 있으면 footer에 이슈 번호를 포함합니다.
 - 하위 호환성이 깨지는 변경은 `feat!:` 또는 `feat(api)!:`처럼 type 또는 scope 뒤에 `!`를 붙이거나, footer에 `BREAKING CHANGE:`를 반드시 명시합니다.
 - footer token으로 사용할 때 `BREAKING CHANGE`는 반드시 대문자로 작성합니다.
 
@@ -111,6 +118,14 @@ Spec 작성
 
 ```md
 feat(auth): add session refresh flow
+
+세션 만료 시 refresh token으로 로그인 상태를 갱신하는 흐름을 추가합니다.
+검증: auth API test와 세션 만료 수동 시나리오를 확인했습니다.
+
+Refs: #42
+```
+
+```md
 fix(api): handle missing project id
 docs(agents): document folder-level inheritance
 refactor(tasks): split handover template generation
@@ -175,7 +190,13 @@ BREAKING CHANGE: project responses now wrap data in a result object
 - 하위 폴더로 이동해서 명령을 실행하더라도 루트의 보안 및 Workspace Boundary 규칙을 지켜야 합니다.
 - 하위 폴더 실행을 workspace boundary 밖 파일, 명령, dependency에 접근하는 방식으로 사용해서는 안 됩니다.
 
-하위 폴더용 `AGENTS.md` 템플릿은 다음과 같습니다.
+아래 코드 블록으로 작성된 `AGENTS.md`들은 실제로 하위 폴더에 새 `AGENTS.md` 파일을 만들 때 사용하는 생성 템플릿입니다.
+
+즉, 이 코드 블록 자체가 현재 폴더에 적용되는 별도 규칙은 아니며, 사용자가 `frontend/AGENTS.md를 생성해줘` 또는 `backend/AGENTS.md를 생성해줘`처럼 요청했을 때 에이전트가 복사해서 해당 폴더 상황에 맞게 채우는 기준 양식입니다.
+
+템플릿 안의 빈 항목은 실제 폴더의 목적, 소유 파일, 허용 변경, 금지 변경, 검증 명령, 보안 민감 영역으로 채워야 합니다. 루트의 보안, 워크플로우, 환경 변수, Workspace Boundary 규칙은 템플릿으로 생성된 하위 파일에서도 그대로 상속됩니다.
+
+하위 폴더용 `AGENTS.md` 기본 템플릿은 다음과 같습니다.
 
 ````md
 # AGENTS.md
@@ -477,6 +498,7 @@ Backend Django 템플릿을 기반으로 auth 백엔드 규칙만 작성해줘.
 주요 책임은 다음과 같습니다.
 
 - 구현이 Spec, Task, Subtask와 맞는지 확인
+- 구현이 사용자의 원래 요구 목적, 의도, 성공 기준에 들어맞는지 확인
 - 성공 기준이 충족됐는지 확인
 - 관련 없는 동작이 바뀌지 않았는지 확인
 - 테스트나 예외 처리가 부족하지 않은지 확인
@@ -647,6 +669,8 @@ Spec은 구현자를 위한 문서이기도 하지만, 사용자가 현재 범�
 ```
 
 이 방식은 사람이 읽기 쉽고, 나중에 자동화나 검색에도 유리합니다.
+
+리뷰 영역에는 `User Intent Alignment`를 포함할 수 있습니다. 이 값은 구현 결과가 사용자의 원래 요청 목적과 성공 기준에 맞는지 확인할 때 사용합니다.
 
 ## Severity 기준
 
