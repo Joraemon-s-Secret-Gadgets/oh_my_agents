@@ -5,7 +5,7 @@ Agents must reduce token cost by loading only the context required for the curre
 Default loading rules:
 
 - Load this root `AGENTS.md` and the nearest relevant folder-level `AGENTS.md`.
-- Do not load `AGENTS.ko.md` unless the user asks for Korean explanation, the task edits Korean documentation, or the task checks synchronization between `AGENTS.md` and `AGENTS.ko.md`.
+- Do not load `AGENTS.ko.md` unless the user asks for Korean explanation, the task edits Korean documentation, or the task checks synchronization between `AGENTS.md` and `AGENTS.ko.md`. This restriction does not override the File Synchronization Rule when agent documentation is being edited.
 - Do not load all files in `docs/agents` at startup.
 - Use `rg` or targeted section reads before opening long files.
 - Prefer referenced sections, short task packets, and current changed files over full-document reads.

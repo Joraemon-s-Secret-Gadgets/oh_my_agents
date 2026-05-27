@@ -4,7 +4,7 @@ This file defines how agents must plan, implement, review, and secure work in th
 
 For a Korean teammate-facing explanation of this file, see [AGENTS.ko.md](./AGENTS.ko.md).
 
-Agents must not load `AGENTS.ko.md` by default. Load it only when the user asks for Korean explanation, when editing or synchronizing Korean documentation, or when explicitly checking file synchronization.
+Agents must not load `AGENTS.ko.md` by default. Load it only when the user asks for Korean explanation, when editing or synchronizing Korean documentation, or when explicitly checking file synchronization. This restriction does not override the File Synchronization Rule when agent documentation is being edited.
 
 ## Instruction Priority
 
