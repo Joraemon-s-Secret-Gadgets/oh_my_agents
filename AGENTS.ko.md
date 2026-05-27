@@ -519,23 +519,80 @@ Backend Django 템플릿을 기반으로 auth 백엔드 규칙만 작성해줘.
 
 리뷰는 취향을 말하는 단계가 아니라, 요구사항과 위험을 기준으로 다음 단계 진행 가능 여부를 판단하는 단계입니다.
 
-## Planning Workflow
+## End-to-End Workflow
 
-`Planning Workflow`는 작업의 전체 순서를 정의합니다.
+`End-to-End Workflow`는 모든 역할을 가로지르는 전체 작업 순서만 정의합니다.
 
-핵심은 다음과 같습니다.
+이 섹션은 의도적으로 큰 흐름만 다룹니다. Spec 작성, Task 분해, 구현, 리뷰의 세부 규칙은 아래의 역할별 Workflow에서 나누어 설명합니다.
 
-1. 먼저 Spec을 작성하거나 수정합니다.
+핵심 순서는 다음과 같습니다.
+
+1. 구현 전에 Spec을 작성하거나 수정합니다.
 2. Spec의 범위, 명확성, 누락, 모순을 확인합니다.
-3. Spec을 기능별 Task로 나눕니다.
+3. 승인된 Spec을 기능별 Task로 변환합니다.
 4. 큰 Task는 더 작은 Subtask로 나눕니다.
 5. 하나의 Task 또는 Subtask만 구현합니다.
-6. 구현된 작업을 리뷰합니다.
-7. 문제가 있으면 수정하고 다시 리뷰합니다.
-8. 승인된 후에만 완료 처리합니다.
-9. 다음 Task 또는 Subtask로 이동합니다.
+6. 완료된 Task 또는 Subtask에 필요한 로컬 검증을 실행합니다.
+7. 구현 결과를 Spec, Task, 사용자 의도, 프로젝트 규칙 기준으로 리뷰합니다.
+8. 문제가 있으면 수정하고 다시 리뷰합니다.
+9. 리뷰 승인과 필요한 검증이 끝난 뒤에만 완료 처리합니다.
+10. 필요한 승인 또는 사용자 확인 후에만 다음 Task 또는 Subtask로 이동합니다.
 
-이 흐름은 작업을 작게 유지하고, 리뷰 가능한 단위로 진행하기 위한 규칙입니다.
+이렇게 나누면 전체 흐름은 유지하면서도, 특정 역할이 모든 계획을 담당하는 것처럼 보이는 문제를 줄일 수 있습니다.
+
+## Spec Workflow
+
+`Spec Workflow`는 `Spec Agent`가 담당합니다.
+
+목적은 구현 전에 사용자의 의도, 제품 동작, 제약 조건, 리뷰 기준을 명확하게 만드는 것입니다.
+
+`Spec Agent`는 이 단계에서 다음을 담당합니다.
+
+1. 루트 `AGENTS.md`, 기존 Spec, README, 관련 코드, 사용자 지시처럼 승인된 자료를 기준으로 프로젝트 맥락을 파악합니다.
+2. Requirements를 작성합니다. 여기에는 목표, 비목표, 사용자 또는 actor, 사용자 스토리, acceptance criteria, 제약 조건, edge case, 보안, 개인정보, 접근성 고려사항이 포함됩니다.
+3. Design을 작성합니다. 여기에는 기존 시스템 맥락, 선택한 접근 방식, 영향을 받는 파일이나 모듈, API 또는 UI 흐름 변경, 데이터 모델 변경, 에러 처리, 호환성, 마이그레이션 필요 여부, 테스트 전략이 포함됩니다.
+4. Task로 나누기 위한 준비 정보를 정리합니다. 기능 경계, 의존성, 리스크, 가정, 검증 필요 사항을 명확히 합니다.
+5. 사용자가 검토하고 승인할 수 있을 정도로 Spec을 이해하기 쉽게 작성합니다.
+6. `Spec Workflow` 단계에서는 구현 코드를 작성하지 않습니다.
+7. 요구사항이 바뀌면 Task 분해나 구현을 계속하기 전에 Spec을 먼저 업데이트합니다.
+
+## Task Breakdown Workflow
+
+`Task Breakdown Workflow`는 `Task Agent`가 담당합니다.
+
+`Task Agent`는 전체 계획을 모두 담당하는 역할이 아닙니다. 이미 승인된 Spec을 작고, 순서가 있으며, 독립적으로 리뷰 가능한 작업 단위로 바꾸는 역할입니다.
+
+`Task Agent`는 이 단계에서 다음을 담당합니다.
+
+1. Task를 만들기 전에 승인된 Spec을 먼저 읽습니다.
+2. Spec을 기능별 Task로 나눕니다. 각 Task는 하나의 사용자 가시 기능 또는 하나의 명확한 기술 기능을 나타내야 합니다.
+3. 사용자 가치, 의존성 순서, 보안 또는 정확성 리스크, 리뷰 가능성을 기준으로 Task 우선순위를 정합니다.
+4. 큰 Task는 구현, 설명, 검증, 리뷰가 독립적으로 가능한 Atomic Subtask로 나눕니다.
+5. 각 Subtask마다 목적, 범위, 의존성, 대상 파일, 로컬 규칙, acceptance criteria, 검증 명령어를 정의합니다.
+6. UI, API, 데이터베이스, 테스트 변경을 하나의 Subtask에 섞지 않습니다. 단, 서로 강하게 결합되어 있을 때는 예외로 둘 수 있습니다.
+7. 모든 Task와 Subtask가 Workspace Boundary 안에 있고 루트 보안 규칙을 약화하지 않는지 확인합니다.
+8. Task 경계, 우선순위, 의존성 순서가 불명확하면 자의적으로 정하지 않고 사용자에게 질문합니다.
+
+## Implementation & Review Workflow
+
+`Implementation & Review Workflow`는 현재 Task 또는 Subtask가 실행 대상으로 승인된 뒤 `Implementation Agent`와 `Review Agent`가 담당합니다.
+
+`Implementation Agent`는 이 단계에서 다음을 담당합니다.
+
+1. 파일을 수정하기 전에 현재 진행할 Task 또는 Subtask를 요약합니다.
+2. 승인된 Task 또는 Subtask만 구현합니다.
+3. 변경 범위를 좁게 유지하고 관련 없는 refactor를 피합니다.
+4. Task 또는 Subtask에 정의된 검증 명령이나 확인 절차를 실행합니다.
+5. 변경된 파일, 구현 판단, 검증 결과, 알려진 한계를 리뷰 전에 보고합니다.
+
+`Review Agent`는 이 단계에서 다음을 담당합니다.
+
+1. 구현 결과가 승인된 Spec, Task, Subtask, 사용자 의도, 프로젝트 규칙에 맞는지 확인합니다.
+2. 필요에 따라 정확성, edge case, 테스트 범위, 유지보수성, 접근성, 보안, Workspace Safety를 검토합니다.
+3. Blocker finding이 있으면 승인하지 않고 수정을 요구합니다.
+4. 수정이 필요하면 `Implementation Agent`가 수정 후 다시 리뷰를 요청해야 합니다.
+5. 수정 및 재리뷰 루프가 연속 3회 반복되면 `Escalation on Deadlock` 규칙을 따릅니다.
+6. Blocker finding이 없고 필요한 검증이 완료되었거나 불가능한 이유가 명확히 보고된 경우에만 Task 또는 Subtask를 승인합니다.
 
 ## Task Decomposition Rule
 

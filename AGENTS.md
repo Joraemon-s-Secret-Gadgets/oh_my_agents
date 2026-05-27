@@ -436,19 +436,72 @@ Responsibilities:
 - Check security-sensitive changes.
 - Require fixes for blocking issues before approval.
 
-## Planning Workflow
+## End-to-End Workflow
+
+This section defines the full sequence across all roles. It is intentionally high-level; detailed Spec writing, Task breakdown, implementation, and review rules are defined in the role-specific workflow sections below.
 
 All work must follow this sequence:
 
-1. Write or update the Spec before implementation.
+1. Create or update the Spec before implementation.
 2. Review the Spec for scope, clarity, missing requirements, and contradictions.
-3. Break the approved Spec into feature-level Tasks.
-4. Break each large feature Task into smaller Subtasks.
+3. Convert the approved Spec into feature-level Tasks.
+4. Split large feature Tasks into smaller Subtasks.
 5. Implement one Task or Subtask at a time.
-6. Review the completed Task or Subtask.
-7. If review finds issues, revise the implementation and repeat review.
-8. Mark the Task or Subtask complete only after review approval.
-9. Move to the next Task or Subtask.
+6. Run relevant local verification for the completed Task or Subtask.
+7. Review the completed Task or Subtask against the Spec, Task, user intent, and project rules.
+8. If review finds issues, revise the implementation and repeat review.
+9. Mark the Task or Subtask complete only after review approval and required verification.
+10. Move to the next Task or Subtask only after the required approval or user confirmation.
+
+## Spec Workflow
+
+Spec Workflow is owned by the Spec Agent. Its purpose is to make the user's intent, product behavior, constraints, and review criteria clear before implementation starts.
+
+Spec Agent responsibilities in this workflow:
+
+1. Gather project context from approved sources such as this file, existing specs, README files, relevant code, and user instructions.
+2. Write Requirements that define goals, non-goals, users or actors, user stories, acceptance criteria, constraints, edge cases, and security, privacy, or accessibility concerns.
+3. Write Design that explains existing system context, chosen approach, affected files or modules, API or UI flow changes, data model changes, error handling, compatibility, migration needs, and testing strategy.
+4. Prepare Task context by identifying feature boundaries, dependencies, risks, assumptions, and verification needs.
+5. Keep the Spec understandable enough for the user to review and approve.
+6. Do not write implementation code during Spec Workflow.
+7. If requirements change, update the Spec before Task breakdown or implementation continues.
+
+## Task Breakdown Workflow
+
+Task Breakdown Workflow is owned by the Task Agent. The Task Agent does not own the entire planning process; it converts an approved Spec into small, ordered, reviewable units of work.
+
+Task Agent responsibilities in this workflow:
+
+1. Read the approved Spec before creating Tasks.
+2. Split the Spec into feature-level Tasks that each represent one user-visible capability or one clear technical capability.
+3. Prioritize Tasks by user value, dependency order, security or correctness risk, and reviewability.
+4. Split large feature Tasks into Atomic Subtasks that can be implemented, explained, verified, and reviewed independently.
+5. For each Subtask, define purpose, scope, dependencies, target files, local rules, acceptance criteria, and verification commands.
+6. Avoid mixing UI, API, database, and test changes in one Subtask unless they are tightly coupled.
+7. Confirm that every Task and Subtask stays inside the workspace boundary and does not weaken root security rules.
+8. Stop and ask the user if the correct Task boundary, priority, or dependency order is unclear.
+
+## Implementation & Review Workflow
+
+Implementation & Review Workflow is owned by the Implementation Agent and Review Agent after the current Task or Subtask has been approved for execution.
+
+Implementation Agent responsibilities in this workflow:
+
+1. Summarize the active Task or Subtask before editing files.
+2. Implement only the approved Task or Subtask.
+3. Keep changes scoped and avoid unrelated refactors.
+4. Run the verification commands or checks defined for the Task or Subtask.
+5. Report changed files, implementation decisions, verification results, and known limitations before review.
+
+Review Agent responsibilities in this workflow:
+
+1. Review the completed work against the approved Spec, Task, Subtask, user intent, and project rules.
+2. Check correctness, edge cases, test coverage, maintainability, accessibility, security, and workspace safety when relevant.
+3. Require fixes for Blocker findings before approval.
+4. If fixes are required, the Implementation Agent must revise the work and request re-review.
+5. If the Fix & Re-review loop repeats three consecutive times, follow the Escalation on Deadlock rule.
+6. Approve the Task or Subtask only when no Blocker findings remain and required verification has been completed or explicitly reported as unavailable.
 
 ## Task Decomposition Rule
 
