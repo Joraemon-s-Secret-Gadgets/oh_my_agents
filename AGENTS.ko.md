@@ -88,64 +88,9 @@ Spec 작성
 
 ## Git Commit Convention Details
 
-`Git Commit Convention Details`는 커밋 메시지를 작성할 때 따르는 세부 규칙입니다.
+커밋 컨벤션의 상세 설명은 [docs/agents/ko/commit-convention.md](./docs/agents/ko/commit-convention.md)에 분리되어 있습니다.
 
-공식 기준은 Conventional Commits 1.0.0입니다.
-
-공식 문서: https://www.conventionalcommits.org/en/v1.0.0/
-
-기본 구조는 다음과 같습니다.
-
-```md
-<type>(<optional scope>): <description>
-
-[optional body]
-
-[optional footer(s)]
-```
-
-각 구간의 의미는 다음과 같습니다.
-
-- Header: 첫 줄인 `<type>(<optional scope>): <description>`이며, 이 커밋이 무엇인지 한 줄로 요약합니다.
-- Body: 한 줄을 비운 뒤 전체 변경 맥락, 주요 변경 내용, 구현 메모, 검증 내용을 자세히 설명합니다.
-- Footer: 한 줄을 비운 뒤 메타데이터를 적습니다. 해당 작업과 연결된 GitHub 이슈가 있으면 `Refs: #123`, `Closes: #123`, `Fixes: #123` 같은 형식으로 이슈 번호를 추가합니다.
-
-작성 규칙은 다음과 같습니다.
-
-- 각 커밋은 가능하면 하나의 완료된 `Subtask`에 대응해야 합니다.
-- 커밋 메시지는 반드시 `type`으로 시작합니다.
-- `feat`는 새로운 기능 추가에 사용하며 Semantic Versioning의 MINOR 변경과 연결됩니다.
-- `fix`는 버그 수정에 사용하며 Semantic Versioning의 PATCH 변경과 연결됩니다.
-- 그 외에 `docs`, `style`, `refactor`, `test`, `chore`, `perf`, `ci`, `build` 등을 변경 성격에 맞게 사용할 수 있습니다.
-- `scope`는 선택 사항이며 변경이 일어난 모듈이나 위치를 소괄호 안에 적습니다. 예: `feat(auth):`, `fix(api):`
-- `description`은 type 또는 scope 뒤의 콜론과 공백 다음에 바로 작성합니다.
-- `description`은 간결한 한 줄 요약이어야 하며, 대문자로 시작하지 않고 마침표로 끝나지 않아야 합니다.
-- 추가 설명이 필요하면 한 줄을 비운 뒤 body를 작성할 수 있습니다.
-- footer는 한 줄을 비운 뒤 git trailer 형식으로 작성합니다.
-- 해당 Task 또는 Subtask에 연결된 GitHub 이슈가 있으면 footer에 이슈 번호를 포함합니다.
-- 하위 호환성이 깨지는 변경은 `feat!:` 또는 `feat(api)!:`처럼 type 또는 scope 뒤에 `!`를 붙이거나, footer에 `BREAKING CHANGE:`를 반드시 명시합니다.
-- footer token으로 사용할 때 `BREAKING CHANGE`는 반드시 대문자로 작성합니다.
-
-예시는 다음과 같습니다.
-
-```md
-feat(auth): add session refresh flow
-
-세션 만료 시 refresh token으로 로그인 상태를 갱신하는 흐름을 추가합니다.
-검증: auth API test와 세션 만료 수동 시나리오를 확인했습니다.
-
-Refs: #42
-```
-
-```md
-fix(api): handle missing project id
-docs(agents): document folder-level inheritance
-refactor(tasks): split handover template generation
-test(auth): add expired token coverage
-feat(api)!: change project response format
-
-BREAKING CHANGE: project responses now wrap data in a result object
-```
+에이전트가 실제로 따라야 하는 영어 기준 원문은 [docs/agents/commit-convention.md](./docs/agents/commit-convention.md)를 사용합니다.
 
 ## Workspace Boundary
 
@@ -174,268 +119,13 @@ BREAKING CHANGE: project responses now wrap data in a result object
 
 ## File-Level Agent Instructions
 
-프로젝트가 커지면 기능 폴더마다 별도 `AGENTS.md`를 둘 수 있습니다.
+하위 폴더 `AGENTS.md` 작성 방식과 템플릿 설명은 [docs/agents/ko/folder-agent-templates.md](./docs/agents/ko/folder-agent-templates.md)에 분리되어 있습니다.
 
-다만 모든 폴더에 무조건 만들 필요는 없습니다. 책임이 분명한 기능, 모듈, 도메인 폴더에만 추가하는 것이 좋습니다.
+에이전트가 실제로 사용할 템플릿 원문은 다음 파일에 있습니다.
 
-폴더별 `AGENTS.md`에는 다음처럼 해당 폴더에만 적용되는 내용을 적습니다.
-
-- 이 폴더의 목적
-- 이 폴더가 소유하는 파일과 책임
-- 이 폴더에서 허용되는 변경
-- 이 폴더에서 금지되는 변경
-- 로컬 아키텍처 규칙
-- 로컬 테스트 방식
-- 이 폴더의 주요 Agent 역할
-
-공통 규칙을 폴더마다 복사하지 않는 것이 중요합니다. 공통 규칙은 루트 `AGENTS.md`에만 두고, 폴더별 문서에는 차이점만 적어야 나중에 규칙이 어긋나지 않습니다.
-
-상속 원칙은 다음과 같습니다.
-
-- 하위 폴더의 `AGENTS.md`는 해당 도메인의 특화된 로컬 규칙만 다룹니다.
-- 하위 폴더 규칙은 루트의 보안, 계획, 리뷰, 환경 변수, Workspace Boundary 규칙을 약화하거나 무력화할 수 없습니다.
-- 하위 폴더 규칙과 루트 규칙이 충돌하면 루트 규칙이 우선합니다.
-
-실행 경로 기준은 다음과 같습니다.
-
-- 에이전트는 원칙적으로 프로젝트 최상위 루트에서 실행됩니다.
-- 하위 폴더로 이동해서 명령을 실행하더라도 루트의 보안 및 Workspace Boundary 규칙을 지켜야 합니다.
-- 하위 폴더 실행을 workspace boundary 밖 파일, 명령, dependency에 접근하는 방식으로 사용해서는 안 됩니다.
-
-아래 코드 블록으로 작성된 `AGENTS.md`들은 실제로 하위 폴더에 새 `AGENTS.md` 파일을 만들 때 사용하는 생성 템플릿입니다.
-
-즉, 이 코드 블록 자체가 현재 폴더에 적용되는 별도 규칙은 아니며, 사용자가 `frontend/AGENTS.md를 생성해줘` 또는 `backend/AGENTS.md를 생성해줘`처럼 요청했을 때 에이전트가 복사해서 해당 폴더 상황에 맞게 채우는 기준 양식입니다.
-
-템플릿 안의 빈 항목은 실제 폴더의 목적, 소유 파일, 허용 변경, 금지 변경, 검증 명령, 보안 민감 영역으로 채워야 합니다. 루트의 보안, 워크플로우, 환경 변수, Workspace Boundary 규칙은 템플릿으로 생성된 하위 파일에서도 그대로 상속됩니다.
-
-하위 폴더용 `AGENTS.md` 기본 템플릿은 다음과 같습니다.
-
-````md
-# AGENTS.md
-
-This file defines local agent instructions for this folder.
-It inherits the root `AGENTS.md`; local rules must not weaken root-level security, workflow, review, or Workspace Boundary rules.
-
-## Folder Purpose
-
-- Describe the domain, feature, or module owned by this folder.
-
-## Ownership Scope
-
-- Owned files:
-- Related files outside this folder:
-- Explicitly out of scope:
-
-## Local Rules
-
-- Add folder-specific architecture, naming, dependency, or design rules.
-- Do not repeat root-level rules unless a short reminder prevents misuse.
-
-## Allowed Changes
-
-- List changes agents may make in this folder.
-
-## Forbidden Changes
-
-- List folder-specific changes agents must not make.
-- Do not weaken root-level forbidden actions.
-
-## Local Verification
-
-- List tests, checks, or manual verification required for this folder.
-
-## Primary Agent Roles
-
-- Primary:
-- Review:
-- Security-sensitive areas:
-
-## Handover Notes
-
-- Note local assumptions, known risks, or follow-up requirements for the next agent.
-````
-
-### Frontend React + Tailwind Folder-Level `AGENTS.md` Template
-
-프론트엔드 루트 폴더인 `frontend/AGENTS.md` 또는 프론트엔드 기능 폴더용 `AGENTS.md`를 만들 때 사용하는 템플릿입니다.
-
-````md
-# AGENTS.md
-
-This file defines local frontend agent instructions for this folder.
-It inherits the root `AGENTS.md`; local rules must not weaken root-level security, workflow, review, environment variable, or Workspace Boundary rules.
-
-## Agent Focus
-
-This folder is frontend-focused.
-Agents working here must prioritize React component structure, user-facing behavior, UI state, accessibility, API integration, and TailwindCSS consistency.
-
-## Project Stack
-
-- Framework: React
-- Styling: TailwindCSS
-- Language: Use the project's existing JavaScript or TypeScript choice.
-- Package Manager: Detect from lockfile before running commands.
-
-## Folder Purpose
-
-- Describe the frontend domain, feature, route, or UI module owned by this folder.
-
-## Ownership Scope
-
-- Owned files:
-- Related backend/API contracts:
-- Explicitly out of scope:
-
-## Local Rules
-
-- Follow existing React component patterns.
-- Prefer small, focused components with clear props.
-- Keep UI state local unless shared state is clearly required.
-- Handle loading, error, empty, and success states.
-- Treat client-side validation as UX support only; backend validation remains required.
-- Do not expose server-only environment variables or secrets to client-side code.
-- Use Tailwind utility classes consistently with existing design tokens and layout patterns.
-- Avoid introducing a component library, state library, or styling framework unless explicitly approved.
-- Preserve accessibility with semantic HTML, labels, focus states, keyboard navigation, and readable error text.
-
-## Allowed Changes
-
-- React components, hooks, client utilities, route/view files, styles, tests, and frontend documentation within this folder's scope.
-
-## Forbidden Changes
-
-- Do not change backend API behavior from frontend folders.
-- Do not hardcode API secrets, tokens, or server-only environment variables.
-- Do not bypass root security, environment, or Workspace Boundary rules.
-- Do not introduce new global styling conventions without approval.
-
-## Local Verification
-
-- Use project-defined frontend commands when available.
-- If commands are unknown, inspect package scripts before running tests.
-- Suggested checks once configured:
-  - frontend lint
-  - frontend unit/component tests
-  - frontend build
-  - manual UI state and accessibility check
-
-## Primary Agent Roles
-
-- Primary: Implementation Agent for frontend Tasks and Subtasks.
-- Review: Review Agent with frontend UX, accessibility, state, and API-integration focus.
-- Security-sensitive areas: client environment variables, auth UI, token handling, forms, redirects, user-generated content.
-
-## Handover Notes
-
-- Document API assumptions, unverified UI states, accessibility gaps, and any required backend coordination.
-````
-
-### Backend Django Folder-Level `AGENTS.md` Template
-
-백엔드 루트 폴더인 `backend/AGENTS.md` 또는 Django app/module 폴더용 `AGENTS.md`를 만들 때 사용하는 템플릿입니다.
-
-````md
-# AGENTS.md
-
-This file defines local backend agent instructions for this folder.
-It inherits the root `AGENTS.md`; local rules must not weaken root-level security, workflow, review, environment variable, or Workspace Boundary rules.
-
-## Agent Focus
-
-This folder is backend-focused.
-Agents working here must prioritize Django app boundaries, API contracts, validation, authentication, authorization, data integrity, error handling, observability, and server-side security.
-
-## Project Stack
-
-- Framework: Django
-- API Layer: Use the project's existing Django API pattern, such as Django REST Framework if already present.
-- Database: Use the configured project database.
-- Package Manager: Detect from project files before running commands.
-
-## Folder Purpose
-
-- Describe the backend domain, Django app, API area, or service module owned by this folder.
-
-## Ownership Scope
-
-- Owned files:
-- Related frontend/API consumers:
-- Explicitly out of scope:
-
-## Local Rules
-
-- Follow Django app boundaries and existing project structure.
-- Keep business logic out of views when it grows; prefer services, selectors, forms, serializers, managers, or existing local patterns.
-- Validate all user input server-side.
-- Enforce authentication and authorization server-side.
-- Never log passwords, tokens, API keys, secrets, or sensitive user data.
-- Use Django migrations for model changes and review migrations before applying them.
-- Use Django settings and environment variables safely; never hardcode secrets in settings or source code.
-- Use Django's built-in password hashing and security mechanisms.
-- Consider rate limiting or abuse protection for authentication-sensitive or costly endpoints.
-- Return consistent error responses without leaking stack traces or internal details.
-
-## Allowed Changes
-
-- Django apps, models, migrations, views, serializers/forms, services, selectors, permissions, tests, and backend documentation within this folder's scope.
-
-## Forbidden Changes
-
-- Do not change frontend behavior from backend folders unless explicitly scoped.
-- Do not bypass authentication, authorization, validation, or migration review.
-- Do not commit real `.env` files, credentials, local databases, or generated secrets.
-- Do not weaken root security, environment, or Workspace Boundary rules.
-
-## Local Verification
-
-- Use project-defined backend commands when available.
-- If commands are unknown, inspect project scripts or Django management configuration before running tests.
-- Suggested checks once configured:
-  - backend lint
-  - Django system checks
-  - migrations check
-  - backend unit/API tests
-  - security-sensitive manual checks for auth, permissions, and validation
-
-## Primary Agent Roles
-
-- Primary: Implementation Agent for backend Tasks and Subtasks.
-- Review: Review Agent with backend correctness, API contract, data integrity, and security focus.
-- Security-sensitive areas: settings, environment variables, authentication, authorization, permissions, password handling, tokens, sessions, migrations, file access, external APIs.
-
-## Handover Notes
-
-- Document API contracts, migration status, auth/permission assumptions, unverified edge cases, and required frontend coordination.
-````
-
-역할별 하위 `AGENTS.md` 생성은 이렇게 요청하면 됩니다.
-
-```md
-frontend/AGENTS.md를 생성해줘.
-루트 AGENTS.md의 Frontend React + Tailwind Folder-Level Template을 기반으로 작성하고,
-frontend 영역의 로컬 규칙만 포함해줘.
-루트 보안, 워크플로우, 환경 변수, Workspace Boundary 규칙은 약화하지 마.
-```
-
-```md
-backend/AGENTS.md를 생성해줘.
-루트 AGENTS.md의 Backend Django Folder-Level Template을 기반으로 작성하고,
-backend 영역의 로컬 규칙만 포함해줘.
-루트 보안, 워크플로우, 환경 변수, Workspace Boundary 규칙은 약화하지 마.
-```
-
-기능별로 더 내려갈 때는 이렇게 요청합니다.
-
-```md
-frontend/src/features/auth/AGENTS.md를 생성해줘.
-Frontend React + Tailwind 템플릿을 기반으로 auth 프론트엔드 규칙만 작성해줘.
-```
-
-```md
-backend/src/modules/auth/AGENTS.md를 생성해줘.
-Backend Django 템플릿을 기반으로 auth 백엔드 규칙만 작성해줘.
-```
+- General folder: [docs/agents/templates/folder-level.md](./docs/agents/templates/folder-level.md)
+- Frontend React + Tailwind folder: [docs/agents/templates/frontend-react-tailwind.md](./docs/agents/templates/frontend-react-tailwind.md)
+- Backend Django folder: [docs/agents/templates/backend-django.md](./docs/agents/templates/backend-django.md)
 
 ## File Synchronization Rule
 
@@ -596,35 +286,9 @@ Backend Django 템플릿을 기반으로 auth 백엔드 규칙만 작성해줘.
 
 ## Task Decomposition Rule
 
-`Task Decomposition Rule`은 작업을 얼마나 잘게 나눌지에 대한 기준입니다.
+Task 분해 기준과 Spec/Task 작성 형식 설명은 [docs/agents/ko/spec-task-format.md](./docs/agents/ko/spec-task-format.md)에 분리되어 있습니다.
 
-권장 구조는 다음과 같습니다.
-
-```md
-Spec
--> Feature Task
--> Subtask
--> Implementation Step
--> Review
--> Fix
--> Re-review
--> Approval
-```
-
-예를 들어 "로그인 기능"이라는 큰 기능이 있다면 한 번에 만들지 않고 다음처럼 나눌 수 있습니다.
-
-```md
-Feature Task: 로그인 기능
--> Subtask: 로그인 UI 작성
--> Subtask: 로그인 API 연결
--> Subtask: 세션 저장 처리
--> Subtask: 에러 메시지 처리
--> Subtask: 로그인 상태 테스트
-```
-
-각 Subtask는 독립적으로 설명, 구현, 리뷰할 수 있어야 합니다.
-
-Subtask가 몇 문장으로 설명하기 어렵다면 아직 너무 큰 작업일 가능성이 높습니다.
+에이전트가 실제로 따라야 하는 영어 기준 원문은 [docs/agents/spec-task-format.md](./docs/agents/spec-task-format.md)를 사용합니다.
 
 ## Task Completion & Handover Rule
 
@@ -671,159 +335,31 @@ Subtask는 문서에 적힌 순서대로 진행합니다.
 
 ## Spec Format
 
-`Spec Format`은 Spec 문서에 들어가야 하는 권장 섹션입니다.
-
-각 항목의 의미는 다음과 같습니다.
-
-- Summary: 무엇을 왜 만드는지 설명합니다.
-- Goals: 반드시 달성해야 하는 목표를 적습니다.
-- Non-Goals: 이번 작업에서 하지 않을 것을 명확히 적습니다.
-- User Flow: 사용자나 시스템이 어떤 순서로 움직이는지 설명합니다.
-- Requirements: 기능 요구사항을 적습니다.
-- Acceptance Criteria: 완료로 인정할 기준을 적습니다.
-- Constraints: 기술, 제품, 보안, 작업 공간 제한을 적습니다.
-- Risks: 알려진 위험과 가정을 적습니다.
-- Task Breakdown: 기능별 Task와 Subtask를 적습니다.
-- Verification: 테스트, 점검, 수동 확인 방법을 적습니다.
-
-Spec은 구현자를 위한 문서이기도 하지만, 사용자가 현재 범위를 이해하기 위한 문서이기도 합니다.
+Spec 작성 형식은 [docs/agents/ko/spec-task-format.md](./docs/agents/ko/spec-task-format.md)에 분리되어 있습니다.
 
 ## Task Format
 
-`Task Format`은 각 Task와 Subtask를 작성할 때 사용할 형식입니다.
-
-각 필드의 의미는 다음과 같습니다.
-
-- Purpose: 이 작업이 왜 필요한지 설명합니다.
-- Scope: 어디까지 수정하고 어디부터는 제외하는지 설명합니다.
-- Dependencies: 먼저 완료되어야 하는 작업을 적습니다.
-- Acceptance Criteria: 완료로 판단할 수 있는 구체적 기준을 적습니다.
-- Verification: 어떤 테스트나 확인을 실행해야 하는지 적습니다.
-
-이 형식을 사용하면 작업이 막연해지는 것을 줄일 수 있습니다.
+Task와 Subtask 작성 형식은 [docs/agents/ko/spec-task-format.md](./docs/agents/ko/spec-task-format.md)에 분리되어 있습니다.
 
 ## Review Input Requirements
 
-리뷰 전에 `Implementation Agent`는 `Review Agent`에게 충분한 정보를 제공해야 합니다.
+리뷰 입력 요구사항은 [docs/agents/ko/review-format.md](./docs/agents/ko/review-format.md)에 분리되어 있습니다.
 
-필요한 정보는 다음과 같습니다.
-
-- 승인된 Spec
-- 현재 Task 또는 Subtask 설명
-- 성공 기준
-- 변경된 파일 목록
-- 구현 판단 요약
-- 실행한 테스트나 확인
-- 알려진 한계나 가정
-- 보안, 데이터, 인증, 권한, 파일, dependency, 외부 API 영향 여부
-
-리뷰어가 코드를 처음부터 추측하지 않도록, 구현자가 맥락을 먼저 제공하는 것이 목적입니다.
+에이전트가 실제로 따라야 하는 영어 기준 원문은 [docs/agents/review-format.md](./docs/agents/review-format.md)를 사용합니다.
 
 ## Review Output Format
 
-리뷰 결과는 구조를 고정합니다.
-
-필드명과 카테고리는 영어로 작성합니다.
-콜론 뒤 설명은 한국어로 자세히 작성합니다.
-
-예시는 다음과 같습니다.
-
-```md
-- Severity: Major
-- Area: Access Control
-- Evidence: `src/api/projects/[id]/route.ts`에서 요청 사용자가 해당 프로젝트의 멤버인지 확인하지 않고 데이터를 반환하고 있습니다.
-- Risk: 로그인한 사용자가 프로젝트 ID만 바꿔 다른 사용자의 프로젝트 정보를 조회할 수 있습니다.
-- Required Fix: 프로젝트 조회 전에 현재 사용자 ID와 프로젝트 멤버십을 서버에서 검증해야 합니다.
-- Retest: 권한이 없는 프로젝트 ID로 요청했을 때 403이 반환되고, 정상 멤버 요청은 성공하는지 확인합니다.
-```
-
-이 방식은 사람이 읽기 쉽고, 나중에 자동화나 검색에도 유리합니다.
-
-리뷰 영역에는 `User Intent Alignment`를 포함할 수 있습니다. 이 값은 구현 결과가 사용자의 원래 요청 목적과 성공 기준에 맞는지 확인할 때 사용합니다.
+리뷰 결과 형식은 [docs/agents/ko/review-format.md](./docs/agents/ko/review-format.md)에 분리되어 있습니다.
 
 ## Severity 기준
 
-`Severity`는 리뷰 이슈의 심각도를 나타냅니다.
-
-- Blocker: 반드시 수정해야 하며, 수정 전에는 완료할 수 없습니다.
-- Major: 수정하는 것이 원칙이며, 미수정 시 명확한 이유가 필요합니다.
-- Minor: 완료를 막지는 않지만 개선하는 것이 좋습니다.
-- Approved: 차단 이슈가 없어 다음 단계로 넘어갈 수 있습니다.
-
-보안 문제, 데이터 노출, 권한 우회, workspace 밖 접근은 보통 `Blocker`로 봐야 합니다.
+Severity 기준은 [docs/agents/ko/review-format.md](./docs/agents/ko/review-format.md)에 분리되어 있습니다.
 
 ## Security Review Checklist
 
-보안 리뷰는 모든 작업에 같은 강도로 적용할 필요는 없습니다.
+보안 리뷰 체크리스트 설명은 [docs/agents/ko/security-review-checklist.md](./docs/agents/ko/security-review-checklist.md)에 분리되어 있습니다.
 
-하지만 다음 영역을 건드리는 작업이면 반드시 세부 보안 점검을 해야 합니다.
-
-- 인증
-- 권한
-- 사용자 입력
-- 파일 처리
-- 외부 API
-- dependency
-- 설정
-- 데이터 저장
-- 로그
-- workspace 작업
-
-주요 점검 영역은 다음과 같습니다.
-
-### Secrets / Credentials
-
-API key, token, password, private key 같은 값이 코드, 로그, 설정, 테스트 데이터에 들어가지 않았는지 확인합니다.
-
-또한 `.env` 관련 파일이 `.gitignore`에서 누락되어 커밋 대상에 포함될 위험이 없는지 확인합니다. 실제 secret은 Git에 올리지 않고, 공유가 필요한 경우 `.env.example`에 더미 값으로 구조만 남깁니다.
-
-### Authentication
-
-로그인, 세션, 토큰 검증이 누락되지 않았는지 확인합니다.
-
-### Authorization / Access Control
-
-로그인 여부와 리소스 접근 권한을 구분해서 확인합니다. 가장 중요한 보안 점검 영역입니다.
-
-### Input Validation
-
-사용자 입력, URL parameter, request body, header, 파일명, 외부 API 응답을 검증하는지 확인합니다.
-
-### Injection
-
-SQL, shell command, dynamic code execution, template 생성 등에 외부 입력이 안전하지 않게 들어가지 않는지 확인합니다.
-
-### XSS / Client-Side Safety
-
-사용자 입력을 HTML, markdown, iframe, URL 등으로 렌더링할 때 안전한지 확인합니다.
-
-### Session / Cookie / CSRF / CORS
-
-쿠키 보안 설정, CSRF 방어, CORS 범위, 세션 만료 정책이 약해지지 않았는지 확인합니다.
-
-### Sensitive Data Exposure
-
-개인정보, 토큰, 내부 ID, stack trace, DB 정보, 내부 경로가 응답이나 로그에 노출되지 않는지 확인합니다.
-
-### File Handling
-
-파일 업로드, 다운로드, 경로 조합에서 path traversal, 권한 누락, public 노출 위험이 없는지 확인합니다.
-
-### External API / Network
-
-외부 URL 호출, webhook, timeout, retry, rate limit, SSRF 위험을 확인합니다.
-
-### Dependency / Supply Chain
-
-새 dependency가 꼭 필요한지, 신뢰 가능한지, lockfile 변경이 의도된 것인지 확인합니다.
-
-### Abuse / Rate Limit
-
-로그인, 회원가입, 업로드, 검색, AI 호출 등 남용 가능성이 있는 기능에 제한이 필요한지 확인합니다.
-
-### Workspace Safety
-
-현재 프로젝트 밖 파일을 읽거나 쓰지 않는지, `../` 또는 absolute path로 workspace boundary를 우회하지 않는지 확인합니다.
+에이전트가 실제로 따라야 하는 영어 기준 원문은 [docs/agents/security-review-checklist.md](./docs/agents/security-review-checklist.md)를 사용합니다.
 
 ## Completion Rules
 
