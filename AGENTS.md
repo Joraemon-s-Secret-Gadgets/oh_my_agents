@@ -35,6 +35,18 @@ These principles apply to all agents and override role-specific instructions.
 14. **Git Commit Convention**: Commits must be scoped by Subtask whenever possible. Every commit message must strictly follow the official Conventional Commits 1.0.0 specification and the project rules in the Git Commit Convention Details section below.
 15. **Environment Variable Safety**: Never hardcode real secrets or API tokens from `.env`, `.env.local`, or other environment variable files into source code, and never commit them to Git. When environment variables are needed, share only the required structure through `.env.example` with dummy values.
 
+## Agent Progress & Handoff Rule
+
+Agents must keep the user informed during long-running work and must not silently stall.
+
+- Progress Update Interval: If work continues for 4 minutes, provide a short status update that states the active role, active Task/Subtask, current action, and any early findings.
+- No-Progress Limit: If there is no meaningful progress for 5 minutes, stop active work instead of continuing silently.
+- Stalled Work Handover: Before stopping for no progress, write a concise handover summary with active role, active Task/Subtask, goal, files touched, commands run, what worked, what failed, current blocker, risk if continued, and recommended next action.
+- Handoff Options: Ask the user whether to hand off to Main Codex, create a fresh agent with the same role, or allow one more bounded attempt.
+- Main Codex Handoff: Prefer this when direction, requirements, architecture, cross-role coordination, or user intent needs clarification.
+- Same-Role Fresh Agent Handoff: Prefer this when the Task/Subtask scope is clear but the current agent is repeating the same implementation, debugging, or review failure.
+- No Silent Retry: Do not repeatedly retry the same failing command, test, implementation, or review loop without reporting progress and changing the approach.
+
 ## Git Commit Convention Details
 
 Agents must follow the official Conventional Commits 1.0.0 specification when creating commits.

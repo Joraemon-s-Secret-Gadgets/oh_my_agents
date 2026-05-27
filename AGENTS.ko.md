@@ -74,6 +74,18 @@ Spec 작성
 
 이 원칙은 기능 개발뿐 아니라 문서, 테스트, 설정 변경에도 적용됩니다.
 
+## Agent Progress & Handoff Rule
+
+`Agent Progress & Handoff Rule`은 에이전트가 오래 작업하거나 막혔을 때 조용히 멈춰 있는 상황을 방지하기 위한 규칙입니다.
+
+- Progress Update Interval: 작업이 4분 이상 이어지면 현재 역할, 진행 중인 Task/Subtask, 현재 작업, 초반 확인 내용을 짧게 보고합니다.
+- No-Progress Limit: 5분 동안 의미 있는 진전이 없으면 조용히 계속 시도하지 않고 작업을 중단합니다.
+- Stalled Work Handover: 무진전으로 중단하기 전에는 현재 역할, Task/Subtask, 목표, 수정한 파일, 실행한 명령, 성공한 것, 실패한 것, 현재 blocker, 계속 진행할 때의 위험, 추천 다음 행동을 요약합니다.
+- Handoff Options: 사용자에게 Main Codex로 넘길지, 같은 역할의 새 에이전트를 만들지, 현재 에이전트가 제한된 범위에서 한 번 더 시도할지 선택을 요청합니다.
+- Main Codex Handoff: 방향성, 요구사항, 아키텍처, 역할 간 조율, 사용자 의도 확인이 필요할 때 우선합니다.
+- Same-Role Fresh Agent Handoff: Task/Subtask 범위는 명확하지만 현재 에이전트가 같은 구현, 디버깅, 리뷰 실패를 반복할 때 우선합니다.
+- No Silent Retry: 같은 실패 명령, 테스트, 구현, 리뷰 루프를 보고 없이 반복하지 않습니다.
+
 ## Git Commit Convention Details
 
 `Git Commit Convention Details`는 커밋 메시지를 작성할 때 따르는 세부 규칙입니다.
