@@ -2,6 +2,8 @@
 
 `Task Decomposition Rule`은 작업을 얼마나 잘게 나눌지에 대한 기준입니다.
 
+Context loading, Spec Summary, Subtask context packet 규칙은 [context-loading.md](./context-loading.md)도 함께 따릅니다.
+
 권장 구조는 다음과 같습니다.
 
 ```md
@@ -62,3 +64,5 @@ Spec은 구현자를 위한 문서이기도 하지만, 사용자가 현재 범�
 - Verification: 어떤 테스트나 확인을 실행해야 하는지 적습니다.
 
 이 형식을 사용하면 작업이 막연해지는 것을 줄일 수 있습니다.
+
+구현용 Subtask에는 [context-loading.md](./context-loading.md)에 정의된 `Required Context`, `Source of Truth`, `Required Sections`, `Must Read Before Implementation`, `Target Files`, `Out of Scope`도 함께 포함하는 것이 좋습니다.

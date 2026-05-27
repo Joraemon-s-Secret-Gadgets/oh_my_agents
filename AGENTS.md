@@ -4,6 +4,8 @@ This file defines how agents must plan, implement, review, and secure work in th
 
 For a Korean teammate-facing explanation of this file, see [AGENTS.ko.md](./AGENTS.ko.md).
 
+Agents must not load `AGENTS.ko.md` by default. Load it only when the user asks for Korean explanation, when editing or synchronizing Korean documentation, or when explicitly checking file synchronization.
+
 ## Instruction Priority
 
 Agents must follow instructions in this order:
@@ -46,6 +48,17 @@ Agents must keep the user informed during long-running work and must not silentl
 - Main Codex Handoff: Prefer this when direction, requirements, architecture, cross-role coordination, or user intent needs clarification.
 - Same-Role Fresh Agent Handoff: Prefer this when the Task/Subtask scope is clear but the current agent is repeating the same implementation, debugging, or review failure.
 - No Silent Retry: Do not repeatedly retry the same failing command, test, implementation, or review loop without reporting progress and changing the approach.
+
+## Context Loading & Token Budget Rule
+
+Load only the rules, specs, and source files required for the current role and Task/Subtask.
+
+- Do not load all `docs/agents` files at startup.
+- Use targeted search and section reads before opening long files.
+- Treat Spec Summary documents as routing indexes, not as the source of truth.
+- The Full Spec remains authoritative for requirements, acceptance criteria, API contracts, data models, security rules, and user-visible behavior.
+- Implementation Agent must first read the current Subtask instruction and must not read the entire Full Spec by default.
+- For detailed context-loading, Spec Summary, and Subtask context-packet rules, load `docs/agents/context-loading.md`.
 
 ## Git Commit Convention Details
 
@@ -254,6 +267,7 @@ Review Agent responsibilities in this workflow:
 ## Task Decomposition Rule
 
 When decomposing feature work or writing Specs, Tasks, or Subtasks, load `docs/agents/spec-task-format.md`.
+When preparing Subtasks for implementation, also follow the context-packet rules in `docs/agents/context-loading.md`.
 
 ## Task Completion & Handover Rule
 

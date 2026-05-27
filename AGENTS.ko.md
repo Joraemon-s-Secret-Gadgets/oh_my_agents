@@ -19,6 +19,8 @@
 - 팀원용 해설: `AGENTS.ko.md`
 - 리뷰 결과: 필드명은 영어, 콜론 뒤 설명은 한국어
 
+에이전트는 `AGENTS.ko.md`를 기본으로 읽을 필요가 없습니다. 한국어 설명을 요청받았거나, 한국어 문서를 수정하거나, `AGENTS.md`와 `AGENTS.ko.md`의 동기화를 확인할 때만 읽습니다.
+
 ## 전체 방향
 
 이 프로젝트의 에이전트 운영 방식은 "바로 구현"이 아니라 "명확히 쪼개고, 하나씩 구현하고, 매번 리뷰하는 흐름"을 기준으로 합니다.
@@ -85,6 +87,23 @@ Spec 작성
 - Main Codex Handoff: 방향성, 요구사항, 아키텍처, 역할 간 조율, 사용자 의도 확인이 필요할 때 우선합니다.
 - Same-Role Fresh Agent Handoff: Task/Subtask 범위는 명확하지만 현재 에이전트가 같은 구현, 디버깅, 리뷰 실패를 반복할 때 우선합니다.
 - No Silent Retry: 같은 실패 명령, 테스트, 구현, 리뷰 루프를 보고 없이 반복하지 않습니다.
+
+## Context Loading & Token Budget Rule
+
+`Context Loading & Token Budget Rule`은 에이전트가 현재 역할과 Task/Subtask에 필요한 문서만 읽도록 해서 토큰 비용을 줄이기 위한 규칙입니다.
+
+핵심은 다음과 같습니다.
+
+- 시작할 때 `docs/agents` 전체를 읽지 않습니다.
+- 긴 파일은 먼저 검색하거나 필요한 섹션만 읽습니다.
+- `AGENTS.ko.md`는 팀원용 설명서이므로 기본 로딩 대상이 아닙니다.
+- Spec Summary는 원본이 아니라 색인으로만 사용합니다.
+- Full Spec이 요구사항, acceptance criteria, API contract, data model, 보안 규칙, 사용자에게 보이는 동작의 기준입니다.
+- `Implementation Agent`는 현재 Subtask 지시서를 먼저 읽고, Full Spec 전체를 기본으로 읽지 않습니다.
+
+자세한 기준은 [docs/agents/ko/context-loading.md](./docs/agents/ko/context-loading.md)에 분리되어 있습니다.
+
+에이전트가 실제로 따라야 하는 영어 기준 원문은 [docs/agents/context-loading.md](./docs/agents/context-loading.md)를 사용합니다.
 
 ## Git Commit Convention Details
 
@@ -289,6 +308,8 @@ Spec 작성
 Task 분해 기준과 Spec/Task 작성 형식 설명은 [docs/agents/ko/spec-task-format.md](./docs/agents/ko/spec-task-format.md)에 분리되어 있습니다.
 
 에이전트가 실제로 따라야 하는 영어 기준 원문은 [docs/agents/spec-task-format.md](./docs/agents/spec-task-format.md)를 사용합니다.
+
+Subtask를 구현용 문맥 packet으로 작성하는 방식과 Spec Summary를 색인으로만 사용하는 방식은 [docs/agents/ko/context-loading.md](./docs/agents/ko/context-loading.md)에 분리되어 있습니다.
 
 ## Task Completion & Handover Rule
 

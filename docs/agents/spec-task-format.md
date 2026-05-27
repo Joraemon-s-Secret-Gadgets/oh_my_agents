@@ -2,6 +2,8 @@
 
 Feature work should be decomposed so the user can follow progress without needing to understand a large implementation all at once.
 
+For context-loading, Spec Summary, and Subtask context-packet rules, also follow `docs/agents/context-loading.md`.
+
 Use this hierarchy:
 
 ```md
@@ -54,3 +56,5 @@ Tasks and Subtasks should use this format:
 - Acceptance Criteria: 완료로 판단할 수 있는 기준을 한글로 구체적으로 적습니다.
 - Verification: 실행할 테스트, 빌드, 린트, 수동 확인 방법을 적습니다.
 ```
+
+For implementation-ready Subtasks, include `Required Context`, `Source of Truth`, `Required Sections`, `Must Read Before Implementation`, `Target Files`, and `Out of Scope` as defined in `docs/agents/context-loading.md`.
