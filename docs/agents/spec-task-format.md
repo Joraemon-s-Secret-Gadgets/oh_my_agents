@@ -53,8 +53,9 @@ Tasks and Subtasks should use this format:
 - Purpose: 이 작업이 필요한 이유를 한글로 설명합니다.
 - Scope: 이 작업에서 수정할 범위와 제외할 범위를 한글로 설명합니다.
 - Dependencies: 먼저 완료되어야 하는 작업을 적습니다.
+- Context Budget: 반드시 읽을 문서, 읽지 말아야 할 문서, 조건부로 읽을 문서를 적습니다.
 - Acceptance Criteria: 완료로 판단할 수 있는 기준을 한글로 구체적으로 적습니다.
 - Verification: 실행할 테스트, 빌드, 린트, 수동 확인 방법을 적습니다.
 ```
 
-For implementation-ready Subtasks, include `Required Context`, `Source of Truth`, `Required Sections`, `Must Read Before Implementation`, `Target Files`, and `Out of Scope` as defined in `docs/agents/context-loading.md`.
+For implementation-ready Subtasks, include `Required Context`, `Context Budget`, `Source of Truth`, `Required Sections`, `Must Read Before Implementation`, `Target Files`, and `Out of Scope` as defined in `docs/agents/context-loading.md`.

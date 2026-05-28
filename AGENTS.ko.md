@@ -95,6 +95,7 @@ Spec 작성
 핵심은 다음과 같습니다.
 
 - 시작할 때 `docs/agents` 전체를 읽지 않습니다.
+- 현재 작업이 프롬프트 템플릿을 명시적으로 요청하지 않으면 `docs/prompts` 파일을 읽지 않습니다.
 - 긴 파일은 먼저 검색하거나 필요한 섹션만 읽습니다.
 - `AGENTS.ko.md`는 팀원용 설명서이므로 기본 로딩 대상이 아닙니다.
 - Spec Summary는 원본이 아니라 색인으로만 사용합니다.
@@ -145,6 +146,8 @@ Spec 작성
 - General folder: [docs/agents/templates/folder-level.md](./docs/agents/templates/folder-level.md)
 - Frontend React + Tailwind folder: [docs/agents/templates/frontend-react-tailwind.md](./docs/agents/templates/frontend-react-tailwind.md)
 - Backend Django folder: [docs/agents/templates/backend-django.md](./docs/agents/templates/backend-django.md)
+
+사용자가 에이전트 생성, 역할 활성화, 또는 하위 폴더 `AGENTS.md` 생성을 요청하면 [docs/agents/ko/agent-creation-guidelines.md](./docs/agents/ko/agent-creation-guidelines.md)를 참고해 생성, 이름, 도메인, focus 기준을 확인합니다. 실제 에이전트가 따르는 영어 기준 문서는 [docs/agents/agent-creation-guidelines.md](./docs/agents/agent-creation-guidelines.md)입니다.
 
 ## File Synchronization Rule
 

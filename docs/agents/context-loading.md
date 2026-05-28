@@ -7,6 +7,7 @@ Default loading rules:
 - Load this root `AGENTS.md` and the nearest relevant folder-level `AGENTS.md`.
 - Do not load `AGENTS.ko.md` unless the user asks for Korean explanation, the task edits Korean documentation, or the task checks synchronization between `AGENTS.md` and `AGENTS.ko.md`. This restriction does not override the File Synchronization Rule when agent documentation is being edited.
 - Do not load all files in `docs/agents` at startup.
+- Do not load `docs/prompts` files unless the current task explicitly asks for a prompt template.
 - Use `rg` or targeted section reads before opening long files.
 - Prefer referenced sections, short task packets, and current changed files over full-document reads.
 
@@ -87,6 +88,7 @@ Each Subtask should include:
 
 - Purpose.
 - Required Context.
+- Context Budget.
 - Source of Truth.
 - Required Sections.
 - Must Read Before Implementation.
@@ -103,6 +105,10 @@ Recommended Subtask format:
 - Purpose: 이 작업이 필요한 이유를 한글로 설명합니다.
 - Required Context:
   - 이 Subtask 구현에 반드시 필요한 Spec 맥락만 적습니다.
+- Context Budget:
+  - Must read:
+  - Do not read:
+  - Optional read:
 - Source of Truth:
   - Full Spec: `docs/specs/[FEATURE]_SPEC.md`
 - Required Sections:

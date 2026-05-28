@@ -7,6 +7,7 @@
 - 루트 `AGENTS.md`와 현재 작업 파일에 가장 가까운 관련 하위 `AGENTS.md`만 읽습니다.
 - `AGENTS.ko.md`는 기본으로 읽지 않습니다. 사용자가 한국어 설명을 요청하거나, 한국어 문서를 수정하거나, `AGENTS.md`와 `AGENTS.ko.md`의 동기화를 확인하는 작업일 때만 읽습니다. 단, 에이전트 문서를 수정하는 작업에서는 이 제한이 `File Synchronization Rule`보다 우선하지 않습니다.
 - 시작할 때 `docs/agents` 전체를 한 번에 읽지 않습니다.
+- 현재 작업이 프롬프트 템플릿을 명시적으로 요청하지 않으면 `docs/prompts` 파일을 읽지 않습니다.
 - 긴 파일을 열기 전에 `rg` 또는 섹션 단위 읽기로 필요한 부분을 먼저 찾습니다.
 - 전체 문서를 통째로 읽기보다 참조된 섹션, 짧은 Subtask packet, 현재 변경 파일을 우선합니다.
 
@@ -87,6 +88,7 @@ This summary is not authoritative. Use it only to find relevant Full Spec sectio
 
 - Purpose
 - Required Context
+- Context Budget
 - Source of Truth
 - Required Sections
 - Must Read Before Implementation
@@ -103,6 +105,10 @@ This summary is not authoritative. Use it only to find relevant Full Spec sectio
 - Purpose: 이 작업이 필요한 이유를 한글로 설명합니다.
 - Required Context:
   - 이 Subtask 구현에 반드시 필요한 Spec 맥락만 적습니다.
+- Context Budget:
+  - Must read:
+  - Do not read:
+  - Optional read:
 - Source of Truth:
   - Full Spec: `docs/specs/[FEATURE]_SPEC.md`
 - Required Sections:

@@ -54,6 +54,7 @@ Agents must keep the user informed during long-running work and must not silentl
 Load only the rules, specs, and source files required for the current role and Task/Subtask.
 
 - Do not load all `docs/agents` files at startup.
+- Do not load `docs/prompts` files unless the current task explicitly asks for a prompt template.
 - Use targeted search and section reads before opening long files.
 - Treat Spec Summary documents as routing indexes, not as the source of truth.
 - The Full Spec remains authoritative for requirements, acceptance criteria, API contracts, data models, security rules, and user-visible behavior.
@@ -119,6 +120,8 @@ When creating folder-level `AGENTS.md` files, load the matching template:
 - General folder: `docs/agents/templates/folder-level.md`
 - Frontend React + Tailwind folder: `docs/agents/templates/frontend-react-tailwind.md`
 - Backend Django folder: `docs/agents/templates/backend-django.md`
+
+When the user asks to create an agent, activate a role, or create a folder-level `AGENTS.md`, load `docs/agents/agent-creation-guidelines.md` and follow its creation, naming, domain, and focus criteria before acting.
 
 ## File Synchronization Rule
 
