@@ -105,6 +105,33 @@ Rules:
 - Description must not start with an uppercase letter and must not end with a period.
 - Breaking changes must be marked with `!`, such as `feat!:` or `feat(api)!:`, or with a `BREAKING CHANGE:` footer.
 
+Commit operation guidelines:
+
+- There is no dedicated Git Agent in this project.
+- Main Codex owns Git operations that affect repository history or remote state, including staging, commit, pull, push, branch switching, merge, rebase, and pull request creation.
+- Role subagents may report changed files, suggest commit messages, or review commit readiness, but they must not run history-changing or remote-changing Git commands unless the user explicitly authorizes it and Main Codex delegates it.
+- Implementation Agent must not commit or push its own changes.
+- Review Agent must not commit or push reviewed changes.
+- Commit only after the current Task/Subtask is implemented, locally verified, and ready to hand off or archive.
+- Before staging, run `git status --short` and review every changed, staged, untracked, and deleted file.
+- Run `git diff --check` or equivalent validation when available.
+- Verify that `.env`, `.env.local`, credential files, local databases, generated secrets, and personal machine files are not staged.
+- Prefer explicit path staging such as `git add path/to/file`.
+- Do not use broad staging such as `git add .` unless every changed file has been reviewed and is intended.
+- Do not stage unrelated user changes.
+- Do not stage generated artifacts unless intentionally part of the Task.
+- If verification could not run, mention the reason in the commit body or handoff report.
+- If the Task is blocked, prefer a handoff note or run log over a WIP commit unless the user explicitly asks for a WIP commit.
+- Before pushing, confirm clean status or only intentionally uncommitted unrelated user changes, and confirm target branch and remote.
+
+Do not commit when:
+
+- Real secrets or environment files are staged.
+- Unrelated files are included.
+- Tests or checks are failing and unexplained.
+- Implementation scope is ambiguous.
+- The user explicitly asked not to commit.
+
 Examples:
 
 ```md
@@ -245,6 +272,20 @@ Missing input handling:
 4. Ask at most three questions at once.
 5. Do not ask for optional fields unless they materially affect safety, scope, or output quality.
 
+## Role Permission Matrix
+
+Use this permission matrix unless the user explicitly grants a narrower or broader authority for a specific run.
+
+| Role | May Do | Must Not Do |
+| --- | --- | --- |
+| Main Codex | Interpret user intent, create subagents, assign scope, integrate results, request clarification, run final Git operations when requested | Hide ambiguity, bypass root rules, let subagents mutate overlapping scopes without coordination |
+| Spec Agent | Write or update Specs, requirements, designs, acceptance criteria, risks, and planning context | Modify implementation code, run Git history or remote operations, continue into Task breakdown without approval |
+| Task Agent | Split approved Specs into Tasks/Subtasks, define order, scope, acceptance criteria, verification, and handoff packets | Modify implementation code, run Git history or remote operations, create vague or over-broad Subtasks |
+| Implementation Agent | Modify files only inside the approved write scope, run scoped verification, report changed files and blockers | Modify out-of-scope files, commit/push/pull, move to the next Subtask without review and confirmation |
+| Review Agent | Review changed files, report findings, verify readiness, suggest fixes or commit messages | Modify implementation files by default, commit/push/pull, approve work with unresolved Blocker findings |
+
+Review Agent is read-only by default. If the user wants a Review Agent to edit review documentation, that write scope must be explicitly stated.
+
 ## Agent Invocation Contract
 
 Every tool-backed subagent run should be described with this contract before spawning whenever the information is available:
@@ -271,6 +312,35 @@ Rules:
 - Do not create a Crawl-focused agent without approved URLs and columns.
 - State inferred contract values before spawning the subagent.
 - If safety-critical fields are missing, ask up to three questions instead of spawning.
+
+## Subagent Output Contract
+
+Every subagent final report must be concise and include enough information for Main Codex to integrate or hand off the result.
+
+Common output fields:
+
+```md
+- Agent Name:
+- Task/Subtask:
+- Scope:
+- Changed Files:
+- Commands Run:
+- Verification Result:
+- Blockers:
+- Assumptions:
+- Next Recommended Action:
+```
+
+Role-specific output requirements:
+
+- Spec Agent: include Spec path or draft content, unresolved questions, assumptions, and approval needs.
+- Task Agent: include Task/Subtask list, execution order, dependencies, acceptance criteria, and verification commands.
+- Implementation Agent: include changed files, implementation summary, verification results, blockers, and known limitations.
+- Review Agent: use the required Review Output Format with Severity, Area, Evidence, Risk, Required Fix, and Retest.
+- Security Review Agent: use the required Security Review Output Format when security-sensitive areas are involved.
+- Crawl-focused agents: include input URLs, approved columns, output path, row count or sample result, failures, `source_url`, `retrieved_at`, and `failure_reason` handling.
+
+If a subagent cannot complete its task, it must return a blocker summary instead of continuing silently.
 
 ## Parallel Subagent Safety
 
@@ -310,6 +380,16 @@ Each run log should include:
 - Follow-up or handoff notes.
 
 Use `docs/reports/agent-runs/RUN_TEMPLATE.md` when available.
+
+Run log is required when:
+
+- Two or more subagents are used for the same user request.
+- Any subagents run in parallel.
+- Security Review Agent is used.
+- Crawl Focus is used.
+- Fix & Re-review repeats two or more times.
+- Work spans multiple sessions or needs handoff.
+- The user explicitly asks for traceability.
 
 ## End-to-End Workflow
 
