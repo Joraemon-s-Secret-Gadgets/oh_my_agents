@@ -36,6 +36,7 @@ Stop Conditions:
 - Stop and report after three consecutive test failures.
 - Stop and report if the task conflicts with AGENTS.md.
 - Stop and report before touching files outside allowed scope.
+- Stop and report if another subagent's write scope overlaps this task.
 
 Final Report:
 - Summary

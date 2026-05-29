@@ -149,6 +149,82 @@ Role-specific minimum inputs:
 - Implementation Agent: Task or Subtask ID, Source of Truth, allowed write scope, acceptance criteria, verification command or permission to infer one from project scripts.
 - Review Agent: Review target such as changed files, branch, PR, or diff; Source of Truth; review focus such as correctness, security, UX, performance, or all.
 
+## Agent Invocation Contract
+
+Every tool-backed subagent run should be described with this contract before spawning whenever the information is available:
+
+```md
+- Display Name:
+- Core Role:
+- Domain Focus:
+- Work Focus:
+- Goal:
+- Source of Truth:
+- Scope:
+- Out of Scope:
+- Required Context:
+- Output Format:
+- Verification:
+- Stop Condition:
+```
+
+Rules:
+
+- Do not create an Implementation Agent without a bounded write scope.
+- Do not create a Review Agent without a review target.
+- Do not create a Crawl-focused agent without approved URLs and columns.
+- State any inferred contract values before spawning the subagent.
+- If the contract is missing safety-critical fields, ask the user up to three questions instead of spawning.
+
+## Parallel Subagent Safety
+
+Parallel subagents are allowed only when their responsibilities are independent.
+
+Rules:
+
+- Implementation Agents must have explicit write scopes.
+- Parallel Implementation Agents must not share overlapping write scopes.
+- Review Agents are read-only by default unless the user explicitly asks them to edit review documentation.
+- If two subagents need to touch the same files, run them sequentially.
+- Main Codex must integrate or reconcile subagent results before reporting completion.
+- Do not let multiple subagents repeatedly fix the same failing area without a handoff summary and user-visible escalation.
+
+## Agent Run Log
+
+For substantial or multi-agent work, Main Codex should create or update an agent run log under `docs/reports/agent-runs/`.
+
+Suggested filename:
+
+```md
+docs/reports/agent-runs/RUN_[YYYYMMDD]_[short-task-name].md
+```
+
+Each run log should include:
+
+- Run ID.
+- Timestamp.
+- Agent Name.
+- Core Role / Domain Focus / Work Focus.
+- Source of Truth.
+- Scope and Out of Scope.
+- Commands run.
+- Changed files.
+- Result.
+- Blockers.
+- Follow-up or handoff notes.
+
+Use `docs/reports/agent-runs/RUN_TEMPLATE.md` when available.
+
+## Review Gate Policy
+
+After implementation, use review gates appropriate to risk:
+
+- Code Review Agent: Use for non-trivial code changes.
+- QA Review Agent: Use for user-visible flows, acceptance criteria, UI/API behavior, data output, or regression-sensitive changes.
+- Security Review Agent: Use when the Task touches authentication, authorization, user input, file access, external APIs, dependencies, configuration, data storage, logging, crawl behavior, or workspace operations.
+
+All review gates do not have to run for every tiny documentation change. Main Codex should choose the smallest review set that still protects correctness, security, and user intent.
+
 ## Missing Input Handling
 
 If required input is missing, Main Codex must not create a vague or over-scoped subagent.

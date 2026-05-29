@@ -1,6 +1,8 @@
 ---
 name: oh-my-agents
 description: Use when the user asks to create, launch, spawn, delegate to, or coordinate project role subagents such as Spec Agent, Task Agent, Implementation Agent, Review Agent, Frontend QA Review Agent, Backend Security Review Agent, or Crawl Implementation Agent according to a project's AGENTS.md.
+metadata:
+  version: "0.2.0"
 ---
 
 # Oh My Agents
@@ -8,6 +10,8 @@ description: Use when the user asks to create, launch, spawn, delegate to, or co
 Use this skill as a lightweight router for project-defined role subagents.
 
 The root `AGENTS.md` is the source of truth. This skill must never bypass, weaken, or replace project rules. It only helps interpret abstract user requests and coordinate tool-backed subagent creation.
+
+Version: 0.2.0
 
 ## Core Flow
 
@@ -23,6 +27,9 @@ When the user asks to create or run an agent:
    - Goal
    - Source of Truth
    - Scope
+   - Out of Scope
+   - Verification
+   - Stop Condition
 4. If required inputs are missing, ask at most three questions.
 5. Load only the docs required for the parsed role and focus.
 6. If a supported subagent harness is available, create a tool-backed subagent.
@@ -62,6 +69,16 @@ Typical missing inputs:
 - Crawl Focus: URLs, columns, output path, output format.
 
 For question templates, read `references/missing-input-questions.md` only when needed.
+
+## Invocation Safety
+
+- Do not create an Implementation Agent without a bounded write scope.
+- Do not create a Review Agent without a review target.
+- Do not create a Crawl-focused agent without approved URLs and columns.
+- State inferred values before spawning a subagent.
+- Parallel Implementation Agents must not have overlapping write scopes.
+- Review Agents are read-only by default unless the user explicitly asks them to edit review documentation.
+- Use an agent run log for substantial or multi-agent work when the project provides `docs/reports/agent-runs/RUN_TEMPLATE.md`.
 
 ## Context Loading
 

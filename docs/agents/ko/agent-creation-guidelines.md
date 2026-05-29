@@ -149,6 +149,82 @@ QA Review Agent는 다음을 확인해야 합니다.
 - Implementation Agent: Task 또는 Subtask ID, Source of Truth, 허용된 write scope, acceptance criteria, verification command 또는 프로젝트 script에서 추론해도 된다는 허용입니다.
 - Review Agent: changed files, branch, PR, diff 같은 리뷰 대상, Source of Truth, correctness, security, UX, performance, all 같은 review focus입니다.
 
+## Agent Invocation Contract
+
+tool-backed subagent를 생성하기 전에 가능한 경우 다음 계약을 명시해야 합니다.
+
+```md
+- Display Name:
+- Core Role:
+- Domain Focus:
+- Work Focus:
+- Goal:
+- Source of Truth:
+- Scope:
+- Out of Scope:
+- Required Context:
+- Output Format:
+- Verification:
+- Stop Condition:
+```
+
+규칙은 다음과 같습니다.
+
+- Implementation Agent는 제한된 write scope 없이 생성하지 않습니다.
+- Review Agent는 review target 없이 생성하지 않습니다.
+- Crawl focus agent는 승인된 URL과 컬럼 없이 생성하지 않습니다.
+- 추론한 계약 값이 있다면 subagent 생성 전에 사용자에게 밝힙니다.
+- 안전에 중요한 필드가 부족하면 생성하지 말고 최대 3개 질문으로 보충합니다.
+
+## Parallel Subagent Safety
+
+병렬 subagent는 책임 범위가 독립적일 때만 허용합니다.
+
+규칙은 다음과 같습니다.
+
+- Implementation Agent는 명시적인 write scope를 가져야 합니다.
+- 병렬 Implementation Agent의 write scope는 겹치면 안 됩니다.
+- Review Agent는 사용자가 리뷰 문서 수정을 명시하지 않는 한 기본적으로 read-only입니다.
+- 두 subagent가 같은 파일을 수정해야 하면 순차 실행합니다.
+- Main Codex는 완료 보고 전에 subagent 결과를 통합하거나 충돌을 정리해야 합니다.
+- 여러 subagent가 같은 실패 영역을 반복 수정하게 하지 말고, handoff summary와 사용자에게 보이는 escalation을 사용합니다.
+
+## Agent Run Log
+
+큰 작업이나 multi-agent 작업에서는 Main Codex가 `docs/reports/agent-runs/` 아래에 agent run log를 생성하거나 갱신하는 것이 좋습니다.
+
+권장 파일명은 다음과 같습니다.
+
+```md
+docs/reports/agent-runs/RUN_[YYYYMMDD]_[short-task-name].md
+```
+
+run log에는 다음을 포함합니다.
+
+- Run ID.
+- Timestamp.
+- Agent Name.
+- Core Role / Domain Focus / Work Focus.
+- Source of Truth.
+- Scope and Out of Scope.
+- Commands run.
+- Changed files.
+- Result.
+- Blockers.
+- Follow-up or handoff notes.
+
+가능하면 `docs/reports/agent-runs/RUN_TEMPLATE.md`를 사용합니다.
+
+## Review Gate Policy
+
+구현 후에는 위험도에 맞는 리뷰 게이트를 사용합니다.
+
+- Code Review Agent: 의미 있는 코드 변경에 사용합니다.
+- QA Review Agent: 사용자 흐름, acceptance criteria, UI/API 동작, 데이터 출력, 회귀 위험이 있는 변경에 사용합니다.
+- Security Review Agent: 인증, 권한, 사용자 입력, 파일 접근, 외부 API, dependency, configuration, data storage, logging, crawl behavior, workspace operation을 건드릴 때 사용합니다.
+
+모든 작은 문서 변경에 모든 리뷰 게이트를 강제하지는 않습니다. Main Codex는 정확성, 보안, 사용자 의도를 보호할 수 있는 가장 작은 리뷰 조합을 선택합니다.
+
 ## Missing Input Handling
 
 필수 입력값이 부족하면 Main Codex는 모호하거나 범위가 과도한 subagent를 생성하면 안 됩니다.

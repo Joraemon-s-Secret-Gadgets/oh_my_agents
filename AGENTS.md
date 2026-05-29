@@ -125,9 +125,11 @@ When the user asks to create an agent, activate a role, or create a folder-level
 
 ## File Synchronization Rule
 
-The root `AGENTS.md` file and the Korean explanation file `AGENTS.ko.md` must always describe the same current rules.
+The root `AGENTS.md`, Korean explanation file `AGENTS.ko.md`, Pro/MAX full-context file `MAX/AGENTS.md`, and shared `oh-my-agents` Skill must stay aligned for agent operation rules.
 
 When a rule in `AGENTS.md` is added, modified, or removed, the same change must be reflected in `AGENTS.ko.md` with a corresponding Korean explanation in the same update.
+
+When agent creation, naming, invocation, handoff, context-loading, or subagent orchestration rules change, also check whether `MAX/AGENTS.md` and `skills/oh-my-agents` need the same update.
 
 ## Agent Roles
 

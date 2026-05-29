@@ -1,4 +1,4 @@
 interface:
   display_name: "Oh My Agents"
-  short_description: "Create project subagents from AGENTS.md."
+  short_description: "Create scoped subagents from AGENTS.md."
   default_prompt: "Use $oh-my-agents to create the right project subagent from AGENTS.md, with minimal context and safe scope checks."
