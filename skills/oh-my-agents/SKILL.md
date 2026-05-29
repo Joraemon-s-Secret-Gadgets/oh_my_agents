@@ -28,6 +28,8 @@ When the user asks to create or run an agent:
    - Source of Truth
    - Scope
    - Out of Scope
+   - Required Context
+   - Output Format
    - Verification
    - Stop Condition
 4. If required inputs are missing, ask at most three questions.
@@ -76,9 +78,11 @@ For question templates, read `references/missing-input-questions.md` only when n
 - Do not create a Review Agent without a review target.
 - Do not create a Crawl-focused agent without approved URLs and columns.
 - State inferred values before spawning a subagent.
+- Follow the role permission matrix in `docs/agents/agent-creation-guidelines.md` when present.
 - Parallel Implementation Agents must not have overlapping write scopes.
 - Review Agents are read-only by default unless the user explicitly asks them to edit review documentation.
 - Use an agent run log for substantial or multi-agent work when the project provides `docs/reports/agent-runs/RUN_TEMPLATE.md`.
+- Require subagent final reports to include Agent Name, Task/Subtask, Scope, Changed Files, Commands Run, Verification Result, Blockers, Assumptions, and Next Recommended Action.
 
 ## Context Loading
 

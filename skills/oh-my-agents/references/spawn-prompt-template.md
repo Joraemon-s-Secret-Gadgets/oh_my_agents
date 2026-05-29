@@ -39,9 +39,14 @@ Stop Conditions:
 - Stop and report if another subagent's write scope overlaps this task.
 
 Final Report:
+- Agent Name
+- Task/Subtask
+- Scope
 - Summary
 - Changed files, if any
-- Verification run and result
-- Findings or blockers
-- Assumptions and risks
+- Commands run
+- Verification result
+- Blockers
+- Assumptions
+- Next recommended action
 ```
