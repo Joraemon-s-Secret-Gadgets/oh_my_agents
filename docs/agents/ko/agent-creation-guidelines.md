@@ -149,6 +149,20 @@ QA Review Agent는 다음을 확인해야 합니다.
 - Implementation Agent: Task 또는 Subtask ID, Source of Truth, 허용된 write scope, acceptance criteria, verification command 또는 프로젝트 script에서 추론해도 된다는 허용입니다.
 - Review Agent: changed files, branch, PR, diff 같은 리뷰 대상, Source of Truth, correctness, security, UX, performance, all 같은 review focus입니다.
 
+## Role Permission Matrix
+
+사용자가 특정 run에 대해 더 좁거나 넓은 권한을 명시하지 않는 한 다음 권한표를 따릅니다.
+
+| Role | May Do | Must Not Do |
+| --- | --- | --- |
+| Main Codex | 사용자 의도 해석, subagent 생성, scope 배정, 결과 통합, clarification 요청, 요청받은 최종 Git 작업 수행 | 모호성 숨기기, root rule 우회, 겹치는 scope를 가진 subagent를 조율 없이 실행 |
+| Spec Agent | Spec, requirements, design, acceptance criteria, risks, planning context 작성 또는 수정 | 구현 코드 수정, Git history/remote 작업, 승인 없이 Task breakdown으로 진행 |
+| Task Agent | 승인된 Spec을 Task/Subtask로 분해, 순서/scope/acceptance criteria/verification/handoff packet 정의 | 구현 코드 수정, Git history/remote 작업, 모호하거나 과도한 Subtask 생성 |
+| Implementation Agent | 승인된 write scope 안에서만 파일 수정, 범위 내 검증 실행, 변경 파일과 blocker 보고 | scope 밖 파일 수정, commit/push/pull, 리뷰와 확인 없이 다음 Subtask 진행 |
+| Review Agent | 변경 파일 리뷰, finding 보고, readiness 검증, 수정 방향 또는 commit message 제안 | 기본적으로 구현 파일 수정, commit/push/pull, Blocker가 남은 작업 승인 |
+
+Review Agent는 기본적으로 read-only입니다. 사용자가 Review Agent에게 리뷰 문서 수정을 맡기려면 write scope를 명시해야 합니다.
+
 ## Agent Invocation Contract
 
 tool-backed subagent를 생성하기 전에 가능한 경우 다음 계약을 명시해야 합니다.
@@ -175,6 +189,35 @@ tool-backed subagent를 생성하기 전에 가능한 경우 다음 계약을 �
 - Crawl focus agent는 승인된 URL과 컬럼 없이 생성하지 않습니다.
 - 추론한 계약 값이 있다면 subagent 생성 전에 사용자에게 밝힙니다.
 - 안전에 중요한 필드가 부족하면 생성하지 말고 최대 3개 질문으로 보충합니다.
+
+## Subagent Output Contract
+
+모든 subagent 최종 보고는 간결해야 하며, Main Codex가 결과를 통합하거나 handoff할 수 있을 만큼 충분한 정보를 포함해야 합니다.
+
+공통 출력 필드는 다음과 같습니다.
+
+```md
+- Agent Name:
+- Task/Subtask:
+- Scope:
+- Changed Files:
+- Commands Run:
+- Verification Result:
+- Blockers:
+- Assumptions:
+- Next Recommended Action:
+```
+
+역할별 출력 요구사항은 다음과 같습니다.
+
+- Spec Agent: Spec 경로 또는 초안 내용, unresolved questions, assumptions, approval needs를 포함합니다.
+- Task Agent: Task/Subtask list, execution order, dependencies, acceptance criteria, verification commands를 포함합니다.
+- Implementation Agent: changed files, implementation summary, verification results, blockers, known limitations를 포함합니다.
+- Review Agent: Severity, Area, Evidence, Risk, Required Fix, Retest를 포함하는 Review Output Format을 사용합니다.
+- Security Review Agent: 보안 민감 영역이 관련되면 Security Review Output Format을 사용합니다.
+- Crawl-focused agent: input URLs, approved columns, output path, row count 또는 sample result, failures, `source_url`, `retrieved_at`, `failure_reason` 처리 여부를 포함합니다.
+
+subagent가 작업을 완료할 수 없다면 조용히 계속하지 말고 blocker summary를 반환해야 합니다.
 
 ## Parallel Subagent Safety
 
@@ -214,6 +257,16 @@ run log에는 다음을 포함합니다.
 - Follow-up or handoff notes.
 
 가능하면 `docs/reports/agent-runs/RUN_TEMPLATE.md`를 사용합니다.
+
+다음 경우에는 run log가 필수입니다.
+
+- 같은 사용자 요청에 2개 이상의 subagent가 사용됩니다.
+- subagent가 병렬로 실행됩니다.
+- Security Review Agent가 사용됩니다.
+- Crawl Focus가 사용됩니다.
+- Fix & Re-review가 2회 이상 반복됩니다.
+- 작업이 여러 세션에 걸치거나 handoff가 필요합니다.
+- 사용자가 traceability를 명시적으로 요청합니다.
 
 ## Review Gate Policy
 

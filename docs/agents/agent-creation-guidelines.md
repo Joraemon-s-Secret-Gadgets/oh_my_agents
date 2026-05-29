@@ -149,6 +149,20 @@ Role-specific minimum inputs:
 - Implementation Agent: Task or Subtask ID, Source of Truth, allowed write scope, acceptance criteria, verification command or permission to infer one from project scripts.
 - Review Agent: Review target such as changed files, branch, PR, or diff; Source of Truth; review focus such as correctness, security, UX, performance, or all.
 
+## Role Permission Matrix
+
+Use this permission matrix unless the user explicitly grants a narrower or broader authority for a specific run.
+
+| Role | May Do | Must Not Do |
+| --- | --- | --- |
+| Main Codex | Interpret user intent, create subagents, assign scope, integrate results, request clarification, run final Git operations when requested | Hide ambiguity, bypass root rules, let subagents mutate overlapping scopes without coordination |
+| Spec Agent | Write or update Specs, requirements, designs, acceptance criteria, risks, and planning context | Modify implementation code, run Git history or remote operations, continue into Task breakdown without approval |
+| Task Agent | Split approved Specs into Tasks/Subtasks, define order, scope, acceptance criteria, verification, and handoff packets | Modify implementation code, run Git history or remote operations, create vague or over-broad Subtasks |
+| Implementation Agent | Modify files only inside the approved write scope, run scoped verification, report changed files and blockers | Modify out-of-scope files, commit/push/pull, move to the next Subtask without review and confirmation |
+| Review Agent | Review changed files, report findings, verify readiness, suggest fixes or commit messages | Modify implementation files by default, commit/push/pull, approve work with unresolved Blocker findings |
+
+Review Agent is read-only by default. If the user wants a Review Agent to edit review documentation, that write scope must be explicitly stated.
+
 ## Agent Invocation Contract
 
 Every tool-backed subagent run should be described with this contract before spawning whenever the information is available:
@@ -175,6 +189,35 @@ Rules:
 - Do not create a Crawl-focused agent without approved URLs and columns.
 - State any inferred contract values before spawning the subagent.
 - If the contract is missing safety-critical fields, ask the user up to three questions instead of spawning.
+
+## Subagent Output Contract
+
+Every subagent final report must be concise and include enough information for Main Codex to integrate or hand off the result.
+
+Common output fields:
+
+```md
+- Agent Name:
+- Task/Subtask:
+- Scope:
+- Changed Files:
+- Commands Run:
+- Verification Result:
+- Blockers:
+- Assumptions:
+- Next Recommended Action:
+```
+
+Role-specific output requirements:
+
+- Spec Agent: include Spec path or draft content, unresolved questions, assumptions, and approval needs.
+- Task Agent: include Task/Subtask list, execution order, dependencies, acceptance criteria, and verification commands.
+- Implementation Agent: include changed files, implementation summary, verification results, blockers, and known limitations.
+- Review Agent: use the required Review Output Format with Severity, Area, Evidence, Risk, Required Fix, and Retest.
+- Security Review Agent: use the required Security Review Output Format when security-sensitive areas are involved.
+- Crawl-focused agents: include input URLs, approved columns, output path, row count or sample result, failures, `source_url`, `retrieved_at`, and `failure_reason` handling.
+
+If a subagent cannot complete its task, it must return a blocker summary instead of continuing silently.
 
 ## Parallel Subagent Safety
 
@@ -214,6 +257,16 @@ Each run log should include:
 - Follow-up or handoff notes.
 
 Use `docs/reports/agent-runs/RUN_TEMPLATE.md` when available.
+
+Run log is required when:
+
+- Two or more subagents are used for the same user request.
+- Any subagents run in parallel.
+- Security Review Agent is used.
+- Crawl Focus is used.
+- Fix & Re-review repeats two or more times.
+- Work spans multiple sessions or needs handoff.
+- The user explicitly asks for traceability.
 
 ## Review Gate Policy
 
