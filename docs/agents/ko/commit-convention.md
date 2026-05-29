@@ -38,6 +38,71 @@
 - 하위 호환성이 깨지는 변경은 `feat!:` 또는 `feat(api)!:`처럼 type 또는 scope 뒤에 `!`를 붙이거나, footer에 `BREAKING CHANGE:`를 반드시 명시합니다.
 - footer token으로 사용할 때 `BREAKING CHANGE`는 반드시 대문자로 작성합니다.
 
+## Commit Operation Guidelines
+
+커밋은 현재 Task 또는 Subtask가 구현되고, 로컬 검증이 끝났으며, handoff 또는 기록 가능한 상태가 되었을 때만 생성합니다.
+
+## Git Operation Ownership
+
+이 프로젝트에는 별도 Git Agent를 두지 않습니다.
+
+repository history 또는 remote state에 영향을 주는 Git 작업은 Main Codex가 최종 책임을 집니다. 여기에는 staging, commit, pull, push, branch switching, merge, rebase, pull request creation이 포함됩니다.
+
+역할 subagent는 변경 파일 보고, commit message 제안, commit readiness 리뷰를 할 수 있지만, 사용자가 명시적으로 승인하고 Main Codex가 위임하지 않는 한 history 또는 remote를 변경하는 Git 명령을 실행하면 안 됩니다.
+
+Implementation Agent는 자신의 변경을 직접 commit하거나 push하면 안 됩니다.
+
+Review Agent는 리뷰한 변경을 직접 commit하거나 push하면 안 됩니다.
+
+스테이징 전 확인 사항은 다음과 같습니다.
+
+- `git status --short`를 실행하고 변경, staged, untracked, deleted 파일을 모두 확인합니다.
+- 가능하면 `git diff --check` 또는 동등한 whitespace/conflict marker 검사를 실행합니다.
+- `.env`, `.env.local`, 실제 credential 파일, 로컬 DB, 생성된 secret, 개인 로컬 머신 파일이 staged 상태가 아닌지 확인합니다.
+- 환경 파일이나 생성 파일이 관련되어 있으면 `.gitignore`를 확인합니다.
+- 변경 파일이 승인된 Task/Subtask 범위에 속하는지 확인합니다.
+
+스테이징 규칙은 다음과 같습니다.
+
+- `git add path/to/file`처럼 명시적인 경로 staging을 우선합니다.
+- 변경 파일 목록을 모두 확인했고 모든 파일이 의도된 경우가 아니라면 `git add .` 같은 광범위 staging을 사용하지 않습니다.
+- 사용자나 다른 에이전트의 관련 없는 변경을 staging하지 않습니다.
+- Task에 의도적으로 포함된 것이 아니라면 생성 산출물을 staging하지 않습니다.
+- 대용량 로그, 빌드 결과물, 캐시, 로컬 DB, dependency 폴더를 staging하지 않습니다.
+
+커밋 시점은 다음과 같습니다.
+
+- 불명확하거나 실패 중인 작업 중간이 아니라, 하나의 일관된 Subtask가 완료되었을 때 커밋합니다.
+- 검증을 실행하지 못했다면 commit body 또는 handoff report에 이유를 적습니다.
+- Task가 막힌 상태라면 사용자가 명시적으로 WIP commit을 요청하지 않는 한, 커밋보다 handoff note 또는 run log를 우선합니다.
+- 파일이 바뀌었다는 이유만으로 커밋하지 않습니다. 변경은 review 가능한 범위여야 합니다.
+
+Commit body 작성 기준은 다음과 같습니다.
+
+- header만으로 변경 맥락이 충분하지 않을 때 body를 사용합니다.
+- 주요 구현 메모, 검증 결과, 중요한 제약을 포함합니다.
+- 다음 에이전트나 리뷰어가 이해할 수 있을 만큼 충분히 쓰되 장황하게 쓰지 않습니다.
+
+Footer 작성 기준은 다음과 같습니다.
+
+- 연결된 이슈가 있으면 `Refs: #123`, `Closes: #123`, `Fixes: #123` 같은 metadata를 포함합니다.
+- 하위 호환성이 깨지면 `BREAKING CHANGE:`를 포함합니다.
+- 이슈 번호나 외부 참조를 임의로 만들지 않습니다.
+
+푸시 전 확인 사항은 다음과 같습니다.
+
+- working tree가 clean 상태이거나, 의도적으로 커밋하지 않은 관련 없는 사용자 변경만 남아 있는지 확인합니다.
+- target branch와 remote를 확인합니다.
+- push가 공유 작업에 영향을 줄 수 있으면 사용자 보고에 branch와 commit hash를 포함합니다.
+
+다음 경우에는 커밋하지 않습니다.
+
+- 실제 secret 또는 환경 파일이 staged 상태입니다.
+- 사용자가 승인하지 않은 관련 없는 파일이 포함되어 있습니다.
+- 테스트나 검사가 실패했고 그 이유가 설명되지 않았습니다.
+- 구현 범위가 모호합니다.
+- 사용자가 명시적으로 커밋하지 말라고 했습니다.
+
 예시는 다음과 같습니다.
 
 ```md
