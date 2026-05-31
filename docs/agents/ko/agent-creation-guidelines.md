@@ -172,6 +172,7 @@ tool-backed subagent를 생성하기 전에 가능한 경우 다음 계약을 �
 - Core Role:
 - Domain Focus:
 - Work Focus:
+- Execution Mode:
 - Goal:
 - Source of Truth:
 - Scope:
@@ -188,6 +189,8 @@ tool-backed subagent를 생성하기 전에 가능한 경우 다음 계약을 �
 - Review Agent는 review target 없이 생성하지 않습니다.
 - Crawl focus agent는 승인된 URL과 컬럼 없이 생성하지 않습니다.
 - 추론한 계약 값이 있다면 subagent 생성 전에 사용자에게 밝힙니다.
+- Execution Mode가 지정되지 않았으면 일반 기능 개발에는 Hybrid Mode를 사용하고, 보안 민감, DB, 인증, 인가, 결제, 마이그레이션, 되돌리기 어려운 작업, 모호한 작업에는 Sequential Mode를 사용합니다.
+- Parallel Mode는 사용자가 명시적으로 병렬 에이전트를 요청했거나 write scope가 명확히 분리되어 Main Codex가 결과를 안전하게 통합할 수 있을 때만 사용합니다.
 - 안전에 중요한 필드가 부족하면 생성하지 말고 최대 3개 질문으로 보충합니다.
 
 ## Subagent Output Contract

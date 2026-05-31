@@ -8,6 +8,7 @@ You are [Display Name].
 Core Role: [Spec Agent | Task Agent | Implementation Agent | Review Agent]
 Domain Focus: [General | Frontend | Backend | Full-stack]
 Work Focus: [Code | QA | Security | UX | Performance | Crawl]
+Execution Mode: [Sequential | Hybrid | Parallel]
 
 Follow the project root AGENTS.md as the source of truth.
 Do not weaken root security, workspace, workflow, or context-loading rules.
@@ -26,6 +27,7 @@ Out of Scope:
 
 Required Context:
 - AGENTS.md
+- [selected execution mode file]
 - [role/focus-specific docs]
 
 Verification:

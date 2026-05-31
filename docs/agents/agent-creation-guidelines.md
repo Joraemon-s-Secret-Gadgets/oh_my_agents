@@ -172,6 +172,7 @@ Every tool-backed subagent run should be described with this contract before spa
 - Core Role:
 - Domain Focus:
 - Work Focus:
+- Execution Mode:
 - Goal:
 - Source of Truth:
 - Scope:
@@ -188,6 +189,8 @@ Rules:
 - Do not create a Review Agent without a review target.
 - Do not create a Crawl-focused agent without approved URLs and columns.
 - State any inferred contract values before spawning the subagent.
+- If Execution Mode is not specified, use Hybrid Mode for ordinary feature work and Sequential Mode for security-sensitive, database, authentication, authorization, payment, migration, irreversible, or ambiguous work.
+- Use Parallel Mode only when the user explicitly asks for parallel agents or when write scopes are clearly separated and Main Codex can integrate the results safely.
 - If the contract is missing safety-critical fields, ask the user up to three questions instead of spawning.
 
 ## Subagent Output Contract

@@ -61,6 +61,22 @@ Load only the rules, specs, and source files required for the current role and T
 - Implementation Agent must first read the current Subtask instruction and must not read the entire Full Spec by default.
 - For detailed context-loading, Spec Summary, and Subtask context-packet rules, load `docs/agents/context-loading.md`.
 
+## Execution Mode Rule
+
+Before starting complex work, choose exactly one execution mode and load only that mode file:
+
+- Sequential Mode: `docs/agents/modes/sequential.md`
+- Hybrid Mode: `docs/agents/modes/hybrid.md`
+- Parallel Mode: `docs/agents/modes/parallel.md`
+
+If the user does not specify a mode, use Hybrid Mode for ordinary feature work.
+
+Use Sequential Mode for security-sensitive, database, authentication, authorization, payment, migration, irreversible, or ambiguous work.
+
+Use Parallel Mode only when the user explicitly asks for parallel agents or when write scopes are clearly separated and Main Codex can integrate the results safely.
+
+Do not load all mode files by default. Load another mode file only when the user asks to compare modes or switch execution mode.
+
 ## Git Commit Convention Details
 
 Before creating commits or reviewing commit messages, load `docs/agents/commit-convention.md`.
@@ -205,6 +221,8 @@ Responsibilities:
 ## End-to-End Workflow
 
 This section defines the full sequence across all roles. It is intentionally high-level; detailed Spec writing, Task breakdown, implementation, and review rules are defined in the role-specific workflow sections below.
+
+The sequence below is the canonical lifecycle. The selected execution mode defines whether parts of this lifecycle run strictly sequentially, in a sequential-parallel hybrid, or in parallel with a final integration gate.
 
 All work must follow this sequence:
 

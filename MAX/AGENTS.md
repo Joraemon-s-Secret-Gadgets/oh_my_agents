@@ -247,6 +247,7 @@ Common inputs:
 - Role.
 - Domain Focus.
 - Work Focus.
+- Execution Mode.
 - Goal.
 - Source of Truth: approved Spec, Task, Subtask, issue, PR, diff, branch, or changed files.
 - Scope: files, folders, modules, or behavior the subagent may read or modify.
@@ -295,6 +296,7 @@ Every tool-backed subagent run should be described with this contract before spa
 - Core Role:
 - Domain Focus:
 - Work Focus:
+- Execution Mode:
 - Goal:
 - Source of Truth:
 - Scope:
@@ -311,6 +313,8 @@ Rules:
 - Do not create a Review Agent without a review target.
 - Do not create a Crawl-focused agent without approved URLs and columns.
 - State inferred contract values before spawning the subagent.
+- If Execution Mode is not specified, use Hybrid Mode for ordinary feature work and Sequential Mode for security-sensitive, database, authentication, authorization, payment, migration, irreversible, or ambiguous work.
+- Use Parallel Mode only when the user explicitly asks for parallel agents or when write scopes are clearly separated and Main Codex can integrate the results safely.
 - If safety-critical fields are missing, ask up to three questions instead of spawning.
 
 ## Subagent Output Contract
@@ -391,7 +395,94 @@ Run log is required when:
 - Work spans multiple sessions or needs handoff.
 - The user explicitly asks for traceability.
 
+## Execution Mode Rule
+
+Before starting complex work, choose exactly one execution mode.
+
+- Sequential Mode: safest and fully ordered.
+- Hybrid Mode: default for ordinary feature work.
+- Parallel Mode: fastest but highest coordination risk.
+
+If the user does not specify a mode, use Hybrid Mode for ordinary feature work.
+
+Use Sequential Mode for security-sensitive, database, authentication, authorization, payment, migration, irreversible, or ambiguous work.
+
+Use Parallel Mode only when the user explicitly asks for parallel agents or when write scopes are clearly separated and Main Codex can integrate the results safely.
+
+Do not load all mode files by default in the token-optimized rule set. MAX users may keep this full section available because MAX is intended for full-context usage.
+
+### Sequential Mode
+
+Use Sequential Mode when safety, clarity, or user review is more important than speed.
+
+Rules:
+
+- Run one role at a time.
+- Run one Task or Subtask at a time.
+- Do not run parallel Implementation Agents.
+- Start Review Agent only after Implementation Agent finishes the bounded Task/Subtask and reports verification.
+- Move to the next Task/Subtask only after review, approval, and required user confirmation.
+
+Required sequence:
+
+1. Spec Agent creates or updates the Spec.
+2. Spec is reviewed for scope, clarity, missing requirements, and contradictions.
+3. Task Agent breaks the approved Spec into Tasks and Atomic Subtasks.
+4. Implementation Agent implements exactly one approved Task/Subtask.
+5. Implementation Agent runs defined local verification.
+6. Review Agent reviews completed work.
+7. Implementation Agent fixes findings when required.
+8. Review Agent re-reviews the fix.
+9. Main Codex reports completion and waits for approval before moving forward.
+
+### Hybrid Mode
+
+Use Hybrid Mode as the default operating mode for ordinary feature work.
+
+Rules:
+
+- Spec Workflow is always sequential.
+- Task Breakdown Workflow is always sequential.
+- Implementation may run in parallel only when each Implementation Agent has a clearly separated write scope.
+- Review may run in parallel when reviewers are read-only or write only to explicitly approved review documentation.
+- Main Codex owns coordination, conflict prevention, result integration, user communication, and requested Git operations.
+- If two agents need to touch the same file, path, migration, API contract, data model, or shared component, run those agents sequentially.
+
+Before parallel work, Main Codex must define agent name, Task/Subtask, owned files or directories, forbidden files or directories, shared contracts, verification command, and expected output.
+
+### Parallel Mode
+
+Use Parallel Mode only when the user explicitly asks for parallel agents or Main Codex can prove the work is independently scoped.
+
+Required preconditions:
+
+- Clear Source of Truth.
+- Written Task/Subtask breakdown.
+- Scope ownership table.
+- Non-overlapping write scopes.
+- Explicit out-of-scope boundaries.
+- Verification commands for each agent.
+- Stop conditions for each agent.
+- Final integration and review step owned by Main Codex.
+
+Scope ownership table:
+
+| Agent | Role | Task/Subtask | Write Scope | Read Scope | Forbidden Scope | Verification | Output |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+
+Rules:
+
+- Every writeable file or directory may have only one owner.
+- Review agents are read-only by default.
+- Parallel agents must not modify overlapping files, directories, migrations, contracts, or generated outputs.
+- Main Codex must wait for all required parallel outputs before reporting completion.
+- Main Codex must reconcile conflicts, summarize tradeoffs, run final verification, and request integrated review when implementation changed files.
+
+Stop and escalate when scopes overlap, shared contracts change without one owner, two agents produce incompatible results, verification fails three consecutive times, or final integration cannot be reviewed safely.
+
 ## End-to-End Workflow
+
+The sequence below is the canonical lifecycle. The selected execution mode defines whether parts of this lifecycle run strictly sequentially, in a sequential-parallel hybrid, or in parallel with a final integration gate.
 
 All feature work must follow this sequence:
 

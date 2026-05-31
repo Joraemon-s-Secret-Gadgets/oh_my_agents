@@ -41,6 +41,30 @@ Spec 작성
 
 이 방식은 작업 규모가 커졌을 때도 사용자가 현재 진행 상황을 따라가기 쉽게 만들고, 큰 기능을 한 번에 만들어서 리뷰가 어려워지는 문제를 줄입니다.
 
+## Execution Mode Rule
+
+`Execution Mode Rule`은 작업을 어떤 방식으로 진행할지 정하는 규칙입니다.
+
+복잡한 작업을 시작하기 전에는 반드시 하나의 실행 모드만 선택하고, 선택한 모드 문서만 읽습니다.
+
+- Sequential Mode: [docs/agents/ko/modes/sequential.md](./docs/agents/ko/modes/sequential.md)
+- Hybrid Mode: [docs/agents/ko/modes/hybrid.md](./docs/agents/ko/modes/hybrid.md)
+- Parallel Mode: [docs/agents/ko/modes/parallel.md](./docs/agents/ko/modes/parallel.md)
+
+에이전트가 실제로 따르는 영어 기준 문서는 다음과 같습니다.
+
+- Sequential Mode: [docs/agents/modes/sequential.md](./docs/agents/modes/sequential.md)
+- Hybrid Mode: [docs/agents/modes/hybrid.md](./docs/agents/modes/hybrid.md)
+- Parallel Mode: [docs/agents/modes/parallel.md](./docs/agents/modes/parallel.md)
+
+사용자가 별도로 지정하지 않으면 일반 기능 개발에는 `Hybrid Mode`를 사용합니다.
+
+보안, DB, 인증, 인가, 결제, 마이그레이션, 되돌리기 어려운 작업, 요구사항이 모호한 작업에는 `Sequential Mode`를 사용합니다.
+
+`Parallel Mode`는 사용자가 명시적으로 병렬 에이전트를 요청했거나, write scope가 명확히 분리되어 Main Codex가 결과를 안전하게 통합할 수 있을 때만 사용합니다.
+
+토큰 비용을 줄이기 위해 모든 mode 파일을 기본으로 읽지 않습니다. 모드 비교나 모드 전환을 요청받은 경우에만 다른 mode 파일을 읽습니다.
+
 ## Instruction Priority
 
 `Instruction Priority`는 여러 지시가 충돌할 때 무엇을 우선해야 하는지 정합니다.
@@ -238,6 +262,8 @@ Spec 작성
 `End-to-End Workflow`는 모든 역할을 가로지르는 전체 작업 순서만 정의합니다.
 
 이 섹션은 의도적으로 큰 흐름만 다룹니다. Spec 작성, Task 분해, 구현, 리뷰의 세부 규칙은 아래의 역할별 Workflow에서 나누어 설명합니다.
+
+아래 순서는 표준 lifecycle입니다. 선택된 execution mode가 이 lifecycle을 완전 순차로 실행할지, 순차-병렬 혼합으로 실행할지, 병렬 실행 후 최종 통합 게이트를 둘지 결정합니다.
 
 핵심 순서는 다음과 같습니다.
 

@@ -2,7 +2,7 @@
 name: oh-my-agents
 description: Use when the user asks to create, launch, spawn, delegate to, or coordinate project role subagents such as Spec Agent, Task Agent, Implementation Agent, Review Agent, Frontend QA Review Agent, Backend Security Review Agent, or Crawl Implementation Agent according to a project's AGENTS.md.
 metadata:
-  version: "0.2.0"
+  version: "0.3.0"
 ---
 
 # Oh My Agents
@@ -11,7 +11,7 @@ Use this skill as a lightweight router for project-defined role subagents.
 
 The root `AGENTS.md` is the source of truth. This skill must never bypass, weaken, or replace project rules. It only helps interpret abstract user requests and coordinate tool-backed subagent creation.
 
-Version: 0.2.0
+Version: 0.3.0
 
 ## Core Flow
 
@@ -24,6 +24,7 @@ When the user asks to create or run an agent:
    - Core Role
    - Domain Focus
    - Work Focus
+   - Execution Mode
    - Goal
    - Source of Truth
    - Scope
@@ -33,7 +34,7 @@ When the user asks to create or run an agent:
    - Verification
    - Stop Condition
 4. If required inputs are missing, ask at most three questions.
-5. Load only the docs required for the parsed role and focus.
+5. Load only the docs required for the parsed role, focus, and execution mode.
 6. If a supported subagent harness is available, create a tool-backed subagent.
 7. If no harness is available, tell the user and ask whether to continue by current-session role activation.
 8. Pass only the minimum required context to the subagent.
@@ -53,6 +54,9 @@ Use these defaults for abstract Korean or English requests:
 - "QA", "검증", "시나리오" -> QA focus.
 - "보안", "취약점", "secret", "auth" -> Security focus.
 - "크롤링", "수집", "crawl", "scrape" -> Crawl focus.
+- "순차", "sequential" -> Sequential Mode.
+- "하이브리드", "혼합", "hybrid" -> Hybrid Mode.
+- "병렬", "parallel" -> Parallel Mode.
 
 For detailed naming and prompt examples, read `references/role-routing.md` only when needed.
 
@@ -78,6 +82,8 @@ For question templates, read `references/missing-input-questions.md` only when n
 - Do not create a Review Agent without a review target.
 - Do not create a Crawl-focused agent without approved URLs and columns.
 - State inferred values before spawning a subagent.
+- If Execution Mode is not specified, use Hybrid Mode for ordinary feature work and Sequential Mode for security-sensitive, database, authentication, authorization, payment, migration, irreversible, or ambiguous work.
+- Use Parallel Mode only when the user explicitly asks for parallel agents or when write scopes are clearly separated and Main Codex can integrate the results safely.
 - Follow the role permission matrix in `docs/agents/agent-creation-guidelines.md` when present.
 - Parallel Implementation Agents must not have overlapping write scopes.
 - Review Agents are read-only by default unless the user explicitly asks them to edit review documentation.
@@ -90,6 +96,7 @@ Always keep context small:
 
 - Do not load `AGENTS.ko.md` unless the user asks for Korean explanation or Korean docs are being edited.
 - Do not load all `docs/agents/*`.
+- Do not load all `docs/agents/modes/*`; load only the selected execution mode file.
 - Read `docs/agents/context-loading.md` when the task is context-heavy or token usage matters.
 - Read `docs/agents/review-format.md` only for Review Agent work.
 - Read `docs/agents/security-review-checklist.md` only for Security focus or security-sensitive work.
@@ -100,6 +107,7 @@ Always keep context small:
 When spawning a subagent, make the prompt bounded:
 
 - State the display name and parsed role/domain/focus.
+- State the selected execution mode and the mode file to load.
 - Include the Source of Truth and allowed scope.
 - List required docs to read.
 - State forbidden scope and stop conditions.
