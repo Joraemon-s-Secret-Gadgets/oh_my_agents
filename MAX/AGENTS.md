@@ -403,6 +403,12 @@ Before starting complex work, choose exactly one execution mode.
 - Hybrid Mode: default for ordinary feature work.
 - Parallel Mode: fastest but highest coordination risk.
 
+Standalone MAX mode files:
+
+- `MAX/modes/sequential.md`
+- `MAX/modes/hybrid.md`
+- `MAX/modes/parallel.md`
+
 If the user does not specify a mode, use Hybrid Mode for ordinary feature work.
 
 Use Sequential Mode for security-sensitive, database, authentication, authorization, payment, migration, irreversible, or ambiguous work.
