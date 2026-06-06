@@ -2,7 +2,7 @@
 name: oh-my-agents
 description: Use when the user asks to create, launch, spawn, delegate to, or coordinate project role subagents such as Spec Agent, Task Agent, Implementation Agent, Review Agent, Frontend QA Review Agent, Backend Security Review Agent, or Crawl Implementation Agent according to a project's AGENTS.md.
 metadata:
-  version: "0.3.0"
+  version: "0.6.1"
 ---
 
 # Oh My Agents
@@ -11,7 +11,7 @@ Use this skill as a lightweight router for project-defined role subagents.
 
 The root `AGENTS.md` is the source of truth. This skill must never bypass, weaken, or replace project rules. It only helps interpret abstract user requests and coordinate tool-backed subagent creation.
 
-Version: 0.3.0
+Version: 0.6.1
 
 ## Core Flow
 
@@ -20,6 +20,8 @@ When the user asks to create or run an agent:
 1. Read the root `AGENTS.md`.
 2. If present, read `docs/agents/agent-creation-guidelines.md`.
 3. Parse the request into:
+   - User Request Original
+   - Structured Agent Contract
    - Display Name
    - Core Role
    - Domain Focus
@@ -39,6 +41,7 @@ When the user asks to create or run an agent:
 7. If no harness is available, tell the user and ask whether to continue by current-session role activation.
 8. Pass only the minimum required context to the subagent.
 9. Collect the result, check it against the user's request, and summarize it.
+10. After completion, close, archive, terminate, or delete unused subagent contexts unless the user explicitly asks to keep them.
 
 ## Routing Defaults
 
@@ -49,11 +52,14 @@ Use these defaults for abstract Korean or English requests:
 - "구현", "수정", "fix", "implement" -> Implementation Agent.
 - "리뷰", "검토", "review" -> Review Agent.
 - "프론트", "화면", "UI", "React", "Tailwind" -> Frontend domain.
+- "접근성", "반응형", "폼", "컴포넌트", "라우트", "hook", "client state" -> Frontend domain.
 - "백엔드", "API", "Django", "DB", "migration" -> Backend domain.
 - "전체 흐름", "E2E", "full-stack" -> Full-stack domain.
 - "QA", "검증", "시나리오" -> QA focus.
 - "보안", "취약점", "secret", "auth" -> Security focus.
 - "크롤링", "수집", "crawl", "scrape" -> Crawl focus.
+- "딥크롤링", "deep crawl" -> Crawl focus with Deep Crawl gate.
+- "BeautifulSoup", "Selenium", "Scrapling" -> Crawl focus.
 - "순차", "sequential" -> Sequential Mode.
 - "하이브리드", "혼합", "hybrid" -> Hybrid Mode.
 - "병렬", "parallel" -> Parallel Mode.
@@ -72,7 +78,9 @@ Typical missing inputs:
 - Review Agent: review target, Source of Truth, review focus.
 - Spec Agent: feature idea or goal, target user when not obvious, constraints when known.
 - Task Agent: approved Spec path or approved Spec content.
-- Crawl Focus: URLs, columns, output path, output format.
+- Frontend Domain: target files or folders, UI states, API/data assumptions, responsive requirements, accessibility requirements, verification command or browser check, out-of-scope behavior.
+- Crawl Focus: URLs, columns, output path, output format, allowed tools, verification, stop condition.
+- Deep Crawl: seed URLs, domain allowlist, max depth, max pages, rate limit, output columns, stop condition.
 
 For question templates, read `references/missing-input-questions.md` only when needed.
 
@@ -82,11 +90,22 @@ For question templates, read `references/missing-input-questions.md` only when n
 - Do not create a Review Agent without a review target.
 - Do not create a Crawl-focused agent without approved URLs and columns.
 - State inferred values before spawning a subagent.
+- Preserve the user's original Korean or non-English request as `User Request Original`.
+- Create `Structured Agent Contract` in English for execution reliability.
+- The original request remains authoritative for user intent and success criteria.
+- Frontend-domain agents must load `docs/agents/frontend-agent-rules.md` before planning, implementation, or review.
+- Do not create a Frontend Implementation Agent without target files or folders, UI states, API/data assumptions, verification, and out-of-scope behavior.
 - If Execution Mode is not specified, use Hybrid Mode for ordinary feature work and Sequential Mode for security-sensitive, database, authentication, authorization, payment, migration, irreversible, or ambiguous work.
 - Use Parallel Mode only when the user explicitly asks for parallel agents or when write scopes are clearly separated and Main Codex can integrate the results safely.
+- Crawl-focused agents must load `docs/prompts/crawl-task-prompt.md` before planning, implementation, or review.
+- Crawl-focused implementation must use Python 3.12 files or scripts and the default crawl tools: BeautifulSoup, Selenium, and Scrapling. Additional crawler frameworks require explicit user or Task approval.
+- Deep crawl requests require seed URLs, domain allowlist, max depth, max pages, rate limit, output columns, and stop condition.
 - Follow the role permission matrix in `docs/agents/agent-creation-guidelines.md` when present.
 - Parallel Implementation Agents must not have overlapping write scopes.
 - Review Agents are read-only by default unless the user explicitly asks them to edit review documentation.
+- If a subagent becomes unresponsive or produces no meaningful progress within the root No-Progress Limit, preserve useful handoff output and terminate or delete that context before spawning a replacement.
+- After a subagent completes its assigned work, close, archive, terminate, or delete the unused context unless the user explicitly asks to keep it.
+- Agent cleanup applies only to agent contexts, threads, or harness-managed agent records. It must not delete project files, specs, reports, commits, branches, or user data unless explicitly requested.
 - Use an agent run log for substantial or multi-agent work when the project provides `docs/reports/agent-runs/RUN_TEMPLATE.md`.
 - Require subagent final reports to include Agent Name, Task/Subtask, Scope, Changed Files, Commands Run, Verification Result, Blockers, Assumptions, and Next Recommended Action.
 
@@ -100,6 +119,7 @@ Always keep context small:
 - Read `docs/agents/context-loading.md` when the task is context-heavy or token usage matters.
 - Read `docs/agents/review-format.md` only for Review Agent work.
 - Read `docs/agents/security-review-checklist.md` only for Security focus or security-sensitive work.
+- Read `docs/agents/frontend-agent-rules.md` only for Frontend domain work.
 - Read `docs/prompts/crawl-task-prompt.md` only for Crawl focus.
 
 ## Subagent Prompt

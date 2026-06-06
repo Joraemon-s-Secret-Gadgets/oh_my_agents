@@ -22,6 +22,16 @@ Review Agent를 생성하려면 리뷰 대상을 확정해야 합니다.
 3. 리뷰 초점은 Code, QA, Security, UX 중 무엇인가요?
 ```
 
+## Frontend Domain
+
+```md
+Frontend Agent를 생성하려면 UI 범위를 안전하게 제한해야 합니다.
+
+1. 대상 frontend 파일/폴더 또는 route/component 범위는 어디인가요?
+2. 반드시 처리해야 할 UI 상태와 API/data 가정은 무엇인가요?
+3. 검증 명령 또는 browser check 기준은 무엇인가요?
+```
+
 ## Spec Agent
 
 ```md
@@ -50,4 +60,14 @@ Crawl Implementation Agent를 생성하려면 수집 범위를 확정해야 합�
 1. 크롤링할 URL 목록은 무엇인가요?
 2. 수집할 컬럼은 무엇인가요?
 3. 결과 파일 형식과 저장 경로는 어떻게 할까요?
+```
+
+## Deep Crawl Focus
+
+```md
+Deep Crawl 작업은 범위를 더 강하게 제한해야 합니다.
+
+1. seed URL과 허용 domain allowlist는 무엇인가요?
+2. max depth, max pages, rate limit은 어떻게 제한할까요?
+3. output columns, output path, stop condition은 무엇인가요?
 ```
