@@ -8,8 +8,30 @@
 - `AGENTS.ko.md`는 기본으로 읽지 않습니다. 사용자가 한국어 설명을 요청하거나, 한국어 문서를 수정하거나, `AGENTS.md`와 `AGENTS.ko.md`의 동기화를 확인하는 작업일 때만 읽습니다. 단, 에이전트 문서를 수정하는 작업에서는 이 제한이 `File Synchronization Rule`보다 우선하지 않습니다.
 - 시작할 때 `docs/agents` 전체를 한 번에 읽지 않습니다.
 - 현재 작업이 프롬프트 템플릿을 명시적으로 요청하지 않으면 `docs/prompts` 파일을 읽지 않습니다.
+- 예외: Crawl Focus 작업은 사용자가 프롬프트 템플릿을 명시적으로 요청하지 않았더라도 `docs/prompts/crawl-task-prompt.md`를 읽어야 합니다. Crawl Focus에는 크롤링, 스크래핑, URL 추출, 딥크롤링, BeautifulSoup, Selenium, Scrapling 작업이 포함됩니다.
+- 예외: Frontend domain 작업은 사용자가 프론트엔드 규칙을 명시적으로 요청하지 않았더라도 `docs/agents/frontend-agent-rules.md`를 읽어야 합니다. Frontend domain에는 UI, React, TailwindCSS, 브라우저 동작, route, component, hook, client state, form, accessibility, responsive behavior, frontend API integration이 포함됩니다.
 - 긴 파일을 열기 전에 `rg` 또는 섹션 단위 읽기로 필요한 부분을 먼저 찾습니다.
 - 전체 문서를 통째로 읽기보다 참조된 섹션, 짧은 Subtask packet, 현재 변경 파일을 우선합니다.
+
+## Crawl Focus Loading
+
+Crawl Focus 작업에서는 다음을 따릅니다.
+
+- 계획, 구현, 리뷰 전에 `docs/prompts/crawl-task-prompt.md`를 읽습니다.
+- 관련 없는 prompt template은 읽지 않습니다.
+- 구현 전에 URL, 컬럼, output format, output path, allowed tools, verification, stop condition이 부족하면 사용자에게 질문합니다.
+- 딥크롤링은 seed URL, domain allowlist, max depth, max pages, rate limit, output columns, stop condition이 필요합니다.
+- 큰 크롤링 결과를 다른 에이전트에게 넘길 때는 먼저 요약합니다.
+
+## Frontend Domain Loading
+
+Frontend domain 작업에서는 다음을 따릅니다.
+
+- 계획, 구현, 리뷰 전에 `docs/agents/frontend-agent-rules.md`를 읽습니다.
+- 현재 Task/Subtask에 필요하지 않은 frontend docs나 design asset은 읽지 않습니다.
+- 구현 전에 target files 또는 folders, UI states, API/data assumptions, verification, out-of-scope behavior가 부족하면 사용자에게 질문합니다.
+- client environment variables, auth UI, token handling, redirects, user-generated content, external scripts, dependency 변경이 있으면 `docs/agents/security-review-checklist.md`를 읽습니다.
+- 큰 design reference, screenshot, browser log를 다른 에이전트에게 넘길 때는 먼저 요약합니다.
 
 ## Role-Based Loading
 

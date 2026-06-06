@@ -2,6 +2,8 @@
 
 Before Review Agent starts, Implementation Agent must provide:
 
+- User Request Original when the user gave a natural-language task request.
+- Structured Agent Contract when an agent contract was created.
 - Approved Spec reference.
 - Current Task or Subtask description.
 - Acceptance criteria for the Task or Subtask.
@@ -10,6 +12,8 @@ Before Review Agent starts, Implementation Agent must provide:
 - Tests or checks that were run.
 - Known limitations or assumptions.
 - Areas that may affect security, data, authentication, permissions, files, dependencies, or external APIs.
+
+Review Agent must compare the implementation against both `User Request Original` and `Structured Agent Contract` when both are provided. The structured English contract helps execution reliability, but the original request remains authoritative for user intent and success criteria.
 
 ## Review Output Format
 

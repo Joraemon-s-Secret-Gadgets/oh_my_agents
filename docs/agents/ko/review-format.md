@@ -4,6 +4,8 @@
 
 필요한 정보는 다음과 같습니다.
 
+- 사용자가 자연어로 작업을 지시한 경우 `User Request Original`
+- 에이전트 실행 계약이 만들어진 경우 `Structured Agent Contract`
 - 승인된 Spec
 - 현재 Task 또는 Subtask 설명
 - 성공 기준
@@ -12,6 +14,8 @@
 - 실행한 테스트나 확인
 - 알려진 한계나 가정
 - 보안, 데이터, 인증, 권한, 파일, dependency, 외부 API 영향 여부
+
+`Review Agent`는 `User Request Original`과 `Structured Agent Contract`가 모두 제공된 경우 구현 결과를 두 기준 모두와 비교해야 합니다. 영어 구조화 계약은 실행 안정성을 위한 것이며, 사용자 원문은 의도와 성공 기준의 최종 기준으로 남습니다.
 
 리뷰어가 코드를 처음부터 추측하지 않도록, 구현자가 맥락을 먼저 제공하는 것이 목적입니다.
 

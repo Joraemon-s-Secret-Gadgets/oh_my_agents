@@ -148,6 +148,7 @@ QA Review Agent는 다음을 확인해야 합니다.
 - Task Agent: 승인된 Spec 경로 또는 승인된 Spec 내용, 기본값과 다른 세분화 수준이 필요할 경우 원하는 Task granularity, 의존성, workflow에서 요구될 경우 다음 Task 번호입니다.
 - Implementation Agent: Task 또는 Subtask ID, Source of Truth, 허용된 write scope, acceptance criteria, verification command 또는 프로젝트 script에서 추론해도 된다는 허용입니다.
 - Review Agent: changed files, branch, PR, diff 같은 리뷰 대상, Source of Truth, correctness, security, UX, performance, all 같은 review focus입니다.
+- Frontend Domain: target files 또는 folders, UI states, API/data assumptions, responsive requirements, accessibility requirements, verification command 또는 browser check, out-of-scope behavior입니다.
 
 ## Role Permission Matrix
 
@@ -168,6 +169,8 @@ Review Agent는 기본적으로 read-only입니다. 사용자가 Review Agent에
 tool-backed subagent를 생성하기 전에 가능한 경우 다음 계약을 명시해야 합니다.
 
 ```md
+- User Request Original:
+- Structured Agent Contract:
 - Display Name:
 - Core Role:
 - Domain Focus:
@@ -185,13 +188,30 @@ tool-backed subagent를 생성하기 전에 가능한 경우 다음 계약을 �
 
 규칙은 다음과 같습니다.
 
+- 사용자가 한글 또는 영어가 아닌 언어로 작업을 지시했다면 `User Request Original`에는 원문을 그대로 보존합니다.
+- `Structured Agent Contract`는 실행 필드를 정규화한 영어 계약으로 작성합니다.
+- 영어 구조화 계약은 실행 안정성을 위한 것이며, 사용자의 원래 요청은 의도와 성공 기준의 최종 기준으로 남습니다.
 - Implementation Agent는 제한된 write scope 없이 생성하지 않습니다.
 - Review Agent는 review target 없이 생성하지 않습니다.
+- Frontend-domain agent는 계획, 구현, 리뷰 전에 `docs/agents/frontend-agent-rules.md`를 읽어야 합니다.
+- Frontend Implementation Agent는 target files 또는 folders, UI states, API/data assumptions, verification, out-of-scope behavior 없이 생성하지 않습니다.
 - Crawl focus agent는 승인된 URL과 컬럼 없이 생성하지 않습니다.
+- Crawl focus agent는 계획, 구현, 리뷰 전에 `docs/prompts/crawl-task-prompt.md`를 읽어야 합니다.
+- Crawl focus 구현은 Python 3.12 파일 또는 스크립트와 기본 크롤링 도구인 BeautifulSoup, Selenium, Scrapling을 사용합니다. 추가 크롤러 프레임워크는 사용자 또는 승인된 Task의 명시 허용이 필요합니다.
+- Deep crawl 요청은 seed URL, domain allowlist, max depth, max pages, rate limit, output columns, stop condition이 필요합니다.
 - 추론한 계약 값이 있다면 subagent 생성 전에 사용자에게 밝힙니다.
 - Execution Mode가 지정되지 않았으면 일반 기능 개발에는 Hybrid Mode를 사용하고, 보안 민감, DB, 인증, 인가, 결제, 마이그레이션, 되돌리기 어려운 작업, 모호한 작업에는 Sequential Mode를 사용합니다.
 - Parallel Mode는 사용자가 명시적으로 병렬 에이전트를 요청했거나 write scope가 명확히 분리되어 Main Codex가 결과를 안전하게 통합할 수 있을 때만 사용합니다.
 - 안전에 중요한 필드가 부족하면 생성하지 말고 최대 3개 질문으로 보충합니다.
+
+## Agent Lifecycle & Cleanup
+
+tool-backed subagent는 범위가 정해진 일회성 실행 컨텍스트로 취급합니다.
+
+- subagent가 응답하지 않거나 루트 `No-Progress Limit` 안에 의미 있는 진전을 내지 못하면, 계속 기다리지 않습니다. 가능한 handoff 산출물만 보존한 뒤 해당 subagent context를 종료하거나 삭제하고, 필요한 경우 대체 subagent를 생성합니다.
+- subagent가 맡은 Task, Subtask, review, handoff를 완료하면, 사용자가 명시적으로 유지하라고 하지 않는 한 사용이 끝난 subagent context를 닫기, 보관, 종료, 삭제 중 현재 하네스가 지원하는 방식으로 정리합니다.
+- 역할이 겹치거나, 오래된 context를 들고 있거나, 소유 범위가 불명확한 유휴 subagent를 남겨두지 않습니다.
+- cleanup은 agent context, thread, harness가 관리하는 agent record에만 적용합니다. 사용자가 별도로 명시하지 않는 한 프로젝트 파일, spec, report, branch, commit, 사용자 데이터는 삭제하지 않습니다.
 
 ## Subagent Output Contract
 
@@ -217,6 +237,7 @@ tool-backed subagent를 생성하기 전에 가능한 경우 다음 계약을 �
 - Task Agent: Task/Subtask list, execution order, dependencies, acceptance criteria, verification commands를 포함합니다.
 - Implementation Agent: changed files, implementation summary, verification results, blockers, known limitations를 포함합니다.
 - Review Agent: Severity, Area, Evidence, Risk, Required Fix, Retest를 포함하는 Review Output Format을 사용합니다.
+- Review Agent: `User Request Original`과 `Structured Agent Contract`가 모두 제공되면 구현 결과를 두 기준 모두와 비교합니다.
 - Security Review Agent: 보안 민감 영역이 관련되면 Security Review Output Format을 사용합니다.
 - Crawl-focused agent: input URLs, approved columns, output path, row count 또는 sample result, failures, `source_url`, `retrieved_at`, `failure_reason` 처리 여부를 포함합니다.
 

@@ -8,8 +8,30 @@ Default loading rules:
 - Do not load `AGENTS.ko.md` unless the user asks for Korean explanation, the task edits Korean documentation, or the task checks synchronization between `AGENTS.md` and `AGENTS.ko.md`. This restriction does not override the File Synchronization Rule when agent documentation is being edited.
 - Do not load all files in `docs/agents` at startup.
 - Do not load `docs/prompts` files unless the current task explicitly asks for a prompt template.
+- Exception: Crawl Focus tasks must load `docs/prompts/crawl-task-prompt.md` even when the user did not explicitly ask for a prompt template. Crawl Focus includes crawling, scraping, URL extraction, deep crawling, BeautifulSoup, Selenium, and Scrapling work.
+- Exception: Frontend domain tasks must load `docs/agents/frontend-agent-rules.md` even when the user did not explicitly ask for frontend rules. Frontend domain includes UI, React, TailwindCSS, browser-facing behavior, routes, components, hooks, client state, forms, accessibility, responsive behavior, and frontend API integration.
 - Use `rg` or targeted section reads before opening long files.
 - Prefer referenced sections, short task packets, and current changed files over full-document reads.
+
+## Crawl Focus Loading
+
+For Crawl Focus tasks:
+
+- Load `docs/prompts/crawl-task-prompt.md` before planning, implementation, or review.
+- Do not load unrelated prompt templates.
+- Ask for missing URLs, columns, output format, output path, allowed tools, verification, and stop condition before implementation.
+- For deep crawling, also require seed URLs, domain allowlist, max depth, max pages, rate limit, output columns, and stop condition.
+- Summarize large crawl results before passing them to another agent.
+
+## Frontend Domain Loading
+
+For Frontend domain tasks:
+
+- Load `docs/agents/frontend-agent-rules.md` before planning, implementation, or review.
+- Do not load unrelated frontend docs or design assets unless needed for the active Task/Subtask.
+- Ask for missing target files or folders, UI states, API/data assumptions, verification, and out-of-scope behavior before implementation.
+- Load `docs/agents/security-review-checklist.md` when frontend work touches client environment variables, auth UI, token handling, redirects, user-generated content, external scripts, or dependency changes.
+- Summarize large design references, screenshots, or browser logs before passing them to another agent.
 
 ## Role-Based Loading
 

@@ -18,6 +18,16 @@ Follow instructions in this order:
 
 When instructions conflict, the higher-priority instruction wins. Folder-level and MAX rules may add detail, but they must not weaken root-level security, workflow, environment, or Workspace Boundary rules.
 
+## User Language Preservation Rule
+
+When the user gives task instructions in Korean or another non-English language, do not discard, replace, or silently overwrite the original request.
+
+For agent execution, preserve the original request as `User Request Original` exactly as written, then normalize the executable instructions into a structured English `Structured Agent Contract`.
+
+The structured English contract improves agent reliability. The original user request remains authoritative for user intent, nuance, and success criteria.
+
+Review Agent must compare completed work against both `User Request Original` and `Structured Agent Contract`.
+
 ## MAX Context Mode
 
 MAX Context Mode means:
@@ -79,6 +89,16 @@ Agents must not silently stall.
 - Main Codex Handoff: Prefer when direction, requirements, architecture, coordination, or user intent needs clarification.
 - Same-Role Fresh Agent Handoff: Prefer when scope is clear but the current agent is repeating the same failure.
 - No Silent Retry: Do not repeatedly retry the same failing command, test, implementation, or review loop without reporting progress and changing approach.
+
+## Agent Lifecycle & Cleanup
+
+Agent instances are disposable execution contexts, not permanent project assets.
+
+- Unresponsive Agent Cleanup: If an agent does not respond or produces no meaningful progress within the No-Progress Limit, stop waiting, preserve useful handoff output, and terminate or delete that agent context before starting a replacement.
+- Post-Use Cleanup: After an agent completes its assigned Task, Subtask, review, or handoff, close, archive, terminate, or delete the unused agent context unless the user explicitly asks to keep it.
+- No Orphan Agents: Do not leave idle agents running with overlapping roles, stale context, or unclear ownership.
+- Preserve Outputs Before Cleanup: Preserve only necessary final reports, handoff summaries, changed-file lists, verification results, and blocker notes.
+- Project Files Are Not Cleanup Targets: Agent cleanup applies only to agent contexts, threads, or harness-managed agent records. It must not delete project files, specs, reports, commits, branches, or user data unless explicitly requested.
 
 ## Git Commit Convention
 
@@ -292,6 +312,8 @@ Review Agent is read-only by default. If the user wants a Review Agent to edit r
 Every tool-backed subagent run should be described with this contract before spawning whenever the information is available:
 
 ```md
+- User Request Original:
+- Structured Agent Contract:
 - Display Name:
 - Core Role:
 - Domain Focus:
@@ -309,6 +331,9 @@ Every tool-backed subagent run should be described with this contract before spa
 
 Rules:
 
+- Preserve `User Request Original` exactly as written when the user gave the task in Korean or another non-English language.
+- Write `Structured Agent Contract` in English with normalized execution fields.
+- The structured English contract supports execution reliability, but the original user request remains authoritative for user intent and success criteria.
 - Do not create an Implementation Agent without a bounded write scope.
 - Do not create a Review Agent without a review target.
 - Do not create a Crawl-focused agent without approved URLs and columns.
@@ -611,6 +636,8 @@ Review Agent validates completed work before the next Task/Subtask starts.
 
 Before Review Agent starts, Implementation Agent must provide:
 
+- User Request Original when the user gave a natural-language task request.
+- Structured Agent Contract when an agent contract was created.
 - Approved Spec reference.
 - Current Task/Subtask description.
 - Acceptance criteria.
@@ -619,6 +646,8 @@ Before Review Agent starts, Implementation Agent must provide:
 - Tests/checks run.
 - Known limitations or assumptions.
 - Areas that may affect security, data, authentication, permissions, files, dependencies, or external APIs.
+
+Review Agent must compare the implementation against both `User Request Original` and `Structured Agent Contract` when both are provided.
 
 Review Agent must check:
 
@@ -681,6 +710,44 @@ QA Review Agents must check:
 - Missing or weak test coverage.
 - Frontend accessibility, responsive behavior, form UX, and client-side error handling when relevant.
 - Backend API validation, error responses, permission behavior, and data integrity when relevant.
+
+## Frontend Agent Rules
+
+Use these rules when a task has Frontend domain focus, React, TailwindCSS, browser-facing UI, frontend routes, components, hooks, client state, forms, accessibility, or frontend API integration.
+
+Frontend Spec Agent must define:
+
+- User flow and screen flow.
+- Route or view ownership.
+- UI state matrix: loading, empty, success, error, disabled, pending, validation, permission, and offline states when relevant.
+- Data dependencies and API contract assumptions.
+- Form behavior, validation timing, error copy, and submission states.
+- Accessibility requirements: semantic structure, labels, focus order, keyboard navigation, contrast, announcements, and error association.
+- Responsive behavior across mobile, tablet, and desktop.
+- Security and privacy concerns for client-visible data, tokens, user input, and redirects.
+- Test and verification strategy.
+
+Frontend Task Agent must split work into Atomic Subtasks for route/page shell, component structure, API integration, form state, UI states, accessibility, responsive layout, and tests or browser verification when those concerns are separable.
+
+Frontend Implementation Agent must:
+
+- Follow existing React structure, component patterns, hooks, routing, and naming.
+- Use TailwindCSS consistently with existing design tokens, spacing, layout, and responsive conventions.
+- Prefer small focused components with clear props and readable state flow.
+- Keep UI state local unless shared state is clearly required.
+- Handle loading, error, empty, success, disabled, pending, and validation states when relevant.
+- Treat client-side validation as UX support only; backend validation remains required.
+- Preserve semantic HTML, labels, focus states, keyboard navigation, and readable error text.
+- Avoid introducing a component library, state library, styling framework, animation library, or icon library unless explicitly approved.
+- Do not expose server-only environment variables, secrets, API tokens, or private configuration to client-side code.
+
+Frontend QA Review Agent must check user flows, acceptance criteria, UI states, edge cases, regression risk, test coverage, browser behavior, and unrelated UI/API/style changes.
+
+Frontend UX and Accessibility Review Agent must check semantic HTML, labels, roles, keyboard navigation, focus management, visible focus states, error association, color contrast, responsive layout, text overflow, touch target size, and content overlap.
+
+Frontend Security Review Agent must check client secrets exposure, unsafe token storage or logging, redirect validation, user-generated content rendering, external scripts, dependencies, and sensitive error messages.
+
+Significant user-visible UI changes should be verified with browser or Playwright checks when a runnable frontend target is available.
 
 ## Review Gate Policy
 
@@ -859,17 +926,28 @@ Crawl Tasks require:
 - Verification.
 - Stop Condition.
 
+Crawl Tasks must load `docs/prompts/crawl-task-prompt.md` before planning, implementation, or review.
+
+Deep crawling is disabled by default. Deep crawl requests additionally require seed URLs, domain allowlist, max depth, max pages, rate limit, output columns, and stop condition.
+
 Crawl rules:
 
 - Use Python 3.12.
+- Implement crawl logic as Python files or scripts inside the workspace.
 - Prefer BeautifulSoup for static HTML.
 - Use Selenium only when rendering or interaction is required.
 - Use Scrapling only when extraction helper is useful.
+- Do not add another crawler framework such as Scrapy or Playwright unless the user or approved Task explicitly allows it.
+- Use the Python standard library or an already-approved project HTTP client for fetching when BeautifulSoup is used for parsing.
 - Crawl only user-provided or Task-approved URLs.
 - Extract only user-specified or Task-approved columns.
 - Do not invent additional columns.
 - Respect robots.txt, terms, rate limits, copyright, and privacy.
 - Record `source_url`, `retrieved_at`, and `failure_reason` when applicable.
+- Do not bypass login, paywalls, CAPTCHAs, access controls, or anti-abuse protections.
+- Use explicit timeouts, retry limits, exponential backoff, and conservative request intervals.
+- Do not download binaries, media archives, or large files unless explicitly approved.
+- Validate output schema, deduplicate records, and report row count, sample output, and failures.
 
 ## Folder-Level AGENTS.md Rules
 
@@ -961,17 +1039,20 @@ Frontend local rules:
 - Prefer small, focused components with clear props.
 - Keep UI state local unless shared state is clearly required.
 - Handle loading, error, empty, and success states.
+- Keep disabled, pending, validation, and permission states explicit when relevant.
 - Treat client-side validation as UX support only; backend validation remains required.
 - Do not expose server-only environment variables or secrets to client-side code.
 - Use Tailwind utility classes consistently with existing design tokens and layout patterns.
 - Avoid introducing a component library, state library, or styling framework unless approved.
 - Preserve accessibility with semantic HTML, labels, focus states, keyboard navigation, and readable error text.
+- Do not duplicate derived UI state unless there is a clear reason.
+- Do not treat client-side auth checks as the only authorization boundary.
 
 Frontend verification:
 
 - Use project-defined frontend commands when available.
 - If commands are unknown, inspect package scripts first.
-- Suggested checks: frontend lint, unit/component tests, build, manual UI state and accessibility check.
+- Suggested checks: frontend lint, unit/component tests, typecheck when configured, build, manual UI state, responsive, accessibility, and browser check.
 
 Frontend security-sensitive areas:
 

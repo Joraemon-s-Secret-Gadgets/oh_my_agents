@@ -17,6 +17,16 @@ Agents must follow instructions in this order:
 
 When instructions conflict, the higher-priority instruction wins. Folder-level instructions may specialize local ownership and verification rules, but they must not weaken or override root-level security, workflow, or Workspace Boundary rules. If the correct action is unclear, stop and ask the user before continuing.
 
+## User Language Preservation Rule
+
+When the user gives task instructions in Korean or another non-English language, do not discard, replace, or silently overwrite the original request.
+
+For agent execution, preserve the original request as `User Request Original` exactly as written, then normalize the executable instructions into a structured English `Structured Agent Contract`.
+
+The structured English contract improves agent reliability. The original user request remains authoritative for user intent, nuance, and success criteria.
+
+Review Agent must compare completed work against both `User Request Original` and `Structured Agent Contract`.
+
 ## Top-Level Principles
 
 These principles apply to all agents and override role-specific instructions.
@@ -49,17 +59,56 @@ Agents must keep the user informed during long-running work and must not silentl
 - Same-Role Fresh Agent Handoff: Prefer this when the Task/Subtask scope is clear but the current agent is repeating the same implementation, debugging, or review failure.
 - No Silent Retry: Do not repeatedly retry the same failing command, test, implementation, or review loop without reporting progress and changing the approach.
 
+## Agent Lifecycle & Cleanup Rule
+
+Agent instances are disposable execution contexts, not permanent project assets.
+
+- Unresponsive Agent Cleanup: If an agent does not respond or produces no meaningful progress within the No-Progress Limit, stop waiting for that agent, preserve any useful handoff summary, and terminate or delete the unresponsive agent context before starting a replacement.
+- Post-Use Cleanup: After an agent completes its assigned Task, Subtask, review, or handoff, do not keep that agent active for unrelated future work. Close, archive, terminate, or delete the unused agent context unless the user explicitly asks to keep it.
+- No Orphan Agents: Do not leave idle agents running with overlapping roles, stale context, or unclear ownership.
+- Preserve Outputs Before Cleanup: Before deleting an agent context, preserve only the necessary final report, handoff summary, changed-file list, verification result, and blocker notes.
+- Project Files Are Not Cleanup Targets: Agent cleanup applies only to agent contexts, threads, or harness-managed agent records. It must not delete project files, specs, reports, commits, branches, or user data unless the user explicitly asks for that separate action.
+
 ## Context Loading & Token Budget Rule
 
 Load only the rules, specs, and source files required for the current role and Task/Subtask.
 
 - Do not load all `docs/agents` files at startup.
 - Do not load `docs/prompts` files unless the current task explicitly asks for a prompt template.
+- Exception: If the current task involves crawling, scraping, URL extraction, deep crawling, BeautifulSoup, Selenium, or Scrapling, treat it as Crawl Focus and load `docs/prompts/crawl-task-prompt.md` before planning, implementation, or review.
+- Exception: If the current task involves frontend UI, React, TailwindCSS, browser-facing behavior, routes, components, hooks, client state, forms, accessibility, responsive behavior, or frontend API integration, treat it as Frontend domain work and load `docs/agents/frontend-agent-rules.md` before planning, implementation, or review.
 - Use targeted search and section reads before opening long files.
 - Treat Spec Summary documents as routing indexes, not as the source of truth.
 - The Full Spec remains authoritative for requirements, acceptance criteria, API contracts, data models, security rules, and user-visible behavior.
 - Implementation Agent must first read the current Subtask instruction and must not read the entire Full Spec by default.
 - For detailed context-loading, Spec Summary, and Subtask context-packet rules, load `docs/agents/context-loading.md`.
+
+## Crawl Focus Trigger Rule
+
+Treat a task as Crawl Focus when the user asks to crawl, scrape, collect data from URLs, extract columns from pages, deep crawl, or use BeautifulSoup, Selenium, or Scrapling.
+
+For Crawl Focus:
+
+- Load `docs/prompts/crawl-task-prompt.md` before planning, implementation, or review.
+- Do not start implementation until URLs, columns, output format, output path, allowed tools, verification, and stop condition are clear.
+- Implement crawl logic as Python 3.12 files or scripts inside the workspace.
+- Default crawl tools are BeautifulSoup, Selenium, and Scrapling. Do not add another crawler framework such as Scrapy or Playwright unless the user or approved Task explicitly allows it.
+- Deep crawling is disabled by default. Use deep crawling only when the user or approved Task provides seed URLs, domain allowlist, max depth, max pages, rate limit, output columns, and stop condition.
+- Do not invent URLs, crawl targets, or output columns.
+- If any Crawl Focus input is missing, stop and ask the user instead of guessing.
+
+## Frontend Domain Trigger Rule
+
+Treat a task as Frontend domain work when the user asks for UI, React, TailwindCSS, browser-facing behavior, routes, components, hooks, client state, forms, accessibility, responsive behavior, or frontend API integration.
+
+For Frontend domain work:
+
+- Load `docs/agents/frontend-agent-rules.md` before planning, implementation, or review.
+- Do not start implementation until target files or folders, UI states, API/data assumptions, verification, and out-of-scope behavior are clear.
+- Frontend Implementation Agent must handle relevant loading, error, empty, success, disabled, pending, and validation states.
+- Frontend QA or UX/A11y Review Agent must verify user-visible behavior, responsive behavior, accessibility, and regression risk when relevant.
+- Frontend Security Review Agent is required when the task touches client environment variables, auth UI, token handling, redirects, user-generated content, external scripts, or dependency changes.
+- Do not expose server-only secrets, API tokens, or private configuration to client-side code.
 
 ## Execution Mode Rule
 
@@ -211,6 +260,7 @@ Responsibilities:
 
 - Check whether the implementation matches the approved Spec, Task, and Subtask.
 - Check whether the implementation satisfies the user's original request, intent, and success criteria.
+- Check both the preserved `User Request Original` and the English `Structured Agent Contract` when they are provided.
 - Check whether all acceptance criteria are satisfied.
 - Check whether unrelated behavior was changed.
 - Check whether code follows existing project structure and conventions.
@@ -280,7 +330,7 @@ Implementation Agent responsibilities in this workflow:
 
 Review Agent responsibilities in this workflow:
 
-1. Review the completed work against the approved Spec, Task, Subtask, user intent, and project rules.
+1. Review the completed work against the approved Spec, Task, Subtask, preserved user request, structured agent contract, user intent, and project rules.
 2. Check correctness, edge cases, test coverage, maintainability, accessibility, security, and workspace safety when relevant.
 3. Require fixes for Blocker findings before approval.
 4. If fixes are required, the Implementation Agent must revise the work and request re-review.

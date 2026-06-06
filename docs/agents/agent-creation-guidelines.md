@@ -148,6 +148,7 @@ Role-specific minimum inputs:
 - Task Agent: Approved Spec path or approved Spec content, desired Task granularity when the default is not acceptable, dependencies, and next Task number when the workflow requires one.
 - Implementation Agent: Task or Subtask ID, Source of Truth, allowed write scope, acceptance criteria, verification command or permission to infer one from project scripts.
 - Review Agent: Review target such as changed files, branch, PR, or diff; Source of Truth; review focus such as correctness, security, UX, performance, or all.
+- Frontend Domain: Target files or folders, UI states, API/data assumptions, responsive requirements, accessibility requirements, verification command or browser check, and out-of-scope behavior.
 
 ## Role Permission Matrix
 
@@ -168,6 +169,8 @@ Review Agent is read-only by default. If the user wants a Review Agent to edit r
 Every tool-backed subagent run should be described with this contract before spawning whenever the information is available:
 
 ```md
+- User Request Original:
+- Structured Agent Contract:
 - Display Name:
 - Core Role:
 - Domain Focus:
@@ -185,13 +188,30 @@ Every tool-backed subagent run should be described with this contract before spa
 
 Rules:
 
+- Preserve `User Request Original` exactly as written when the user gave the task in Korean or another non-English language.
+- Write `Structured Agent Contract` in English with normalized execution fields.
+- The structured English contract supports execution reliability, but the original user request remains authoritative for user intent and success criteria.
 - Do not create an Implementation Agent without a bounded write scope.
 - Do not create a Review Agent without a review target.
+- Frontend-domain agents must load `docs/agents/frontend-agent-rules.md` before planning, implementation, or review.
+- Do not create a Frontend Implementation Agent without target files or folders, UI states, API/data assumptions, verification, and out-of-scope behavior.
 - Do not create a Crawl-focused agent without approved URLs and columns.
+- Crawl-focused agents must load `docs/prompts/crawl-task-prompt.md` before planning, implementation, or review.
+- Crawl-focused implementation must use Python 3.12 files or scripts and the default crawl tools: BeautifulSoup, Selenium, and Scrapling. Additional crawler frameworks require explicit user or Task approval.
+- Deep crawl requests also require seed URLs, domain allowlist, max depth, max pages, rate limit, output columns, and stop condition.
 - State any inferred contract values before spawning the subagent.
 - If Execution Mode is not specified, use Hybrid Mode for ordinary feature work and Sequential Mode for security-sensitive, database, authentication, authorization, payment, migration, irreversible, or ambiguous work.
 - Use Parallel Mode only when the user explicitly asks for parallel agents or when write scopes are clearly separated and Main Codex can integrate the results safely.
 - If the contract is missing safety-critical fields, ask the user up to three questions instead of spawning.
+
+## Agent Lifecycle & Cleanup
+
+Tool-backed subagents should be treated as bounded, disposable execution contexts.
+
+- If a subagent becomes unresponsive or produces no meaningful progress within the root No-Progress Limit, stop waiting for it, preserve any useful handoff output, and terminate or delete that subagent context before spawning a replacement.
+- After a subagent completes its assigned Task, Subtask, review, or handoff, close, archive, terminate, or delete the unused subagent context unless the user explicitly asks to keep it.
+- Do not leave idle subagents running with overlapping roles, stale context, or unclear ownership.
+- Cleanup must affect only agent contexts, threads, or harness-managed agent records. It must not delete project files, specs, reports, branches, commits, or user data unless the user explicitly requests that separate action.
 
 ## Subagent Output Contract
 
@@ -217,6 +237,7 @@ Role-specific output requirements:
 - Task Agent: include Task/Subtask list, execution order, dependencies, acceptance criteria, and verification commands.
 - Implementation Agent: include changed files, implementation summary, verification results, blockers, and known limitations.
 - Review Agent: use the required Review Output Format with Severity, Area, Evidence, Risk, Required Fix, and Retest.
+- Review Agent: compare the implementation against both `User Request Original` and `Structured Agent Contract` when both are provided.
 - Security Review Agent: use the required Security Review Output Format when security-sensitive areas are involved.
 - Crawl-focused agents: include input URLs, approved columns, output path, row count or sample result, failures, `source_url`, `retrieved_at`, and `failure_reason` handling.
 

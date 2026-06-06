@@ -78,6 +78,18 @@ Spec 작성
 
 예를 들어 특정 기능 폴더의 `AGENTS.md`가 별도 테스트 명령을 지정할 수는 있습니다. 하지만 그 지시가 루트의 보안 규칙, 작업 흐름, 리뷰 규칙, Workspace Boundary를 약화하거나 우회할 수는 없습니다.
 
+## User Language Preservation Rule
+
+`User Language Preservation Rule`은 사용자가 한글로 준 요청의 뉘앙스와 의도를 잃지 않기 위한 규칙입니다.
+
+사용자가 한글 또는 영어가 아닌 언어로 작업 지시를 주면, 원문을 버리거나 완전히 영어 번역으로 대체하지 않습니다.
+
+에이전트 실행 시에는 원래 요청을 `User Request Original`에 그대로 보존하고, 실제 실행 안정성을 위해 `Structured Agent Contract`라는 영어 구조화 계약을 추가로 작성합니다.
+
+영어 구조화 계약은 에이전트가 scope, goal, output format, verification을 안정적으로 이해하게 돕기 위한 것입니다. 사용자의 원래 요청은 의도, 뉘앙스, 성공 기준의 최종 기준으로 남습니다.
+
+`Review Agent`는 결과를 검토할 때 `User Request Original`과 `Structured Agent Contract`를 모두 기준으로 삼아야 합니다.
+
 ## Top-Level Principles
 
 `Top-Level Principles`는 모든 역할에 공통으로 적용되는 최상위 원칙입니다.
@@ -100,6 +112,37 @@ Spec 작성
 
 이 원칙은 기능 개발뿐 아니라 문서, 테스트, 설정 변경에도 적용됩니다.
 
+## Crawl Focus Trigger Rule
+
+`Crawl Focus Trigger Rule`은 크롤링 작업에서 필요한 프롬프트와 안전 규칙이 누락되지 않도록 강제로 연결하는 규칙입니다.
+
+사용자가 크롤링, 스크래핑, URL에서 데이터 수집, 페이지에서 컬럼 추출, 딥크롤링, BeautifulSoup, Selenium, Scrapling 사용을 요청하면 해당 작업은 `Crawl Focus`로 봅니다.
+
+`Crawl Focus`에서는 다음을 반드시 지켜야 합니다.
+
+- 계획, 구현, 리뷰 전에 [docs/prompts/crawl-task-prompt.md](./docs/prompts/crawl-task-prompt.md)를 읽습니다.
+- URL, 컬럼, output format, output path, allowed tools, verification, stop condition이 명확하지 않으면 구현을 시작하지 않습니다.
+- 크롤링 로직은 workspace 안의 Python 3.12 파일 또는 스크립트로 구현합니다.
+- 기본 크롤링 도구는 BeautifulSoup, Selenium, Scrapling입니다. 사용자가 명시적으로 승인하거나 승인된 Task에 포함된 경우가 아니라면 Scrapy, Playwright 같은 다른 크롤러 프레임워크를 추가하지 않습니다.
+- 딥크롤링은 기본 비활성화입니다. seed URL, domain allowlist, max depth, max pages, rate limit, output columns, stop condition이 승인된 경우에만 사용합니다.
+- URL, crawl target, output column을 임의로 만들지 않습니다.
+- 크롤링 입력값이 부족하면 추측하지 말고 사용자에게 질문합니다.
+
+## Frontend Domain Trigger Rule
+
+`Frontend Domain Trigger Rule`은 프론트엔드 작업에서 UI 상태, 접근성, 반응형, 보안 규칙이 빠지지 않도록 강제로 연결하는 규칙입니다.
+
+사용자가 UI, React, TailwindCSS, 브라우저 동작, route, component, hook, client state, form, accessibility, responsive behavior, frontend API integration을 요청하면 해당 작업은 Frontend domain work로 봅니다.
+
+Frontend domain work에서는 다음을 반드시 지켜야 합니다.
+
+- 계획, 구현, 리뷰 전에 [docs/agents/ko/frontend-agent-rules.md](./docs/agents/ko/frontend-agent-rules.md)를 읽습니다. 실제 기준 원문은 [docs/agents/frontend-agent-rules.md](./docs/agents/frontend-agent-rules.md)입니다.
+- target files 또는 folders, UI states, API/data assumptions, verification, out-of-scope behavior가 명확하지 않으면 구현을 시작하지 않습니다.
+- Frontend Implementation Agent는 관련 loading, error, empty, success, disabled, pending, validation 상태를 처리해야 합니다.
+- Frontend QA 또는 UX/A11y Review Agent는 관련될 경우 사용자 visible behavior, responsive behavior, accessibility, regression risk를 검증해야 합니다.
+- client environment variables, auth UI, token handling, redirects, user-generated content, external scripts, dependency 변경이 있으면 Frontend Security Review Agent가 필요합니다.
+- server-only secret, API token, private configuration을 client-side code에 노출하지 않습니다.
+
 ## Agent Progress & Handoff Rule
 
 `Agent Progress & Handoff Rule`은 에이전트가 오래 작업하거나 막혔을 때 조용히 멈춰 있는 상황을 방지하기 위한 규칙입니다.
@@ -112,6 +155,16 @@ Spec 작성
 - Same-Role Fresh Agent Handoff: Task/Subtask 범위는 명확하지만 현재 에이전트가 같은 구현, 디버깅, 리뷰 실패를 반복할 때 우선합니다.
 - No Silent Retry: 같은 실패 명령, 테스트, 구현, 리뷰 루프를 보고 없이 반복하지 않습니다.
 
+## Agent Lifecycle & Cleanup Rule
+
+`Agent Lifecycle & Cleanup Rule`은 에이전트를 영구 자산이 아니라 일회성 실행 컨텍스트로 관리하기 위한 규칙입니다.
+
+- Unresponsive Agent Cleanup: 에이전트가 응답하지 않거나 `No-Progress Limit` 안에 의미 있는 진전을 내지 못하면, 해당 에이전트를 계속 기다리지 않습니다. 가능한 handoff 요약만 보존한 뒤 무응답 에이전트 컨텍스트를 종료하거나 삭제하고, 필요한 경우 새 에이전트로 교체합니다.
+- Post-Use Cleanup: 에이전트가 맡은 Task, Subtask, review, handoff를 끝내면 그 에이전트를 관련 없는 다음 작업에 계속 재사용하지 않습니다. 사용자가 명시적으로 유지하라고 하지 않는 한, 사용이 끝난 에이전트 컨텍스트는 닫기, 보관, 종료, 삭제 중 현재 하네스가 지원하는 방식으로 정리합니다.
+- No Orphan Agents: 역할이 겹치거나, 오래된 컨텍스트를 들고 있거나, 소유 범위가 불명확한 유휴 에이전트를 남겨두지 않습니다.
+- Preserve Outputs Before Cleanup: 에이전트 컨텍스트를 삭제하기 전에는 최종 보고, handoff 요약, 변경 파일 목록, 검증 결과, blocker 기록처럼 다음 작업에 필요한 산출물만 보존합니다.
+- Project Files Are Not Cleanup Targets: 에이전트 정리는 agent context, thread, harness가 관리하는 agent record에만 적용됩니다. 사용자가 별도로 명시하지 않는 한 프로젝트 파일, spec, report, commit, branch, 사용자 데이터는 삭제 대상이 아닙니다.
+
 ## Context Loading & Token Budget Rule
 
 `Context Loading & Token Budget Rule`은 에이전트가 현재 역할과 Task/Subtask에 필요한 문서만 읽도록 해서 토큰 비용을 줄이기 위한 규칙입니다.
@@ -119,7 +172,8 @@ Spec 작성
 핵심은 다음과 같습니다.
 
 - 시작할 때 `docs/agents` 전체를 읽지 않습니다.
-- 현재 작업이 프롬프트 템플릿을 명시적으로 요청하지 않으면 `docs/prompts` 파일을 읽지 않습니다.
+- 현재 작업이 프롬프트 템플릿을 명시적으로 요청하지 않으면 `docs/prompts` 파일을 읽지 않습니다. 단, 크롤링, 스크래핑, URL 데이터 수집, 딥크롤링, BeautifulSoup, Selenium, Scrapling 작업은 예외로 보고 `docs/prompts/crawl-task-prompt.md`를 읽습니다.
+- frontend UI, React, TailwindCSS, 브라우저 동작, route, component, hook, client state, form, accessibility, responsive behavior, frontend API integration 작업은 예외로 보고 [docs/agents/ko/frontend-agent-rules.md](./docs/agents/ko/frontend-agent-rules.md)를 읽습니다. 에이전트가 실제로 따르는 영어 기준 원문은 [docs/agents/frontend-agent-rules.md](./docs/agents/frontend-agent-rules.md)입니다.
 - 긴 파일은 먼저 검색하거나 필요한 섹션만 읽습니다.
 - `AGENTS.ko.md`는 팀원용 설명서이므로 기본 로딩 대상이 아닙니다.
 - Spec Summary는 원본이 아니라 색인으로만 사용합니다.
@@ -249,6 +303,7 @@ Spec 작성
 
 - 구현이 Spec, Task, Subtask와 맞는지 확인
 - 구현이 사용자의 원래 요구 목적, 의도, 성공 기준에 들어맞는지 확인
+- `User Request Original`과 영어 `Structured Agent Contract`가 제공된 경우 둘 다 기준으로 확인
 - 성공 기준이 충족됐는지 확인
 - 관련 없는 동작이 바뀌지 않았는지 확인
 - 테스트나 예외 처리가 부족하지 않은지 확인
@@ -327,7 +382,7 @@ Spec 작성
 
 `Review Agent`는 이 단계에서 다음을 담당합니다.
 
-1. 구현 결과가 승인된 Spec, Task, Subtask, 사용자 의도, 프로젝트 규칙에 맞는지 확인합니다.
+1. 구현 결과가 승인된 Spec, Task, Subtask, 보존된 사용자 원문, 영어 구조화 계약, 사용자 의도, 프로젝트 규칙에 맞는지 확인합니다.
 2. 필요에 따라 정확성, edge case, 테스트 범위, 유지보수성, 접근성, 보안, Workspace Safety를 검토합니다.
 3. Blocker finding이 있으면 승인하지 않고 수정을 요구합니다.
 4. 수정이 필요하면 `Implementation Agent`가 수정 후 다시 리뷰를 요청해야 합니다.
