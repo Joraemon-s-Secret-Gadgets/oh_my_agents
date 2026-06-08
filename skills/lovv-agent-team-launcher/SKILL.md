@@ -1,8 +1,8 @@
 ---
 name: lovv-agent-team-launcher
-description: Use when the user asks to launch, create, run, or coordinate a Lovv agent team from a GitHub Issue, such as Planning Team, Frontend Feature Team, Backend API Team, Security Review Team, Crawl Data Team, or Release Gate Team. Use this after or with the Lovv Issue Router proposal when the user explicitly wants real subagents or team execution.
+description: Use when the user asks to launch, create, run, coordinate, or propose a Lovv agent team from a GitHub Issue, including short Korean invocations such as "Lovv #123 팀 제안해줘", "Lovv #123 제안 승인. 순차형으로 시작해줘", or "Owner Auto Team: Lovv #123 하이브리드로 실행해줘". Use this after or with the Lovv Issue Router proposal when the user explicitly wants real subagents or team execution.
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
 ---
 
 # Lovv Agent Team Launcher
@@ -10,6 +10,19 @@ metadata:
 Use this skill to coordinate an on-demand Lovv agent team from a GitHub Issue.
 
 This skill is a launcher workflow, not a permanent background service. It must follow the project root `AGENTS.md`, the `oh-my-agents` routing rules, and the Level 1 Issue Router safety model.
+
+## Short Invocation Contract
+
+Users should be able to trigger this skill with short natural-language commands. Treat the command as a trigger, not as the source of truth.
+
+Recognized commands:
+
+- `Lovv #<issue-number> 팀 제안해줘`: read the Lovv GitHub Issue and propose an agent team only. Do not launch agents.
+- `Lovv #<issue-number> 제안 승인. 순차형으로 시작해줘`: launch the approved proposal in Sequential Mode. If there is no prior proposal for the same issue in the current context, show the proposal first and ask for approval.
+- `Lovv #<issue-number> 제안 승인. 하이브리드로 시작해줘`: launch the approved proposal in Hybrid Mode. If there is no prior proposal for the same issue in the current context, show the proposal first and ask for approval.
+- `Owner Auto Team: Lovv #<issue-number> <mode>로 실행해줘`: use Owner Auto Team Pilot for the issue and mode, then continue only within the Owner Auto Team safety limits.
+
+Do not require teammates to name the exact team preset or agent roles. Infer the proposal from the GitHub Issue title, body, labels, template fields, `Layer`, `Priority`, acceptance criteria, and completion conditions.
 
 ## Safety Defaults
 
@@ -84,7 +97,8 @@ Agent Team Proposal:
 - Missing Inputs:
 
 Approval Required:
-- Reply `승인, 실행해줘` to launch this team.
+- Reply `Lovv #<issue-number> 제안 승인. 순차형으로 시작해줘` to launch sequentially.
+- Reply `Lovv #<issue-number> 제안 승인. 하이브리드로 시작해줘` to launch in hybrid mode.
 - Reply with edits to change team, scope, mode, or order.
 ```
 

@@ -18,6 +18,60 @@ Harness의 예시는 다음과 같습니다.
 
 지원되는 harness가 없다면 현재 Codex 세션이 role activation 방식으로 규칙을 따를 수는 있습니다. 다만 이것은 독립적인 subagent를 실제로 생성하는 것과는 다릅니다.
 
+## Skill 및 실행 방식 요약
+
+이 저장소는 세 가지 실행 계층을 함께 사용합니다.
+
+| 구분 | 역할 | 실제 subagent 생성 여부 |
+| --- | --- | --- |
+| `scripts/lovv_issue_router.py` | GitHub Issue를 읽고 agent, mode, scope, missing input, `Structured Agent Contract`를 제안하는 Level 1 CLI harness | 생성하지 않음 |
+| `$oh-my-agents` Skill | `AGENTS.md` 기준으로 단일 role agent를 라우팅하고 실행 계약을 정리하는 Skill | Codex 환경에 tool-backed harness가 있을 때만 가능 |
+| `$lovv-agent-team-launcher` Skill | GitHub Issue 기반으로 Agent Team을 제안하고, 승인 후 실제 subagent team 실행을 시도하는 Skill | Codex 환경에 tool-backed harness가 있을 때만 가능 |
+
+정리하면 다음과 같습니다.
+
+```text
+AGENTS.md
+= 프로젝트 규칙서
+
+lovv_issue_router.py
+= GitHub Issue 기반 routing proposal 생성기
+
+oh-my-agents Skill
+= 단일 agent role 라우터
+
+lovv-agent-team-launcher Skill
+= agent team proposal / launch 라우터
+
+Codex tool-backed subagent harness
+= 실제 subagent를 spawn / wait / close 하는 실행 계층
+```
+
+## 작업 방식 선택 기준
+
+| 상황 | 권장 방식 |
+| --- | --- |
+| Issue를 읽고 어떤 agent가 맞는지만 보고 싶을 때 | `python3 scripts/lovv_issue_router.py <issue>` |
+| 단일 역할 agent가 필요할 때 | `$oh-my-agents` |
+| 여러 역할이 함께 필요한 기능 작업일 때 | `$lovv-agent-team-launcher` |
+| 팀원이 작업할 때 | team proposal을 먼저 보고 승인 후 실행 |
+| Owner 전용 파일럿 | `Owner Auto Team`을 명시한 경우에만 자동 team 실행 |
+
+## 팀원용 짧은 호출 규칙
+
+팀원은 긴 prompt를 직접 작성하지 않고, GitHub Issue 번호와 원하는 동작만 입력하는 것을 기본으로 합니다.
+
+| 목적 | 입력 |
+| --- | --- |
+| 팀 제안만 받기 | `Lovv #123 팀 제안해줘` |
+| 승인 후 순차형 시작 | `Lovv #123 제안 승인. 순차형으로 시작해줘` |
+| 승인 후 하이브리드 시작 | `Lovv #123 제안 승인. 하이브리드로 시작해줘` |
+| Owner 전용 자동 파일럿 | `Owner Auto Team: Lovv #123 하이브리드로 실행해줘` |
+
+이 짧은 입력은 prompt engineering 문장이 아니라 실행 트리거입니다. 실제 작업의 source of truth는 Lovv GitHub Issue 본문, labels, Issue Template 필드, `AGENTS.md`, Skill, harness 규칙입니다.
+
+팀원은 agent team preset이나 세부 role을 직접 맞추려고 하지 않아도 됩니다. Skill과 harness가 Issue의 `Layer`, `Priority`, `완료 조건`, `요구사항 / 수용 기준`, labels를 읽고 적합한 team을 제안해야 합니다.
+
 ## 기본 실행 모드
 
 `oh-my-agents`를 사용한다고 해서 기본 실행 모드가 `Sequential Mode`가 되는 것은 아닙니다.
@@ -38,6 +92,19 @@ Harness의 예시는 다음과 같습니다.
 6. 선택된 역할, 도메인, focus에 필요한 규칙만 읽습니다.
 7. 에이전트의 최종 보고를 수집합니다.
 8. harness가 지원하는 경우, 사용이 끝났거나 응답이 없는 agent context를 정리합니다.
+
+팀원 작업 흐름은 다음을 기본으로 합니다.
+
+```text
+GitHub Issue 선택
+-> Issue Router로 routing proposal 생성
+-> oh-my-agents 또는 lovv-agent-team-launcher로 실행 방식 제안
+-> 사용자 승인
+-> subagent harness가 있으면 실제 subagent 실행
+-> harness가 없으면 현재 Codex 세션에서 role activation으로 대체
+-> 최종 보고 수집
+-> 사용이 끝난 agent context 정리
+```
 
 ## Lovv Issue Router Level 1
 
@@ -77,12 +144,37 @@ python3 scripts/lovv_issue_router.py 123
 실제 subagent 팀을 실행해야 할 때는 `lovv-agent-team-launcher` Skill을 사용합니다.
 
 ```text
-$lovv-agent-team-launcher Lovv #123 이슈로 Frontend Feature Team 제안해줘
+Lovv #123 팀 제안해줘
+```
+
+Skill을 명시해야 하는 환경에서는 다음처럼 사용할 수 있습니다.
+
+```text
+$lovv-agent-team-launcher Lovv #123 팀 제안해줘
 ```
 
 일반 팀원용 기본 흐름은 `팀 제안 -> 사용자 승인 -> subagent 실행 또는 role activation fallback`입니다.
 
 지원되는 Codex subagent harness가 있으면 실제 subagent를 생성하고, 없으면 현재 세션에서 역할별로 순차 실행합니다.
+
+대표적인 team preset은 다음과 같습니다.
+
+| Team | 쓰는 경우 |
+| --- | --- |
+| Planning Team | 신규 기능, 요구사항, Spec, Task 분해 |
+| Frontend Feature Team | React, Tailwind, UI, route, state, 접근성 |
+| Backend API Team | Django, API, DB, migration, validation |
+| Security Review Team | auth, token, secret, env, permission |
+| Crawl Data Team | crawl, scrape, BeautifulSoup, Selenium, Scrapling |
+| Release Gate Team | merge 전 최종 review, QA, security gate |
+
+팀원용 기본 모드에서는 다음 작업을 자동화하지 않습니다.
+
+- branch 생성
+- commit 생성
+- PR 생성
+- issue close
+- 승인 없는 implementation 시작
 
 자세한 사용법은 `docs/harnesses/lovv-agent-team-launcher.md`를 참고합니다.
 
@@ -123,6 +215,6 @@ cp -R skills/lovv-agent-team-launcher ~/.codex/skills/lovv-agent-team-launcher
 
 ## 팀 사용 팁
 
-에이전트를 요청할 때는 가능하면 role, goal, source of truth, scope, out-of-scope behavior, verification command, expected output format을 함께 적는 것이 좋습니다.
+에이전트를 요청할 때는 가능한 한 먼저 Lovv GitHub Issue Template을 충실히 작성합니다.
 
-이 정보가 부족하면 agent 또는 harness는 추측하지 않고 짧은 clarification question으로 필요한 내용을 확인해야 합니다.
+짧은 호출만으로 판단하기 어려우면 agent 또는 harness는 추측하지 않고 부족한 입력만 짧게 질문해야 합니다.

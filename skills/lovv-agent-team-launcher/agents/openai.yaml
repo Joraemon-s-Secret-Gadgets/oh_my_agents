@@ -1,4 +1,4 @@
 interface:
   display_name: "Lovv Agent Team Launcher"
-  short_description: "Launch scoped Lovv agent teams from issues."
-  default_prompt: "Use $lovv-agent-team-launcher to propose and launch a scoped Lovv agent team from a GitHub Issue."
+  short_description: "Propose and launch scoped Lovv agent teams from issues."
+  default_prompt: "Lovv #123 팀 제안해줘"

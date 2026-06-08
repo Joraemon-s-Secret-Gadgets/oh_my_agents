@@ -34,16 +34,25 @@ cp -R skills/lovv-agent-team-launcher ~/.codex/skills/lovv-agent-team-launcher
 
 ## 사용 예시
 
-일반 팀원용:
+팀원은 긴 prompt 대신 아래 짧은 호출을 기본으로 사용합니다.
+
+| 목적 | 입력 |
+| --- | --- |
+| 팀 제안만 받기 | `Lovv #123 팀 제안해줘` |
+| 승인 후 순차형 시작 | `Lovv #123 제안 승인. 순차형으로 시작해줘` |
+| 승인 후 하이브리드 시작 | `Lovv #123 제안 승인. 하이브리드로 시작해줘` |
+| Owner 전용 자동 파일럿 | `Owner Auto Team: Lovv #123 하이브리드로 실행해줘` |
+
+일반 팀원용 기본 호출:
 
 ```text
-$lovv-agent-team-launcher Lovv #123 이슈로 Frontend Feature Team 제안해줘
+Lovv #123 팀 제안해줘
 ```
 
-승인 후 실행:
+Skill을 명시해야 하는 환경에서는 다음처럼 사용할 수 있습니다.
 
 ```text
-승인, 실행해줘
+$lovv-agent-team-launcher Lovv #123 팀 제안해줘
 ```
 
 팀 변경 요청:
@@ -55,7 +64,7 @@ Security Review Team도 포함해서 다시 제안해줘
 Owner 전용 파일럿:
 
 ```text
-$lovv-agent-team-launcher Lovv #123 Owner Auto Team으로 실행해줘
+Owner Auto Team: Lovv #123 하이브리드로 실행해줘
 ```
 
 ## 기본 흐름

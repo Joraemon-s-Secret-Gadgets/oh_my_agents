@@ -177,6 +177,14 @@ Structured Agent Contract:
 
 실제 subagent team 실행이 필요하면 `docs/harnesses/lovv-agent-team-launcher.md`와 `$lovv-agent-team-launcher` Skill을 사용합니다.
 
+팀원이 실제로 입력하는 기본 문장은 다음처럼 짧게 유지합니다.
+
+```text
+Lovv #123 팀 제안해줘
+```
+
+이 짧은 입력은 `lovv-agent-team-launcher`가 Issue Router를 내부 기준으로 사용해 team proposal을 만들라는 의미입니다.
+
 ## 자동화하지 않는 항목
 
 - 구현 시작
