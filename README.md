@@ -39,6 +39,20 @@ Harness의 예시는 다음과 같습니다.
 7. 에이전트의 최종 보고를 수집합니다.
 8. harness가 지원하는 경우, 사용이 끝났거나 응답이 없는 agent context를 정리합니다.
 
+## Lovv Issue Router Level 1
+
+팀원이 Lovv GitHub Issue를 기준으로 agent 작업을 시작할 때는 Level 1 harness를 사용할 수 있습니다.
+
+```bash
+python3 scripts/lovv_issue_router.py 123
+```
+
+이 harness는 GitHub Issue를 읽고 agent, execution mode, scope, missing input, `Structured Agent Contract`를 제안합니다.
+
+자동으로 구현, branch 생성, commit, PR 생성, issue close를 하지 않습니다. 사용자가 routing proposal을 승인한 뒤에만 실제 작업을 시작합니다.
+
+자세한 사용법은 `docs/harnesses/lovv-issue-router-level1.md`를 참고합니다.
+
 ## 주요 파일
 
 - `AGENTS.md`: 루트 프로젝트 에이전트 규칙입니다.
@@ -46,7 +60,9 @@ Harness의 예시는 다음과 같습니다.
 - `PRO20x/AGENTS.md`: PRO20x 사용자를 위한 full-context 버전입니다.
 - `docs/agents/`: 토큰 절약을 위해 분리된 agent rule 파일입니다.
 - `docs/agents/modes/`: Sequential, Hybrid, Parallel 실행 모드 문서입니다.
+- `docs/harnesses/`: GitHub Issue 기반 harness 같은 팀 운영 도구 문서입니다.
 - `docs/prompts/`: crawl prompt 같은 작업별 프롬프트 템플릿입니다.
+- `scripts/`: 팀원이 실행할 수 있는 안전한 CLI harness 스크립트입니다.
 - `skills/oh-my-agents/`: agent routing과 invocation 지원을 위한 공유 Skill package입니다.
 
 ## Codex Skill 설치
