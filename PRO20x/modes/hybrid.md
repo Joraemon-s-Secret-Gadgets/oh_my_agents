@@ -1,8 +1,8 @@
-# MAX Hybrid Execution Mode
+# PRO20x Hybrid Execution Mode
 
-This is the MAX full-context version of Hybrid Mode.
+This is the PRO20x full-context version of Hybrid Mode.
 
-Use this file when Pro/MAX users want a standalone, no-token-saving execution mode document instead of relying only on the token-optimized `docs/agents/modes/hybrid.md`.
+Use this file when PRO20x users want a standalone, no-token-saving execution mode document instead of relying only on the token-optimized `docs/agents/modes/hybrid.md`.
 
 ## Purpose
 

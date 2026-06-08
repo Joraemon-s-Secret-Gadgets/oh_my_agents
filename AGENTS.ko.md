@@ -229,13 +229,13 @@ Frontend domain work에서는 다음을 반드시 지켜야 합니다.
 
 ## File Synchronization Rule
 
-`File Synchronization Rule`은 루트 실행 지침인 `AGENTS.md`, 한국어 설명서인 `AGENTS.ko.md`, Pro/MAX용 전체 컨텍스트 파일인 `MAX/AGENTS.md`, 공유 Skill인 `skills/oh-my-agents`의 운영 규칙이 서로 어긋나지 않도록 관리하는 규칙입니다.
+`File Synchronization Rule`은 루트 실행 지침인 `AGENTS.md`, 한국어 설명서인 `AGENTS.ko.md`, PRO20x용 전체 컨텍스트 파일인 `PRO20x/AGENTS.md`, 공유 Skill인 `skills/oh-my-agents`의 운영 규칙이 서로 어긋나지 않도록 관리하는 규칙입니다.
 
 루트 `AGENTS.md`에 규칙을 추가, 수정, 삭제할 때는 같은 변경 사항을 `AGENTS.ko.md`에도 한국어 설명으로 함께 반영해야 합니다.
 
-특히 에이전트 생성, 이름 규칙, 호출 입력값, handoff, context-loading, subagent orchestration 규칙이 바뀌면 `MAX/AGENTS.md`와 `skills/oh-my-agents`도 같은 방향으로 수정이 필요한지 확인해야 합니다.
+특히 에이전트 생성, 이름 규칙, 호출 입력값, handoff, context-loading, subagent orchestration 규칙이 바뀌면 `PRO20x/AGENTS.md`와 `skills/oh-my-agents`도 같은 방향으로 수정이 필요한지 확인해야 합니다.
 
-즉, `AGENTS.md`는 에이전트가 따르는 원본 지침이고, `AGENTS.ko.md`는 팀원이 이해하기 위한 설명서입니다. `MAX/AGENTS.md`는 Pro/MAX 사용자가 토큰 부담 없이 한 파일로 전체 규칙을 볼 수 있는 풀 버전입니다. 표현 방식은 달라도 항상 같은 버전의 운영 규칙을 공유해야 합니다.
+즉, `AGENTS.md`는 에이전트가 따르는 원본 지침이고, `AGENTS.ko.md`는 팀원이 이해하기 위한 설명서입니다. `PRO20x/AGENTS.md`는 PRO20x 사용자가 토큰 부담 없이 한 파일로 전체 규칙을 볼 수 있는 풀 버전입니다. 표현 방식은 달라도 항상 같은 버전의 운영 규칙을 공유해야 합니다.
 
 ## Agent Roles
 

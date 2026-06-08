@@ -4,7 +4,7 @@
 ## Usage Modes
 
 - Plus / 일반 사용: 루트 `AGENTS.md`와 `docs/agents/*`를 필요할 때만 읽는 토큰 절약형 구조를 사용합니다.
-- Pro / MAX 사용: `MAX/AGENTS.md`를 사용해 토큰 부담 없이 주요 운영 규칙을 한 파일에서 확인합니다.
+- PRO20x 사용: `PRO20x/AGENTS.md`를 사용해 토큰 부담 없이 주요 운영 규칙을 한 파일에서 확인합니다.
 
 ## Codex Skill
 

@@ -1,8 +1,8 @@
 # AGENTS.md
 
-This is the MAX context version of the project agent instructions.
+This is the PRO20x context version of the project agent instructions.
 
-Use this file for Pro/MAX users who do not want to optimize for token cost and prefer one comprehensive `AGENTS.md` instead of the token-saving split version in the project root and `docs/agents/*`.
+Use this file for PRO20x users who do not want to optimize for token cost and prefer one comprehensive `AGENTS.md` instead of the token-saving split version in the project root and `docs/agents/*`.
 
 This file intentionally inlines the major planning, agent creation, review, security, crawl, and folder-level rules. It does not remove safety limits. Agents must still protect secrets, avoid workspace escapes, avoid heavy unmanaged files, and stop on ambiguity or deadlock.
 
@@ -12,11 +12,11 @@ Follow instructions in this order:
 
 1. User's explicit instructions.
 2. The project root `AGENTS.md`.
-3. This MAX `AGENTS.md` as a comprehensive operating guide for Pro/MAX users.
+3. This PRO20x `AGENTS.md` as a comprehensive operating guide for PRO20x users.
 4. The nearest folder-level `AGENTS.md` for domain-specific local rules that do not weaken root rules.
 5. General agent defaults.
 
-When instructions conflict, the higher-priority instruction wins. Folder-level and MAX rules may add detail, but they must not weaken root-level security, workflow, environment, or Workspace Boundary rules.
+When instructions conflict, the higher-priority instruction wins. Folder-level and PRO20x rules may add detail, but they must not weaken root-level security, workflow, environment, or Workspace Boundary rules.
 
 ## User Language Preservation Rule
 
@@ -28,16 +28,16 @@ The structured English contract improves agent reliability. The original user re
 
 Review Agent must compare completed work against both `User Request Original` and `Structured Agent Contract`.
 
-## MAX Context Mode
+## PRO20x Context Mode
 
-MAX Context Mode means:
+PRO20x Context Mode means:
 
 - Prefer this file as the single comprehensive agent operating guide.
 - Do not skip relevant agent-operation sections only to save tokens.
 - You may use the full planning, review, security, and agent creation rules in this file without loading split `docs/agents/*` files first.
 - If a split document is newer or explicitly referenced by the user, check it before acting.
 - Do not load `AGENTS.ko.md` unless the user asks for Korean explanation, Korean docs are being edited, or synchronization is being checked.
-- Do not read heavy unmanaged files, `.git` internals, large logs, build artifacts, or large data files just because MAX mode is enabled.
+- Do not read heavy unmanaged files, `.git` internals, large logs, build artifacts, or large data files just because PRO20x mode is enabled.
 
 ## Top-Level Principles
 
@@ -428,11 +428,11 @@ Before starting complex work, choose exactly one execution mode.
 - Hybrid Mode: default for ordinary feature work.
 - Parallel Mode: fastest but highest coordination risk.
 
-Standalone MAX mode files:
+Standalone PRO20x mode files:
 
-- `MAX/modes/sequential.md`
-- `MAX/modes/hybrid.md`
-- `MAX/modes/parallel.md`
+- `PRO20x/modes/sequential.md`
+- `PRO20x/modes/hybrid.md`
+- `PRO20x/modes/parallel.md`
 
 If the user does not specify a mode, use Hybrid Mode for ordinary feature work.
 
@@ -440,7 +440,7 @@ Use Sequential Mode for security-sensitive, database, authentication, authorizat
 
 Use Parallel Mode only when the user explicitly asks for parallel agents or when write scopes are clearly separated and Main Codex can integrate the results safely.
 
-Do not load all mode files by default in the token-optimized rule set. MAX users may keep this full section available because MAX is intended for full-context usage.
+Do not load all mode files by default in the token-optimized rule set. PRO20x users may keep this full section available because PRO20x is intended for full-context usage.
 
 ### Sequential Mode
 

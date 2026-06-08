@@ -1,8 +1,8 @@
-# MAX Parallel Execution Mode
+# PRO20x Parallel Execution Mode
 
-This is the MAX full-context version of Parallel Mode.
+This is the PRO20x full-context version of Parallel Mode.
 
-Use this file when Pro/MAX users want a standalone, no-token-saving execution mode document instead of relying only on the token-optimized `docs/agents/modes/parallel.md`.
+Use this file when PRO20x users want a standalone, no-token-saving execution mode document instead of relying only on the token-optimized `docs/agents/modes/parallel.md`.
 
 ## Purpose
 

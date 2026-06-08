@@ -1,8 +1,8 @@
-# MAX Sequential Execution Mode
+# PRO20x Sequential Execution Mode
 
-This is the MAX full-context version of Sequential Mode.
+This is the PRO20x full-context version of Sequential Mode.
 
-Use this file when Pro/MAX users want a standalone, no-token-saving execution mode document instead of relying only on the token-optimized `docs/agents/modes/sequential.md`.
+Use this file when PRO20x users want a standalone, no-token-saving execution mode document instead of relying only on the token-optimized `docs/agents/modes/sequential.md`.
 
 ## Purpose
 
@@ -43,7 +43,7 @@ Use this mode for:
 
 ## Context Loading
 
-MAX users may keep this full document available, but the selected active work should still load only the current Spec, Task/Subtask, local `AGENTS.md`, and role-specific format files needed for the task.
+PRO20x users may keep this full document available, but the selected active work should still load only the current Spec, Task/Subtask, local `AGENTS.md`, and role-specific format files needed for the task.
 
 Do not load Hybrid or Parallel mode files during Sequential Mode unless the user asks to compare modes.
 
