@@ -12,6 +12,7 @@ import argparse
 import json
 import os
 import re
+import subprocess
 import sys
 import textwrap
 import urllib.error
@@ -51,6 +52,33 @@ def parse_issue_number(raw: str) -> int:
 
 def normalize_label(label: str) -> str:
     return label.strip().lower().replace("_", "-")
+
+
+def resolve_github_token(token_env: str = "GITHUB_TOKEN", use_gh_auth: bool = True) -> str | None:
+    """Resolve a GitHub token from env first, then from `gh auth token`.
+
+    Public issues can be read without a token, so failures here intentionally
+    fall back to unauthenticated API requests.
+    """
+    token = os.environ.get(token_env) or os.environ.get("GH_TOKEN")
+    if token:
+        return token
+    if not use_gh_auth:
+        return None
+    try:
+        completed = subprocess.run(
+            ["gh", "auth", "token"],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return None
+    if completed.returncode != 0:
+        return None
+    gh_token = completed.stdout.strip()
+    return gh_token or None
 
 
 def fetch_json(url: str, token: str | None = None) -> Any:
@@ -380,14 +408,19 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument(
         "--token-env",
         default="GITHUB_TOKEN",
-        help="Environment variable that stores a GitHub token. Default: GITHUB_TOKEN",
+        help="Environment variable that stores a GitHub token. Default: GITHUB_TOKEN. GH_TOKEN is also accepted.",
+    )
+    parser.add_argument(
+        "--no-gh-auth",
+        action="store_true",
+        help="Do not fall back to `gh auth token` when no token env var is set.",
     )
     return parser.parse_args(argv)
 
 
 def main(argv: list[str]) -> int:
     args = parse_args(argv)
-    token = os.environ.get(args.token_env)
+    token = resolve_github_token(args.token_env, use_gh_auth=not args.no_gh_auth)
     issue_number = parse_issue_number(args.issue)
     issue = get_issue(args.repo, issue_number, token)
     comments = get_comments(args.repo, issue_number, token, args.comments)

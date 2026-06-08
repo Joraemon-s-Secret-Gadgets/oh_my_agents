@@ -43,6 +43,25 @@ Harness의 예시는 다음과 같습니다.
 
 팀원이 Lovv GitHub Issue를 기준으로 agent 작업을 시작할 때는 Level 1 harness를 사용할 수 있습니다.
 
+기본 설정은 다음 순서로 진행합니다.
+
+```bash
+# 1. GitHub CLI 설치 확인
+gh --version
+
+# 2. GitHub 로그인
+gh auth login
+
+# 3. 로그인 상태 확인
+gh auth status
+
+# 4. 저장소 clone
+git clone https://github.com/Joraemon-s-Secret-Gadgets/oh_my_agents.git
+cd oh_my_agents
+```
+
+`gh auth login`을 완료하면 harness가 `gh auth token`을 통해 GitHub 인증 정보를 자동으로 사용합니다. 공개 issue는 인증 없이도 조회할 수 있지만, 팀 작업에서는 rate limit과 private 권한 문제를 줄이기 위해 `gh` 로그인을 권장합니다.
+
 ```bash
 python3 scripts/lovv_issue_router.py 123
 ```

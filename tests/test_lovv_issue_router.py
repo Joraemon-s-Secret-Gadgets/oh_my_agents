@@ -1,10 +1,12 @@
 import unittest
+from unittest.mock import patch
 
 from scripts.lovv_issue_router import (
     choose_agent,
     choose_execution_mode,
     make_decision,
     parse_issue_number,
+    resolve_github_token,
 )
 
 
@@ -45,6 +47,18 @@ class LovvIssueRouterTest(unittest.TestCase):
         self.assertEqual(decision.display_name, "Spec Agent")
         self.assertIn("TBD: ask user for target files, folders, or behavior", decision.scope)
         self.assertTrue(decision.missing_inputs)
+
+    def test_resolve_github_token_prefers_named_env(self):
+        with patch.dict("os.environ", {"CUSTOM_TOKEN": "from-custom", "GH_TOKEN": "from-gh"}, clear=True):
+            self.assertEqual(resolve_github_token("CUSTOM_TOKEN", use_gh_auth=False), "from-custom")
+
+    def test_resolve_github_token_falls_back_to_gh_token_env(self):
+        with patch.dict("os.environ", {"GH_TOKEN": "from-gh-token"}, clear=True):
+            self.assertEqual(resolve_github_token("GITHUB_TOKEN", use_gh_auth=False), "from-gh-token")
+
+    def test_resolve_github_token_can_skip_gh_auth(self):
+        with patch.dict("os.environ", {}, clear=True):
+            self.assertIsNone(resolve_github_token("GITHUB_TOKEN", use_gh_auth=False))
 
 
 if __name__ == "__main__":
