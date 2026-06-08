@@ -2,7 +2,7 @@
 name: oh-my-agents
 description: Use when the user asks to create, launch, spawn, delegate to, or coordinate project role subagents such as Spec Agent, Task Agent, Implementation Agent, Review Agent, Frontend QA Review Agent, Backend Security Review Agent, or Crawl Implementation Agent according to a project's AGENTS.md.
 metadata:
-  version: "0.6.1"
+  version: "0.6.2"
 ---
 
 # Oh My Agents
@@ -11,7 +11,7 @@ Use this skill as a lightweight router for project-defined role subagents.
 
 The root `AGENTS.md` is the source of truth. This skill must never bypass, weaken, or replace project rules. It only helps interpret abstract user requests and coordinate tool-backed subagent creation.
 
-Version: 0.6.1
+Version: 0.6.2
 
 ## Core Flow
 
@@ -60,6 +60,7 @@ Use these defaults for abstract Korean or English requests:
 - "크롤링", "수집", "crawl", "scrape" -> Crawl focus.
 - "딥크롤링", "deep crawl" -> Crawl focus with Deep Crawl gate.
 - "BeautifulSoup", "Selenium", "Scrapling" -> Crawl focus.
+- "에이전트 팀", "agent team", "team launcher", "Owner Auto Team" -> Use `lovv-agent-team-launcher` when installed.
 - "순차", "sequential" -> Sequential Mode.
 - "하이브리드", "혼합", "hybrid" -> Hybrid Mode.
 - "병렬", "parallel" -> Parallel Mode.

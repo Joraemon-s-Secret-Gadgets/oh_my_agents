@@ -70,13 +70,15 @@ cd oh_my_agents
 ```bash
 mkdir -p ~/.codex/skills
 cp -R skills/oh-my-agents ~/.codex/skills/oh-my-agents
+cp -R skills/lovv-agent-team-launcher ~/.codex/skills/lovv-agent-team-launcher
 ```
 
 이미 설치되어 있다면 업데이트 시 기존 로컬 Skill을 교체합니다.
 
 ```bash
-rm -rf ~/.codex/skills/oh-my-agents
+rm -rf ~/.codex/skills/oh-my-agents ~/.codex/skills/lovv-agent-team-launcher
 cp -R skills/oh-my-agents ~/.codex/skills/oh-my-agents
+cp -R skills/lovv-agent-team-launcher ~/.codex/skills/lovv-agent-team-launcher
 ```
 
 ### 5. Token 설정 방식
@@ -172,6 +174,8 @@ Structured Agent Contract:
 3. 사용자가 agent, mode, scope, missing input을 확인합니다.
 4. 사용자가 승인하면 Codex 현재 세션 또는 tool-backed subagent harness로 실행합니다.
 5. 실행 결과는 issue comment, docs report, 또는 PR description에 수동으로 연결합니다.
+
+실제 subagent team 실행이 필요하면 `docs/harnesses/lovv-agent-team-launcher.md`와 `$lovv-agent-team-launcher` Skill을 사용합니다.
 
 ## 자동화하지 않는 항목
 

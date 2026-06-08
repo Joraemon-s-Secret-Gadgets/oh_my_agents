@@ -72,6 +72,20 @@ python3 scripts/lovv_issue_router.py 123
 
 자세한 사용법은 `docs/harnesses/lovv-issue-router-level1.md`를 참고합니다.
 
+## Lovv Agent Team Launcher
+
+실제 subagent 팀을 실행해야 할 때는 `lovv-agent-team-launcher` Skill을 사용합니다.
+
+```text
+$lovv-agent-team-launcher Lovv #123 이슈로 Frontend Feature Team 제안해줘
+```
+
+일반 팀원용 기본 흐름은 `팀 제안 -> 사용자 승인 -> subagent 실행 또는 role activation fallback`입니다.
+
+지원되는 Codex subagent harness가 있으면 실제 subagent를 생성하고, 없으면 현재 세션에서 역할별로 순차 실행합니다.
+
+자세한 사용법은 `docs/harnesses/lovv-agent-team-launcher.md`를 참고합니다.
+
 ## 주요 파일
 
 - `AGENTS.md`: 루트 프로젝트 에이전트 규칙입니다.
@@ -83,6 +97,7 @@ python3 scripts/lovv_issue_router.py 123
 - `docs/prompts/`: crawl prompt 같은 작업별 프롬프트 템플릿입니다.
 - `scripts/`: 팀원이 실행할 수 있는 안전한 CLI harness 스크립트입니다.
 - `skills/oh-my-agents/`: agent routing과 invocation 지원을 위한 공유 Skill package입니다.
+- `skills/lovv-agent-team-launcher/`: 실제 agent team proposal과 subagent launch를 돕는 Skill package입니다.
 
 ## Codex Skill 설치
 
@@ -91,16 +106,20 @@ python3 scripts/lovv_issue_router.py 123
 ```bash
 mkdir -p ~/.codex/skills
 cp -R skills/oh-my-agents ~/.codex/skills/oh-my-agents
+cp -R skills/lovv-agent-team-launcher ~/.codex/skills/lovv-agent-team-launcher
 ```
 
 이미 설치되어 있다면 업데이트할 때 기존 로컬 Skill을 교체합니다.
 
 ```bash
-rm -rf ~/.codex/skills/oh-my-agents
+rm -rf ~/.codex/skills/oh-my-agents ~/.codex/skills/lovv-agent-team-launcher
 cp -R skills/oh-my-agents ~/.codex/skills/oh-my-agents
+cp -R skills/lovv-agent-team-launcher ~/.codex/skills/lovv-agent-team-launcher
 ```
 
 새 Codex 세션에서 `$oh-my-agents`를 사용하면 프로젝트 `AGENTS.md`를 기준으로 Spec, Task, Implementation, Review agent routing 흐름을 표준화할 수 있습니다.
+
+실제 agent team 실행이 필요하면 새 Codex 세션에서 `$lovv-agent-team-launcher`를 사용합니다.
 
 ## 팀 사용 팁
 
