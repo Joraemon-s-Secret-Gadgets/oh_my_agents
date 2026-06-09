@@ -54,12 +54,12 @@ Codex tool-backed subagent harness
 | Issue를 읽고 어떤 agent가 맞는지만 보고 싶을 때 | `python3 scripts/lovv_issue_router.py <issue>` |
 | 단일 역할 agent가 필요할 때 | `$oh-my-agents` |
 | 여러 역할이 함께 필요한 기능 작업일 때 | `$lovv-agent-team-launcher` |
-| 팀원이 작업할 때 | team proposal을 먼저 보고 승인 후 실행 |
+| 사용자가 작업할 때 | team proposal을 먼저 보고 승인 후 실행 |
 | Owner 전용 파일럿 | `Owner Auto Team`을 명시한 경우에만 자동 team 실행 |
 
-## 팀원용 짧은 호출 규칙
+## 사용자용 짧은 호출 규칙
 
-팀원은 긴 prompt를 직접 작성하지 않고, GitHub Issue 번호와 원하는 동작만 입력하는 것을 기본으로 합니다.
+사용자는 긴 prompt를 직접 작성하지 않고, GitHub Issue 번호와 원하는 동작만 입력하는 것을 기본으로 합니다.
 
 | 목적 | 입력 |
 | --- | --- |
@@ -70,7 +70,7 @@ Codex tool-backed subagent harness
 
 이 짧은 입력은 prompt engineering 문장이 아니라 실행 트리거입니다. 실제 작업의 source of truth는 Lovv GitHub Issue 본문, labels, Issue Template 필드, `AGENTS.md`, Skill, harness 규칙입니다.
 
-팀원은 agent team preset이나 세부 role을 직접 맞추려고 하지 않아도 됩니다. Skill과 harness가 Issue의 `Layer`, `Priority`, `완료 조건`, `요구사항 / 수용 기준`, labels를 읽고 적합한 team을 제안해야 합니다.
+사용자는 agent team preset이나 세부 role을 직접 맞추려고 하지 않아도 됩니다. Skill과 harness가 Issue의 `Layer`, `Priority`, `완료 조건`, `요구사항 / 수용 기준`, labels를 읽고 적합한 team을 제안해야 합니다.
 
 ## 기본 실행 모드
 
@@ -93,7 +93,7 @@ Codex tool-backed subagent harness
 7. 에이전트의 최종 보고를 수집합니다.
 8. harness가 지원하는 경우, 사용이 끝났거나 응답이 없는 agent context를 정리합니다.
 
-팀원 작업 흐름은 다음을 기본으로 합니다.
+사용자 작업 흐름은 다음을 기본으로 합니다.
 
 ```text
 GitHub Issue 선택
@@ -108,7 +108,7 @@ GitHub Issue 선택
 
 ## Lovv Issue Router Level 1
 
-팀원이 Lovv GitHub Issue를 기준으로 agent 작업을 시작할 때는 Level 1 harness를 사용할 수 있습니다.
+사용자가 Lovv GitHub Issue를 기준으로 agent 작업을 시작할 때는 Level 1 harness를 사용할 수 있습니다.
 
 기본 설정은 다음 순서로 진행합니다.
 
@@ -153,7 +153,7 @@ Skill을 명시해야 하는 환경에서는 다음처럼 사용할 수 있습�
 $lovv-agent-team-launcher Lovv #123 팀 제안해줘
 ```
 
-일반 팀원용 기본 흐름은 `팀 제안 -> 사용자 승인 -> subagent 실행 또는 role activation fallback`입니다.
+일반 사용자용 기본 흐름은 `팀 제안 -> 사용자 승인 -> subagent 실행 또는 role activation fallback`입니다.
 
 지원되는 Codex subagent harness가 있으면 실제 subagent를 생성하고, 없으면 현재 세션에서 역할별로 순차 실행합니다.
 
@@ -168,7 +168,7 @@ $lovv-agent-team-launcher Lovv #123 팀 제안해줘
 | Crawl Data Team | crawl, scrape, BeautifulSoup, Selenium, Scrapling |
 | Release Gate Team | merge 전 최종 review, QA, security gate |
 
-팀원용 기본 모드에서는 다음 작업을 자동화하지 않습니다.
+사용자용 기본 모드에서는 다음 작업을 자동화하지 않습니다.
 
 - branch 생성
 - commit 생성
@@ -181,19 +181,19 @@ $lovv-agent-team-launcher Lovv #123 팀 제안해줘
 ## 주요 파일
 
 - `AGENTS.md`: 루트 프로젝트 에이전트 규칙입니다.
-- `AGENTS.ko.md`: 팀원이 이해하기 위한 한국어 설명서입니다.
+- `AGENTS.ko.md`: 사용자가 이해하기 위한 한국어 설명서입니다.
 - `PRO20x/AGENTS.md`: PRO20x 사용자를 위한 full-context 버전입니다.
 - `docs/agents/`: 토큰 절약을 위해 분리된 agent rule 파일입니다.
 - `docs/agents/modes/`: Sequential, Hybrid, Parallel 실행 모드 문서입니다.
 - `docs/harnesses/`: GitHub Issue 기반 harness 같은 팀 운영 도구 문서입니다.
 - `docs/prompts/`: crawl prompt 같은 작업별 프롬프트 템플릿입니다.
-- `scripts/`: 팀원이 실행할 수 있는 안전한 CLI harness 스크립트입니다.
+- `scripts/`: 사용자가 실행할 수 있는 안전한 CLI harness 스크립트입니다.
 - `skills/oh-my-agents/`: agent routing과 invocation 지원을 위한 공유 Skill package입니다.
 - `skills/lovv-agent-team-launcher/`: 실제 agent team proposal과 subagent launch를 돕는 Skill package입니다.
 
 ## Codex Skill 설치
 
-팀원은 공유 Skill을 각자 로컬 Codex Skill 폴더에 설치해서 사용할 수 있습니다.
+사용자는 공유 Skill을 각자 로컬 Codex Skill 폴더에 설치해서 사용할 수 있습니다.
 
 ```bash
 mkdir -p ~/.codex/skills

@@ -69,6 +69,59 @@ Agent instances are disposable execution contexts, not permanent project assets.
 - Preserve Outputs Before Cleanup: Before deleting an agent context, preserve only the necessary final report, handoff summary, changed-file list, verification result, and blocker notes.
 - Project Files Are Not Cleanup Targets: Agent cleanup applies only to agent contexts, threads, or harness-managed agent records. It must not delete project files, specs, reports, commits, branches, or user data unless the user explicitly asks for that separate action.
 
+## Subagent Creation Contract
+
+When the user asks to create an agent, treat that wording as a request for a real tool-backed subagent when a supported subagent harness is available.
+
+Interpret user wording as follows:
+
+- `Create an agent`, `agent 생성`, `에이전트 생성`, `subagent 생성`, `spawn agent`, `launch agent`, or `delegate to agent` means real tool-backed subagent creation.
+- `Act as <role>`, `<role>로 동작해줘`, `역할로 동작해줘`, or `현재 Codex가 <role> 역할로 해줘` means current-session role activation, not subagent creation.
+- `팀 제안해줘`, `team proposal`, or `agent team proposal` means proposal only. Do not create subagents during proposal.
+- `제안 승인. 시작해줘`, `제안 승인. 순차형으로 시작해줘`, `제안 승인. 하이브리드로 시작해줘`, `agent team 실행해줘`, or `실제 subagent로 생성해줘` means proceed from an approved proposal to real tool-backed subagent creation when the required scope is clear.
+
+Normalize Korean creation requests into English execution intent before acting:
+
+| Korean request pattern | English execution intent |
+| --- | --- |
+| `에이전트 생성해줘` | `Create a real tool-backed subagent.` |
+| `<Role> Agent 생성해줘` | `Create a real tool-backed <Role> Agent subagent.` |
+| `<Role> Agent 생성해서 <task> 해줘` | `Create a real tool-backed <Role> Agent subagent and assign it the bounded task.` |
+| `<Role>로 동작해줘` | `Act as <Role> in the current Codex session. Do not create a subagent.` |
+| `팀 제안해줘` | `Prepare an agent team proposal only. Do not create subagents.` |
+| `제안 승인. 시작해줘` | `Start the approved proposal by creating real tool-backed subagents when scope is sufficient.` |
+
+When real subagent creation is requested and a supported harness is available:
+
+- Create the subagent if the request contains enough information for a bounded run.
+- Use `worker` subagents for bounded implementation or file-changing work.
+- Use `explorer` subagents for read-only investigation, review, or codebase questions.
+- Pass a bounded contract with role, source of truth, allowed files or scope, forbidden scope, required context, output format, verification, and stop condition.
+- Do not create vague, overlapping, or open-ended subagents.
+- Do not claim that a subagent was created unless the harness actually created one.
+
+If required inputs are missing, do not silently fall back to role activation. Ask at most three concise questions about the missing source of truth, target files or scope, write permission, review target, verification command, or stop condition.
+
+If no supported subagent harness is available, say that real subagent creation is unavailable and ask whether to continue by current-session role activation.
+
+Task-based creation shortcut:
+
+- If the user provides `Task`, `Agent`, `Source of Truth`, `Scope`, and a creation command such as `생성해줘`, create the subagent immediately when a supported harness is available.
+- Do not ask for a second approval after a complete creation command.
+- Use `worker` for file-changing implementation or documentation tasks.
+- Use `explorer` for read-only review, investigation, or verification tasks.
+- Distinguish project-defined names from harness runtime names: `Agent Name`, `Display Name`, and `Core Role` are set by the project contract; `Harness Nickname` is auto-assigned by the harness unless the harness exposes an explicit naming field.
+- After spawning, report `Agent ID`, `Harness Nickname`, `Harness Agent Type`, `Agent Name`, and `Core Role`.
+- Require the subagent final report to start with the project-defined `Agent Name`.
+
+Initial work intake:
+
+- If the user provides a new feature, bug, product task, GitHub Issue, or implementation goal without an approved Spec, Main Codex must create a Spec Agent when a supported subagent harness is available.
+- Main Codex coordinates the workflow; it must not write the Spec itself by default.
+- After Spec approval, create a Task Agent to break the Spec into Tasks and Subtasks.
+- After Subtask approval, create an Implementation Agent for the active Subtask.
+- After implementation, create a Review Agent for the completed work or diff.
+
 ## Context Loading & Token Budget Rule
 
 Load only the rules, specs, and source files required for the current role and Task/Subtask.

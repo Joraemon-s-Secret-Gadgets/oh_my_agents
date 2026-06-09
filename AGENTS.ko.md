@@ -165,6 +165,58 @@ Frontend domain work에서는 다음을 반드시 지켜야 합니다.
 - Preserve Outputs Before Cleanup: 에이전트 컨텍스트를 삭제하기 전에는 최종 보고, handoff 요약, 변경 파일 목록, 검증 결과, blocker 기록처럼 다음 작업에 필요한 산출물만 보존합니다.
 - Project Files Are Not Cleanup Targets: 에이전트 정리는 agent context, thread, harness가 관리하는 agent record에만 적용됩니다. 사용자가 별도로 명시하지 않는 한 프로젝트 파일, spec, report, commit, branch, 사용자 데이터는 삭제 대상이 아닙니다.
 
+## Subagent Creation Contract
+
+`Subagent Creation Contract`는 사용자가 "에이전트 생성해줘"라고 말했을 때 실제로 무엇을 해야 하는지 명확히 정하는 규칙입니다.
+
+핵심은 다음과 같습니다.
+
+- `agent 생성`, `에이전트 생성`, `subagent 생성`, `spawn agent`, `launch agent`, `delegate to agent`는 지원되는 하네스가 있을 때 실제 tool-backed subagent를 생성하라는 의미입니다.
+- `<role>로 동작해줘`, `역할로 동작해줘`, `현재 Codex가 <role> 역할로 해줘`는 새 subagent를 만들지 않고 현재 Codex 세션이 해당 역할로 수행하는 role activation입니다.
+- `팀 제안해줘`, `team proposal`, `agent team proposal`은 제안만 생성한다는 의미입니다. 이 단계에서는 실제 subagent를 생성하지 않습니다.
+- `제안 승인. 시작해줘`, `제안 승인. 순차형으로 시작해줘`, `제안 승인. 하이브리드로 시작해줘`, `agent team 실행해줘`, `실제 subagent로 생성해줘`는 승인된 제안을 기준으로 실제 tool-backed subagent 생성을 진행하라는 의미입니다.
+
+에이전트는 한글 요청을 실행 전에 다음 영어 실행 의도로 정규화해야 합니다.
+
+| 한글 요청 패턴 | 영어 실행 의도 |
+| --- | --- |
+| `에이전트 생성해줘` | `Create a real tool-backed subagent.` |
+| `<Role> Agent 생성해줘` | `Create a real tool-backed <Role> Agent subagent.` |
+| `<Role> Agent 생성해서 <task> 해줘` | `Create a real tool-backed <Role> Agent subagent and assign it the bounded task.` |
+| `<Role>로 동작해줘` | `Act as <Role> in the current Codex session. Do not create a subagent.` |
+| `팀 제안해줘` | `Prepare an agent team proposal only. Do not create subagents.` |
+| `제안 승인. 시작해줘` | `Start the approved proposal by creating real tool-backed subagents when scope is sufficient.` |
+
+실제 subagent 생성을 요청받았고 지원되는 하네스가 있다면, 필요한 입력이 충분할 때는 subagent를 생성해야 합니다.
+
+- 구현이나 파일 수정 작업은 `worker` subagent를 우선 사용합니다.
+- 읽기 전용 조사, 리뷰, 코드베이스 질문은 `explorer` subagent를 우선 사용합니다.
+- subagent에는 role, source of truth, allowed files 또는 scope, forbidden scope, required context, output format, verification, stop condition을 포함한 제한된 실행 계약만 전달합니다.
+- 범위가 모호하거나, write scope가 겹치거나, 끝이 열려 있는 subagent는 생성하지 않습니다.
+- 실제 하네스가 생성하지 않았다면 subagent를 생성했다고 말하면 안 됩니다.
+
+필수 입력이 부족하면 role activation으로 조용히 대체하지 않습니다. source of truth, target files 또는 scope, write permission, review target, verification command, stop condition 중 부족한 항목을 최대 세 가지 질문으로 확인합니다.
+
+지원되는 subagent 하네스가 없다면 실제 subagent 생성이 불가능하다고 명확히 말하고, 현재 Codex 세션의 role activation으로 계속할지 사용자에게 확인합니다.
+
+Task 기반 생성 단축 규칙은 다음과 같습니다.
+
+- 사용자가 `Task`, `Agent`, `Source of Truth`, `Scope`, 그리고 `생성해줘` 같은 생성 명령을 함께 제공하면, 지원되는 하네스가 있을 때 즉시 subagent를 생성합니다.
+- 완전한 생성 명령을 받은 뒤에는 추가 승인을 다시 묻지 않습니다.
+- 파일을 수정할 수 있는 구현 또는 문서 작업에는 `worker`를 사용합니다.
+- 읽기 전용 리뷰, 조사, 검증 작업에는 `explorer`를 사용합니다.
+- 프로젝트 정의 이름과 하네스 런타임 이름을 구분합니다. `Agent Name`, `Display Name`, `Core Role`은 프로젝트 실행 계약에서 지정하는 이름이고, `Harness Nickname`은 하네스가 자동 부여하는 이름입니다. 하네스가 별도 이름 지정 필드를 제공하지 않는 한 수동 지정했다고 말하면 안 됩니다.
+- 생성 후에는 `Agent ID`, `Harness Nickname`, `Harness Agent Type`, `Agent Name`, `Core Role`을 보고합니다.
+- subagent 최종 보고는 프로젝트에서 정의한 `Agent Name`으로 시작하도록 요구합니다.
+
+초기 작업 접수 규칙은 다음과 같습니다.
+
+- 사용자가 새 기능, 버그, 제품 작업, GitHub Issue, 구현 목표를 제공했지만 승인된 Spec이 없다면, 지원되는 subagent 하네스가 있을 때 Main Codex는 Spec Agent를 생성해야 합니다.
+- Main Codex는 워크플로우를 조율하며, 기본적으로 직접 Spec을 작성하지 않습니다.
+- Spec 승인 후에는 Task Agent를 생성해 Spec을 Tasks와 Subtasks로 쪼갭니다.
+- Subtask 승인 후에는 활성 Subtask를 맡을 Implementation Agent를 생성합니다.
+- 구현 후에는 완료된 작업 또는 diff를 검토할 Review Agent를 생성합니다.
+
 ## Context Loading & Token Budget Rule
 
 `Context Loading & Token Budget Rule`은 에이전트가 현재 역할과 Task/Subtask에 필요한 문서만 읽도록 해서 토큰 비용을 줄이기 위한 규칙입니다.

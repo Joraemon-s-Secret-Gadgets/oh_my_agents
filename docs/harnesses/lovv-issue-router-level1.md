@@ -169,7 +169,7 @@ Structured Agent Contract:
 
 ## 권장 팀 흐름
 
-1. 팀원이 GitHub Issue 번호를 지정합니다.
+1. 사용자가 GitHub Issue 번호를 지정합니다.
 2. harness가 Issue Routing Proposal을 생성합니다.
 3. 사용자가 agent, mode, scope, missing input을 확인합니다.
 4. 사용자가 승인하면 Codex 현재 세션 또는 tool-backed subagent harness로 실행합니다.
@@ -177,7 +177,7 @@ Structured Agent Contract:
 
 실제 subagent team 실행이 필요하면 `docs/harnesses/lovv-agent-team-launcher.md`와 `$lovv-agent-team-launcher` Skill을 사용합니다.
 
-팀원이 실제로 입력하는 기본 문장은 다음처럼 짧게 유지합니다.
+사용자가 실제로 입력하는 기본 문장은 다음처럼 짧게 유지합니다.
 
 ```text
 Lovv #123 팀 제안해줘

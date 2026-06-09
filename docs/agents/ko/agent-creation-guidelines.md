@@ -24,6 +24,93 @@ Agent creation은 세 가지 의미일 수 있습니다.
    - 사용자가 폴더 경로를 제공하거나 폴더별 지침 생성을 요청한 경우에만 사용합니다.
    - `docs/agents/templates` 안의 적절한 템플릿을 사용합니다.
 
+팀 제안은 에이전트 생성과 별개입니다.
+
+- "팀 제안해줘", "team proposal", "agent team proposal"은 제안만 생성한다는 의미입니다.
+- 제안을 준비하는 동안 실제 subagent를 생성하지 않습니다.
+- "제안 승인. 시작해줘", "agent team 실행해줘", "실제 subagent로 생성해줘"는 승인된 제안을 기준으로 필요한 입력이 충분할 때 tool-backed subagent 생성을 진행하라는 의미입니다.
+
+에이전트는 한글 요청을 영어 실행 의도로 정규화한 뒤 처리합니다.
+
+| 한글 요청 패턴 | 영어 실행 의도 |
+| --- | --- |
+| `에이전트 생성해줘` | `Create a real tool-backed subagent.` |
+| `<Role> Agent 생성해줘` | `Create a real tool-backed <Role> Agent subagent.` |
+| `<Role> Agent 생성해서 <task> 해줘` | `Create a real tool-backed <Role> Agent subagent and assign it the bounded task.` |
+| `<Role>로 동작해줘` | `Act as <Role> in the current Codex session. Do not create a subagent.` |
+| `팀 제안해줘` | `Prepare an agent team proposal only. Do not create subagents.` |
+| `제안 승인. 시작해줘` | `Start the approved proposal by creating real tool-backed subagents when scope is sufficient.` |
+
+## Task-Based Creation Gate
+
+사용자가 `Task`와 `Agent`와 생성 명령을 함께 제공하면, Main Codex는 이를 기획 프롬프트가 아니라 실행 가능한 subagent 생성 요청으로 처리해야 합니다.
+
+즉시 생성에 필요한 필드는 다음과 같습니다.
+
+- Task 또는 Goal
+- Agent 이름 또는 역할
+- Source of Truth
+- Scope 또는 target files
+- Verification, review focus, 또는 expected output
+- `생성해줘`, `만들어줘`, `spawn`, `launch`, `delegate` 같은 생성 명령
+
+이 필드들이 있고 지원되는 subagent 하네스가 있다면, 추가 승인을 다시 묻지 않고 즉시 subagent를 생성합니다. role activation으로 조용히 대체하지 않습니다.
+
+생성 직전에는 다음 요약만 짧게 보여줍니다.
+
+```md
+Creating Subagent:
+- Agent:
+- Display Name:
+- Core Role:
+- Harness Agent Type:
+- Harness Nickname: auto-assigned by harness
+- Task:
+- Source of Truth:
+- Scope:
+- Verification / Output:
+```
+
+하네스 닉네임 규칙은 다음과 같습니다.
+
+- `Agent Name`, `Display Name`, `Core Role`은 프로젝트에서 정의하는 이름이며, Main Codex가 subagent prompt와 최종 보고 형식에 명시해야 합니다.
+- `Harness Nickname`은 subagent 하네스가 런타임에 반환하는 자동 닉네임입니다.
+- 하네스가 명시적인 이름 지정 필드를 제공하지 않는 한 `Harness Nickname`을 수동으로 지정했다고 말하면 안 됩니다.
+- 생성 후에는 `Agent ID`, `Harness Nickname`, `Harness Agent Type`, `Agent Name`, `Core Role`을 보고합니다.
+- subagent 최종 보고는 프로젝트에서 정의한 `Agent Name`으로 시작하도록 요구합니다.
+
+하네스 agent type 기준은 다음과 같습니다.
+
+- `worker`: 구현, 파일 수정, 테스트 수정, 문서 작성처럼 파일 변경 가능성이 있는 작업입니다.
+- `explorer`: 읽기 전용 리뷰, 코드베이스 조사, 이슈 분석, 검증 질문입니다.
+- default: worker나 explorer로 명확히 나뉘지 않을 때만 사용합니다.
+
+필수 필드가 한두 개만 부족하면 그 항목만 질문합니다. 안전상 중요한 필드가 세 개 이상 부족하면 bounded Task/Agent/Scope 입력 블록을 요청합니다.
+
+## Initial Work Intake Rule
+
+사용자가 새 기능, 버그, 제품 작업, GitHub Issue, 구현 목표를 제공했지만 승인된 Spec을 제공하지 않은 경우, Main Codex는 기본적으로 직접 Spec을 작성하지 않습니다.
+
+대신 지원되는 subagent 하네스가 있으면 실제 tool-backed Spec Agent를 생성합니다.
+
+다음 요청에 이 규칙을 적용합니다.
+
+- `이 기능 작업 시작해줘`
+- `Lovv #123 작업 시작해줘`
+- `회원가입 기능 만들어야 해`
+- `이 이슈 기반으로 작업해줘`
+- `Task 시작하자`
+- `새 기능 구현 플로우 잡아줘`
+
+Spec Agent가 Spec을 작성하거나 수정해야 합니다. Spec이 승인된 뒤에는 Task Agent를 생성하거나 요청해 Tasks와 Subtasks로 쪼갭니다. Main Codex는 조율과 통합을 담당하며, 사용자가 현재 세션 role activation을 명시적으로 요청했거나 subagent 하네스가 없는 경우가 아니라면 Spec Agent나 Task Agent의 작업을 대신하지 않습니다.
+
+초기 작업 라우팅은 다음과 같습니다.
+
+1. 승인된 Spec이 없음 -> Spec Agent 생성
+2. 승인된 Spec은 있지만 Tasks/Subtasks가 없음 -> Task Agent 생성
+3. 승인된 Subtask가 있고 구현 요청이 있음 -> Implementation Agent 생성
+4. 완료된 작업 또는 diff가 있고 리뷰 요청이 있음 -> Review Agent 생성
+
 ## Default Interpretation
 
 - "Review Agent 생성해서 리뷰해줘"는 지원되는 하네스가 있을 때 Tool-Backed Role Subagent Creation입니다.
@@ -31,6 +118,9 @@ Agent creation은 세 가지 의미일 수 있습니다.
 - "Task Agent 생성해서 Task를 쪼개줘"는 지원되는 하네스가 있을 때 Tool-Backed Role Subagent Creation입니다.
 - "Implementation Agent 생성해서 Subtask 2.1 구현해줘"는 지원되는 하네스가 있을 때 Tool-Backed Role Subagent Creation입니다.
 - "현재 Codex가 Review Agent 역할로 리뷰해줘"는 사용자의 명시적 요청에 따른 Role Activation Fallback입니다.
+- "Review Agent로 동작해서 리뷰해줘"는 실제 subagent 생성이 아니라 현재 세션의 Role Activation입니다.
+- "Lovv #123 팀 제안해줘"는 제안만 생성한다는 의미이며 실제 subagent를 만들면 안 됩니다.
+- "Lovv #123 제안 승인. 하이브리드로 시작해줘"는 제안과 scope가 명확할 때 승인된 tool-backed subagent를 생성하라는 의미입니다.
 - "`frontend/AGENTS.md` 생성해줘"는 Folder-Level `AGENTS.md` Creation입니다.
 - "`backend/AGENTS.md` 생성해줘"는 Folder-Level `AGENTS.md` Creation입니다.
 - "별도 에이전트/서브에이전트를 생성해서 맡겨줘"는 지원되는 도구나 하네스가 있을 때만 Tool-Backed Role Subagent Creation입니다.

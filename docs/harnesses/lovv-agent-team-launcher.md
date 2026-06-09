@@ -1,6 +1,6 @@
 # Lovv Agent Team Launcher
 
-이 문서는 팀원이 실제 subagent 팀을 실행할 때 사용하는 `lovv-agent-team-launcher` Skill 사용법입니다.
+이 문서는 사용자가 실제 subagent 팀을 실행할 때 사용하는 `lovv-agent-team-launcher` Skill 사용법입니다.
 
 ## 목적
 
@@ -34,7 +34,7 @@ cp -R skills/lovv-agent-team-launcher ~/.codex/skills/lovv-agent-team-launcher
 
 ## 사용 예시
 
-팀원은 긴 prompt 대신 아래 짧은 호출을 기본으로 사용합니다.
+사용자는 긴 prompt 대신 아래 짧은 호출을 기본으로 사용합니다.
 
 | 목적 | 입력 |
 | --- | --- |
@@ -43,7 +43,7 @@ cp -R skills/lovv-agent-team-launcher ~/.codex/skills/lovv-agent-team-launcher
 | 승인 후 하이브리드 시작 | `Lovv #123 제안 승인. 하이브리드로 시작해줘` |
 | Owner 전용 자동 파일럿 | `Owner Auto Team: Lovv #123 하이브리드로 실행해줘` |
 
-일반 팀원용 기본 호출:
+일반 사용자용 기본 호출:
 
 ```text
 Lovv #123 팀 제안해줘
@@ -90,7 +90,7 @@ Owner Auto Team: Lovv #123 하이브리드로 실행해줘
 
 ## 자동화하지 않는 항목
 
-팀원용 기본 모드에서는 다음을 자동화하지 않습니다.
+사용자용 기본 모드에서는 다음을 자동화하지 않습니다.
 
 - branch 생성
 - commit 생성

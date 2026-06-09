@@ -22,12 +22,14 @@ Recognized commands:
 - `Lovv #<issue-number> 제안 승인. 하이브리드로 시작해줘`: launch the approved proposal in Hybrid Mode. If there is no prior proposal for the same issue in the current context, show the proposal first and ask for approval.
 - `Owner Auto Team: Lovv #<issue-number> <mode>로 실행해줘`: use Owner Auto Team Pilot for the issue and mode, then continue only within the Owner Auto Team safety limits.
 
-Do not require teammates to name the exact team preset or agent roles. Infer the proposal from the GitHub Issue title, body, labels, template fields, `Layer`, `Priority`, acceptance criteria, and completion conditions.
+Do not require users to name the exact team preset or agent roles. Infer the proposal from the GitHub Issue title, body, labels, template fields, `Layer`, `Priority`, acceptance criteria, and completion conditions.
+
+If the user asks to create or run an agent team after approving a proposal, treat it as a real tool-backed subagent creation request when a supported harness is available. If no supported harness is available, say so clearly and continue only by current-session role activation after user approval.
 
 ## Safety Defaults
 
 - Do not launch a team unless the user explicitly asks for agent team execution.
-- For normal teammates, always show a team proposal and ask for approval before spawning subagents.
+- For standard users, always show a team proposal and ask for approval before spawning subagents.
 - Owner Auto Team Pilot is allowed only when the user explicitly says `Owner Auto Team`.
 - Do not create branches, commits, PRs, or close issues automatically.
 - Do not spawn agents with overlapping write scopes.
@@ -83,7 +85,7 @@ When launching actual subagents:
 
 ## Approval Prompt
 
-Before launching for normal teammates, ask:
+Before launching for standard users, ask:
 
 ```md
 Agent Team Proposal:

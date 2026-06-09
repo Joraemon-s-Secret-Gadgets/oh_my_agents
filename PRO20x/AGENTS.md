@@ -206,7 +206,46 @@ Agent creation can mean:
    - Use only when the user provides a folder path or asks to create folder-level instructions.
    - This is not subagent creation.
 
+Team proposal is separate from agent creation:
+
+- "팀 제안해줘", "team proposal", or "agent team proposal" means proposal only.
+- Do not create subagents while preparing a proposal.
+- "제안 승인. 시작해줘", "agent team 실행해줘", or "실제 subagent로 생성해줘" means proceed from an approved proposal to tool-backed subagent creation when required inputs are sufficient.
+
+Role activation wording is not subagent creation:
+
+- "동작해줘", "역할로 동작해줘", or "현재 Codex가 <role> 역할로 해줘" means current-session Role Activation unless the user also explicitly asks for a real subagent.
+
+Normalize Korean creation requests into English execution intent before acting:
+
+| Korean request pattern | English execution intent |
+| --- | --- |
+| `에이전트 생성해줘` | `Create a real tool-backed subagent.` |
+| `<Role> Agent 생성해줘` | `Create a real tool-backed <Role> Agent subagent.` |
+| `<Role> Agent 생성해서 <task> 해줘` | `Create a real tool-backed <Role> Agent subagent and assign it the bounded task.` |
+| `<Role>로 동작해줘` | `Act as <Role> in the current Codex session. Do not create a subagent.` |
+| `팀 제안해줘` | `Prepare an agent team proposal only. Do not create subagents.` |
+| `제안 승인. 시작해줘` | `Start the approved proposal by creating real tool-backed subagents when scope is sufficient.` |
+
 If subagent creation is requested but unavailable, report that real subagent creation is unavailable and ask whether to continue with Role Activation Fallback.
+
+Task-based creation shortcut:
+
+- If the user provides `Task`, `Agent`, `Source of Truth`, `Scope`, and a creation command such as `생성해줘`, create the subagent immediately when a supported harness is available.
+- Do not ask for a second approval after a complete creation command.
+- Use `worker` for file-changing implementation or documentation tasks.
+- Use `explorer` for read-only review, investigation, or verification tasks.
+- Distinguish project-defined names from harness runtime names: `Agent Name`, `Display Name`, and `Core Role` are set by the project contract; `Harness Nickname` is auto-assigned by the harness unless the harness exposes an explicit naming field.
+- After spawning, report `Agent ID`, `Harness Nickname`, `Harness Agent Type`, `Agent Name`, and `Core Role`.
+- Require the subagent final report to start with the project-defined `Agent Name`.
+
+Initial work intake:
+
+- If the user provides a new feature, bug, product task, GitHub Issue, or implementation goal without an approved Spec, Main Codex must create a Spec Agent when a supported subagent harness is available.
+- Main Codex coordinates the workflow; it must not write the Spec itself by default.
+- After Spec approval, create a Task Agent to break the Spec into Tasks and Subtasks.
+- After Subtask approval, create an Implementation Agent for the active Subtask.
+- After implementation, create a Review Agent for the completed work or diff.
 
 ## Agent Naming Convention
 
