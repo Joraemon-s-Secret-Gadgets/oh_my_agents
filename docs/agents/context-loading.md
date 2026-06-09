@@ -5,6 +5,7 @@ Agents must reduce token cost by loading only the context required for the curre
 Default loading rules:
 
 - Load this root `AGENTS.md` and the nearest relevant folder-level `AGENTS.md`.
+- Always load `docs/projects/lovv-project-context.md` before choosing role, domain, execution mode, stack assumption, or harness route in this project.
 - Do not load `AGENTS.ko.md` unless the user asks for Korean explanation, the task edits Korean documentation, or the task checks synchronization between `AGENTS.md` and `AGENTS.ko.md`. This restriction does not override the File Synchronization Rule when agent documentation is being edited.
 - Do not load all files in `docs/agents` at startup.
 - Do not load `docs/prompts` files unless the current task explicitly asks for a prompt template.
@@ -12,6 +13,49 @@ Default loading rules:
 - Exception: Frontend domain tasks must load `docs/agents/frontend-agent-rules.md` even when the user did not explicitly ask for frontend rules. Frontend domain includes UI, React, TailwindCSS, browser-facing behavior, routes, components, hooks, client state, forms, accessibility, responsive behavior, and frontend API integration.
 - Use `rg` or targeted section reads before opening long files.
 - Prefer referenced sections, short task packets, and current changed files over full-document reads.
+
+## Token Management Rule
+
+Baseline context for this project is root `AGENTS.md` plus `docs/projects/lovv-project-context.md`.
+
+Do not eagerly load:
+
+- `AGENTS.ko.md`.
+- All files under `docs/agents/`.
+- All execution mode files.
+- All Specs or reports.
+- All prompt templates.
+- Whole source folders.
+- Large unmanaged files, logs, generated outputs, or data dumps.
+
+Load context in this order:
+
+1. User request and preserved `User Request Original`.
+2. Root `AGENTS.md`.
+3. `docs/projects/lovv-project-context.md`.
+4. Exactly one selected execution mode file.
+5. Current role-specific rule file only when needed.
+6. Current Subtask packet or approved Spec section references.
+7. Target files, changed files, or diff.
+
+When spawning subagents, pass a compact context packet instead of broad documents:
+
+- Role, domain, focus, execution mode.
+- Source of truth paths and required sections.
+- Allowed scope and forbidden scope.
+- Acceptance criteria.
+- Verification commands.
+- Stop condition and escalation rule.
+- Short summary of relevant prior decisions.
+
+If a subagent needs more context, it must request specific files, sections, or command output. It must not load broad directories, full Specs, full reports, or unrelated source files by default.
+
+For large files or command output:
+
+- Check size or use targeted search before reading.
+- Read only relevant sections or line ranges.
+- Summarize logs, crawl output, screenshots, browser output, and test output before handoff.
+- Keep only actionable errors, verification results, and decision-relevant evidence.
 
 ## Crawl Focus Loading
 
@@ -33,18 +77,32 @@ For Frontend domain tasks:
 - Load `docs/agents/security-review-checklist.md` when frontend work touches client environment variables, auth UI, token handling, redirects, user-generated content, external scripts, or dependency changes.
 - Summarize large design references, screenshots, or browser logs before passing them to another agent.
 
+## Backend AWS SAM Domain Loading
+
+For Backend AWS SAM or API domain tasks:
+
+- Load `docs/projects/lovv-project-context.md` before planning, implementation, or review.
+- If the task touches small-city APIs, city data loading, map/backend integration, API Gateway routes, Lambda handlers, SAM templates, or frontend API adapters, read the Existing API Source Of Truth section in `docs/projects/lovv-project-context.md`.
+- Read only the listed API source-of-truth documents that match the active Task/Subtask; do not load every report or Spec by default.
+- Treat Task 9/10 API documents as the current contract and adapter boundary, not as proof of a deployed backend.
+- Treat endpoint paths in those documents as placeholders until the actual SAM/API Gateway base URL, stage, auth/environment configuration, and DB readiness are verified.
+- Do not implement live API calls if the current implementation remains frontend-only or backend/DB readiness is unclear.
+- Do not create conflicting endpoints, response shapes, filters, pagination rules, metadata exposure rules, or adapter behavior unless a new approved Spec changes the contract.
+
 ## Role-Based Loading
 
 Spec Agent should load:
 
 - Root `AGENTS.md`.
 - Relevant user request and product context.
+- `docs/projects/lovv-project-context.md`.
 - Existing Specs or source sections needed to write the current Spec.
 - `docs/agents/spec-task-format.md` when writing Spec or Task-related sections.
 
 Task Agent should load:
 
 - Root `AGENTS.md`.
+- `docs/projects/lovv-project-context.md`.
 - The approved Full Spec or the required Full Spec sections.
 - Existing Spec Summary if present.
 - `docs/agents/spec-task-format.md`.
@@ -53,6 +111,7 @@ Task Agent should load:
 Implementation Agent should load:
 
 - Root `AGENTS.md`.
+- `docs/projects/lovv-project-context.md` when the Subtask touches stack routing, API, RAG, database, crawl, infrastructure, persistence, or cross-domain behavior.
 - Nearest relevant folder-level `AGENTS.md`, if one exists for the target files.
 - The current Subtask instruction.
 - Only the Full Spec sections listed in `Must Read Before Implementation`.
@@ -61,6 +120,7 @@ Implementation Agent should load:
 Review Agent should load:
 
 - Root `AGENTS.md`.
+- `docs/projects/lovv-project-context.md` when reviewing stack routing, API, RAG, database, crawl, infrastructure, persistence, or cross-domain behavior.
 - Current Subtask instruction.
 - Changed files.
 - Acceptance criteria and referenced Full Spec sections needed to verify behavior.

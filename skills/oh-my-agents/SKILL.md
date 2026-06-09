@@ -2,7 +2,7 @@
 name: oh-my-agents
 description: Use when the user asks to create, launch, spawn, delegate to, or coordinate project role subagents such as Spec Agent, Task Agent, Implementation Agent, Review Agent, Frontend QA Review Agent, Backend Security Review Agent, or Crawl Implementation Agent according to a project's AGENTS.md.
 metadata:
-  version: "0.6.3"
+  version: "0.6.6"
 ---
 
 # Oh My Agents
@@ -11,7 +11,7 @@ Use this skill as a lightweight router for project-defined role subagents.
 
 The root `AGENTS.md` is the source of truth. This skill must never bypass, weaken, or replace project rules. It only helps interpret abstract user requests and coordinate tool-backed subagent creation.
 
-Version: 0.6.3
+Version: 0.6.6
 
 ## Agent Creation Semantics
 
@@ -109,8 +109,9 @@ Initial intake routing:
 When the user asks to create or run an agent:
 
 1. Read the root `AGENTS.md`.
-2. If present, read `docs/agents/agent-creation-guidelines.md`.
-3. Parse the request into:
+2. Read `docs/projects/lovv-project-context.md`.
+3. If present, read `docs/agents/agent-creation-guidelines.md`.
+4. Parse the request into:
    - User Request Original
    - Structured Agent Contract
    - Display Name
@@ -126,13 +127,13 @@ When the user asks to create or run an agent:
    - Output Format
    - Verification
    - Stop Condition
-4. If required inputs are missing, ask at most three questions.
-5. Load only the docs required for the parsed role, focus, and execution mode.
-6. If a supported subagent harness is available, create a tool-backed subagent.
-7. If no harness is available, tell the user and ask whether to continue by current-session role activation.
-8. Pass only the minimum required context to the subagent.
-9. Collect the result, check it against the user's request, and summarize it.
-10. After completion, close, archive, terminate, or delete unused subagent contexts unless the user explicitly asks to keep them.
+5. If required inputs are missing, ask at most three questions.
+6. Load only the docs required for the parsed role, focus, and execution mode.
+7. If a supported subagent harness is available, create a tool-backed subagent.
+8. If no harness is available, tell the user and ask whether to continue by current-session role activation.
+9. Pass only the minimum required context to the subagent.
+10. Collect the result, check it against the user's request, and summarize it.
+11. After completion, close, archive, terminate, or delete unused subagent contexts unless the user explicitly asks to keep them.
 
 ## Routing Defaults
 
@@ -144,7 +145,9 @@ Use these defaults for abstract Korean or English requests:
 - "리뷰", "검토", "review" -> Review Agent.
 - "프론트", "화면", "UI", "React", "Tailwind" -> Frontend domain.
 - "접근성", "반응형", "폼", "컴포넌트", "라우트", "hook", "client state" -> Frontend domain.
-- "백엔드", "API", "Django", "DB", "migration" -> Backend domain.
+- Lovv "백엔드", "API", "endpoint", "Lambda", "SAM", "API Gateway", "serverless" -> Backend AWS SAM domain.
+- Lovv "DB", "database", "schema", "migration", "data model" -> Aurora MySQL-compatible data/API domain.
+- "RAG", "챗봇", "recommendation", "itinerary generation", "AI 일정" -> infer RAG/API/Frontend scope from the requested behavior and Lovv project context.
 - "전체 흐름", "E2E", "full-stack" -> Full-stack domain.
 - "QA", "검증", "시나리오" -> QA focus.
 - "보안", "취약점", "secret", "auth" -> Security focus.
@@ -171,6 +174,7 @@ Typical missing inputs:
 - Spec Agent: feature idea or goal, target user when not obvious, constraints when known.
 - Task Agent: approved Spec path or approved Spec content.
 - Frontend Domain: target files or folders, UI states, API/data assumptions, responsive requirements, accessibility requirements, verification command or browser check, out-of-scope behavior.
+- Backend AWS SAM Domain: Lambda function, API route, SAM template scope, request/response contract, Aurora MySQL assumptions, auth/IAM assumptions, verification command, out-of-scope behavior.
 - Crawl Focus: URLs, columns, output path, output format, allowed tools, verification, stop condition.
 - Deep Crawl: seed URLs, domain allowlist, max depth, max pages, rate limit, output columns, stop condition.
 
@@ -185,6 +189,15 @@ For question templates, read `references/missing-input-questions.md` only when n
 - Preserve the user's original Korean or non-English request as `User Request Original`.
 - Create `Structured Agent Contract` in English for execution reliability.
 - The original request remains authoritative for user intent and success criteria.
+- Lovv work must load `docs/projects/lovv-project-context.md` before selecting role, domain, execution mode, stack assumption, or harness route.
+- Lovv API work defaults to Backend AWS SAM.
+- Lovv API work that overlaps small-city, city data loading, map/backend integration, API Gateway routes, Lambda handlers, SAM templates, or frontend API adapters must read the Existing API Source Of Truth section in `docs/projects/lovv-project-context.md` before creating or changing contracts.
+- Treat Task 9/10 API documents as the current contract and adapter boundary, not as proof of a deployed AWS SAM backend.
+- Treat endpoint paths in those documents as placeholders until the actual SAM/API Gateway base URL, stage, auth/environment configuration, and DB readiness are verified.
+- The current implemented path is frontend-only and the DB is under construction; do not implement live API calls unless backend readiness is confirmed by an approved Spec, deployment output, or user instruction.
+- Lovv database work defaults to Amazon Aurora MySQL-Compatible on Amazon RDS. Do not infer Neo4j, another graph database, PostgreSQL, or EC2 unless an approved Spec says so.
+- Lovv RAG chatbot work defaults to HTTP REST and Lambda/API Gateway response streaming when streaming is needed. Do not infer WebSocket unless an approved Spec requires it.
+- Lovv persistence defaults to confirmed or final itineraries only. Do not infer server-side in-progress chat or draft persistence without a Spec update.
 - Frontend-domain agents must load `docs/agents/frontend-agent-rules.md` before planning, implementation, or review.
 - Do not create a Frontend Implementation Agent without target files or folders, UI states, API/data assumptions, verification, and out-of-scope behavior.
 - If Execution Mode is not specified, use Hybrid Mode for ordinary feature work and Sequential Mode for security-sensitive, database, authentication, authorization, payment, migration, irreversible, or ambiguous work.
@@ -209,10 +222,29 @@ Always keep context small:
 - Do not load all `docs/agents/*`.
 - Do not load all `docs/agents/modes/*`; load only the selected execution mode file.
 - Read `docs/agents/context-loading.md` when the task is context-heavy or token usage matters.
+- Read `docs/projects/lovv-project-context.md` before role/domain/mode/stack routing in this project.
 - Read `docs/agents/review-format.md` only for Review Agent work.
 - Read `docs/agents/security-review-checklist.md` only for Security focus or security-sensitive work.
 - Read `docs/agents/frontend-agent-rules.md` only for Frontend domain work.
 - Read `docs/prompts/crawl-task-prompt.md` only for Crawl focus.
+
+## Token Management
+
+Baseline context is root `AGENTS.md` plus `docs/projects/lovv-project-context.md`.
+
+When creating subagents, pass compact context packets instead of broad documents:
+
+- Role, domain, focus, and execution mode.
+- Source of truth paths and required sections.
+- Allowed scope and forbidden scope.
+- Acceptance criteria.
+- Verification commands.
+- Stop condition.
+- Short relevant decision summary.
+
+Do not pass full Specs, full reports, all prompts, all mode files, full logs, broad source folders, or `AGENTS.ko.md` to subagents by default.
+
+If the subagent needs more context, require it to ask for specific files, sections, or command output.
 
 ## Subagent Prompt
 

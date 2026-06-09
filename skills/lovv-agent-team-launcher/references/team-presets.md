@@ -32,7 +32,9 @@ Use for React, Tailwind, UI flows, routes, components, hooks, client state, resp
 
 ## Backend API Team
 
-Use for Django, API contracts, serializers, views, database, migrations, server validation, and backend tests.
+Use for Lovv AWS SAM APIs, Lambda handlers, API Gateway contracts, Aurora MySQL data access, migrations or schema work, server validation, and backend tests.
+
+When the work overlaps small-city APIs, city data loading, frontend API adapters, or map/backend integration, include the Existing API Source Of Truth section from `docs/projects/lovv-project-context.md` as required context. Treat Task 9/10 API documents as the current contract and adapter boundary, not as proof that a live AWS SAM backend endpoint already exists. Treat listed endpoint paths as placeholders until real SAM/API Gateway deployment, stage/base URL, auth/environment configuration, and DB readiness are verified.
 
 - Execution Mode: Sequential Mode by default.
 - Coordinator: Main Codex.

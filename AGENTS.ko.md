@@ -90,6 +90,28 @@ Spec 작성
 
 `Review Agent`는 결과를 검토할 때 `User Request Original`과 `Structured Agent Contract`를 모두 기준으로 삼아야 합니다.
 
+## Project Context Rule
+
+`Project Context Rule`은 이 규칙서가 범용 에이전트 문서가 아니라 Lovv 프로젝트 내부에서 안정적으로 작동하도록 만드는 연결 규칙입니다.
+
+이 `AGENTS.md`는 Lovv 프로젝트 전용입니다. 에이전트 역할, 도메인, 실행 모드, 기술 스택, 하네스 라우팅을 고르기 전에 항상 [docs/projects/ko/lovv-project-context.md](./docs/projects/ko/lovv-project-context.md)를 참고합니다. 에이전트가 실제로 따라야 하는 영어 기준 원문은 [docs/projects/lovv-project-context.md](./docs/projects/lovv-project-context.md)입니다.
+
+Lovv의 기본 기술 전제는 다음과 같습니다.
+
+- Frontend: React + TailwindCSS.
+- Backend/API: AWS SAM + AWS Lambda + Amazon API Gateway.
+- Database: Amazon Aurora MySQL-Compatible on Amazon RDS.
+- Backend mode: 기본은 Serverless이며, EC2를 기본 전제로 보지 않습니다.
+- Graph DB: 현재 범위에서 제외합니다. 승인된 Spec이 명시하지 않으면 Neo4j나 다른 Graph DB를 사용하지 않습니다.
+- RAG chatbot: streaming이 필요하면 HTTP REST와 Lambda/API Gateway response streaming을 우선합니다. WebSocket을 기본으로 가정하지 않습니다.
+- Persistence: 기본적으로 사용자가 저장한 확정 또는 최종 여행 일정만 저장합니다. 진행 중인 chat message나 unfinished plan draft는 승인된 Spec이 추가하기 전까지 server-side에 저장하지 않습니다.
+
+사용자는 제품 기능, 목표, 사용자에게 보이는 동작, 제외 범위, MVP 우선순위를 정의합니다. Main Codex는 이 프로젝트 컨텍스트, 승인된 Spec/Task, GitHub Issue, 기존 프로젝트 파일을 기준으로 agent role, execution mode, backend framework, infrastructure layer를 추론해야 합니다.
+
+예를 들어 사용자가 "API 짜야돼"라고 말하면 Backend AWS SAM 작업으로 해석합니다.
+
+새 API contract, route, Lambda handler, SAM 구현을 만들기 전에 Backend AWS SAM 에이전트는 [docs/projects/lovv-project-context.md](./docs/projects/lovv-project-context.md)에 정리된 기존 API source-of-truth 문서를 먼저 확인해야 합니다. Task 9/10의 API 및 data-loading 문서는 현재 small-city API contract 경계의 기준이므로, 새로 승인된 Spec이 변경하지 않는 한 그 계약과 충돌하는 endpoint, response shape, filtering, pagination, adapter 동작을 만들면 안 됩니다. 이 문서에 적힌 endpoint path가 실제 배포된 Lovv API 주소라는 뜻은 아닙니다. 현재 구현은 FE 중심이고 DB는 구축 중이므로, live API call을 구현하거나 사용하기 전에 실제 SAM/API Gateway 배포 상태, stage/base URL, auth/environment configuration, DB readiness를 반드시 확인해야 합니다.
+
 ## Top-Level Principles
 
 `Top-Level Principles`는 모든 역할에 공통으로 적용되는 최상위 원칙입니다.
@@ -223,6 +245,7 @@ Task 기반 생성 단축 규칙은 다음과 같습니다.
 
 핵심은 다음과 같습니다.
 
+- 이 프로젝트에서는 role/domain/mode/stack routing을 고르기 전에 항상 [docs/projects/ko/lovv-project-context.md](./docs/projects/ko/lovv-project-context.md)를 확인합니다. 실제 영어 기준 원문은 [docs/projects/lovv-project-context.md](./docs/projects/lovv-project-context.md)입니다.
 - 시작할 때 `docs/agents` 전체를 읽지 않습니다.
 - 현재 작업이 프롬프트 템플릿을 명시적으로 요청하지 않으면 `docs/prompts` 파일을 읽지 않습니다. 단, 크롤링, 스크래핑, URL 데이터 수집, 딥크롤링, BeautifulSoup, Selenium, Scrapling 작업은 예외로 보고 `docs/prompts/crawl-task-prompt.md`를 읽습니다.
 - frontend UI, React, TailwindCSS, 브라우저 동작, route, component, hook, client state, form, accessibility, responsive behavior, frontend API integration 작업은 예외로 보고 [docs/agents/ko/frontend-agent-rules.md](./docs/agents/ko/frontend-agent-rules.md)를 읽습니다. 에이전트가 실제로 따르는 영어 기준 원문은 [docs/agents/frontend-agent-rules.md](./docs/agents/frontend-agent-rules.md)입니다.
@@ -235,6 +258,39 @@ Task 기반 생성 단축 규칙은 다음과 같습니다.
 자세한 기준은 [docs/agents/ko/context-loading.md](./docs/agents/ko/context-loading.md)에 분리되어 있습니다.
 
 에이전트가 실제로 따라야 하는 영어 기준 원문은 [docs/agents/context-loading.md](./docs/agents/context-loading.md)를 사용합니다.
+
+## Token Management Rule
+
+`Token Management Rule`은 에이전트가 불필요한 문서를 많이 읽어서 비용이 커지거나, 컨텍스트가 흐려지는 문제를 막기 위한 규칙입니다.
+
+기본 컨텍스트는 다음으로 제한합니다.
+
+- 루트 `AGENTS.md`는 운영 규칙의 기준으로 유지합니다.
+- role/domain/mode/stack routing 또는 agent creation 전에는 항상 [docs/projects/lovv-project-context.md](./docs/projects/lovv-project-context.md)를 읽습니다.
+- `AGENTS.ko.md`, `docs/agents/*` 전체, 모든 mode 파일, 모든 Spec, 모든 report, 모든 prompt, 모든 source file을 기본으로 읽지 않습니다.
+
+읽는 순서는 다음과 같습니다.
+
+1. 사용자 요청을 읽고 `User Request Original`로 보존합니다.
+2. 루트 `AGENTS.md`와 [docs/projects/lovv-project-context.md](./docs/projects/lovv-project-context.md)를 읽습니다.
+3. 실행 모드는 정확히 하나만 선택하고 해당 mode 파일만 읽습니다.
+4. 현재 Task가 특정 domain에 들어갈 때만 domain rule을 읽습니다.
+5. Review, Security, Crawl, Frontend, Spec, Task format 파일은 현재 역할이나 focus가 필요로 할 때만 읽습니다.
+6. Full Spec보다 현재 Subtask 지시서를 먼저 읽습니다.
+7. Subtask가 불명확하거나 모순되지 않는 한, Full Spec은 참조된 섹션만 읽습니다.
+
+Subagent에게 넘기는 컨텍스트는 제한합니다.
+
+- Main Codex는 subagent에게 해당 실행에 필요한 bounded contract, source of truth path, required section, scope, constraint, verification command, stop condition만 전달합니다.
+- `AGENTS.md` 한국어 설명 전체, Full Spec 전체, report 전체, log 전체, 관련 없는 source file 전체를 subagent에게 넘기지 않습니다.
+- 큰 원문을 붙여넣기보다 요약, 섹션 참조, changed-file list, 필요한 일부 발췌를 우선합니다.
+- subagent가 추가 맥락이 필요하면 넓은 디렉터리를 읽지 말고 필요한 파일, 섹션, 명령 출력만 구체적으로 요청해야 합니다.
+
+대용량 컨텍스트 제한은 다음과 같습니다.
+
+- 명시 요청 없이 `.git` 내부, 대용량 log, build artifact, generated bundle, screenshot, crawl output, local database, 큰 data file 전체를 읽지 않습니다.
+- 큰 파일은 열기 전에 file size check, targeted `rg`, partial read, structured parser, summary를 우선합니다.
+- command output은 전체가 필요하지 않으면 관련 실패, 요약, 검증 결과 줄만 남깁니다.
 
 ## Git Commit Convention Details
 
@@ -275,19 +331,21 @@ Task 기반 생성 단축 규칙은 다음과 같습니다.
 
 - General folder: [docs/agents/templates/folder-level.md](./docs/agents/templates/folder-level.md)
 - Frontend React + Tailwind folder: [docs/agents/templates/frontend-react-tailwind.md](./docs/agents/templates/frontend-react-tailwind.md)
-- Backend Django folder: [docs/agents/templates/backend-django.md](./docs/agents/templates/backend-django.md)
+- Backend AWS SAM folder: [docs/agents/templates/backend-aws-sam.md](./docs/agents/templates/backend-aws-sam.md)
 
 사용자가 에이전트 생성, 역할 활성화, 또는 하위 폴더 `AGENTS.md` 생성을 요청하면 [docs/agents/ko/agent-creation-guidelines.md](./docs/agents/ko/agent-creation-guidelines.md)를 참고해 생성, 이름, 도메인, focus 기준을 확인합니다. 실제 에이전트가 따르는 영어 기준 문서는 [docs/agents/agent-creation-guidelines.md](./docs/agents/agent-creation-guidelines.md)입니다.
 
 ## File Synchronization Rule
 
-`File Synchronization Rule`은 루트 실행 지침인 `AGENTS.md`, 한국어 설명서인 `AGENTS.ko.md`, PRO20x용 전체 컨텍스트 파일인 `PRO20x/AGENTS.md`, 공유 Skill인 `skills/oh-my-agents`의 운영 규칙이 서로 어긋나지 않도록 관리하는 규칙입니다.
+`File Synchronization Rule`은 루트 실행 지침인 `AGENTS.md`, 한국어 설명서인 `AGENTS.ko.md`, `docs/projects/` 아래 Lovv 프로젝트 컨텍스트 문서, PRO20x용 전체 컨텍스트 파일인 `PRO20x/AGENTS.md`, 공유 Skill인 `skills/oh-my-agents`의 운영 규칙이 서로 어긋나지 않도록 관리하는 규칙입니다.
 
 루트 `AGENTS.md`에 규칙을 추가, 수정, 삭제할 때는 같은 변경 사항을 `AGENTS.ko.md`에도 한국어 설명으로 함께 반영해야 합니다.
 
 특히 에이전트 생성, 이름 규칙, 호출 입력값, handoff, context-loading, subagent orchestration 규칙이 바뀌면 `PRO20x/AGENTS.md`와 `skills/oh-my-agents`도 같은 방향으로 수정이 필요한지 확인해야 합니다.
 
-즉, `AGENTS.md`는 에이전트가 따르는 원본 지침이고, `AGENTS.ko.md`는 팀원이 이해하기 위한 설명서입니다. `PRO20x/AGENTS.md`는 PRO20x 사용자가 토큰 부담 없이 한 파일로 전체 규칙을 볼 수 있는 풀 버전입니다. 표현 방식은 달라도 항상 같은 버전의 운영 규칙을 공유해야 합니다.
+Lovv의 기술 스택, 라우팅, 저장 정책, RAG, database, crawl, infrastructure 전제가 바뀌면 [docs/projects/lovv-project-context.md](./docs/projects/lovv-project-context.md)와 [docs/projects/ko/lovv-project-context.md](./docs/projects/ko/lovv-project-context.md)를 같은 작업에서 함께 수정합니다.
+
+즉, `AGENTS.md`는 에이전트가 따르는 원본 지침이고, `AGENTS.ko.md`는 팀원이 이해하기 위한 설명서입니다. `PRO20x/AGENTS.md`는 토큰 절약보다 정밀도를 우선하는 사용자가 한 파일로 전체 규칙을 볼 수 있는 풀 버전입니다. 표현 방식은 달라도 항상 같은 버전의 운영 규칙을 공유해야 합니다.
 
 ## Agent Roles
 

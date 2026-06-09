@@ -172,82 +172,99 @@ Agents working here must prioritize React component structure, user-facing behav
 - Document API assumptions, unverified UI states, accessibility gaps, and any required backend coordination.
 ````
 
-### Backend Django Folder-Level `AGENTS.md` Template
+### Backend AWS SAM Folder-Level `AGENTS.md` Template
 
-백엔드 루트 폴더인 `backend/AGENTS.md` 또는 Django app/module 폴더용 `AGENTS.md`를 만들 때 사용하는 템플릿입니다.
+Lovv 프로젝트의 `backend/AGENTS.md`, `api/AGENTS.md`, `sam/AGENTS.md`, Lambda function 폴더, backend module 폴더용 `AGENTS.md`를 만들 때 사용하는 기본 템플릿입니다.
+
+에이전트가 실제로 사용할 원문 템플릿은 [docs/agents/templates/backend-aws-sam.md](../templates/backend-aws-sam.md)입니다.
 
 ````md
 # AGENTS.md
 
-This file defines local backend agent instructions for this folder.
+This file defines local backend AWS SAM agent instructions for this folder.
 It inherits the root `AGENTS.md`; local rules must not weaken root-level security, workflow, review, environment variable, or Workspace Boundary rules.
+
+Agents working in this folder must also follow `docs/projects/lovv-project-context.md`.
 
 ## Agent Focus
 
 This folder is backend-focused.
-Agents working here must prioritize Django app boundaries, API contracts, validation, authentication, authorization, data integrity, error handling, observability, and server-side security.
+Agents working here must prioritize AWS SAM boundaries, Lambda handlers, API Gateway contracts, request/response validation, authentication, authorization, data integrity, observability, IAM safety, and server-side security.
 
 ## Project Stack
 
-- Framework: Django
-- API Layer: Use the project's existing Django API pattern, such as Django REST Framework if already present.
-- Database: Use the configured project database.
+- Runtime: AWS SAM with AWS Lambda.
+- API Gateway: Amazon API Gateway.
+- Database: Amazon Aurora MySQL-Compatible on Amazon RDS.
+- Compute: Serverless by default; do not assume EC2.
+- Graph DB: Not in current scope; do not introduce Neo4j or another graph database without an approved Spec.
 - Package Manager: Detect from project files before running commands.
 
 ## Folder Purpose
 
-- Describe the backend domain, Django app, API area, or service module owned by this folder.
+- Describe the backend API, Lambda function, SAM module, service module, or data-access area owned by this folder.
 
 ## Ownership Scope
 
 - Owned files:
 - Related frontend/API consumers:
+- Related SAM template or infrastructure files:
+- Related data models or SQL:
 - Explicitly out of scope:
 
 ## Local Rules
 
-- Follow Django app boundaries and existing project structure.
-- Keep business logic out of views when it grows; prefer services, selectors, forms, serializers, managers, or existing local patterns.
+- Before creating or changing small-city API routes, Lambda handlers, SAM templates, request/response contracts, or frontend API adapters, read the Existing API Source Of Truth section in `docs/projects/lovv-project-context.md`.
+- Treat Task 9/10 small-city API documents as the current contract and adapter boundary, not as proof that a live backend endpoint already exists.
+- Treat endpoint paths in those documents as placeholders until the actual SAM/API Gateway base URL, stage, auth/environment configuration, and DB readiness are verified.
+- Do not implement live API calls while the related product path is still frontend-only or backend/DB readiness is unclear.
+- Follow existing Lambda handler, service, repository, and validation patterns.
+- Keep API contracts aligned with the approved Spec and frontend data assumptions.
 - Validate all user input server-side.
 - Enforce authentication and authorization server-side.
 - Never log passwords, tokens, API keys, secrets, or sensitive user data.
-- Use Django migrations for model changes and review migrations before applying them.
-- Use Django settings and environment variables safely; never hardcode secrets in settings or source code.
-- Use Django's built-in password hashing and security mechanisms.
-- Consider rate limiting or abuse protection for authentication-sensitive or costly endpoints.
-- Return consistent error responses without leaking stack traces or internal details.
+- Use environment variables safely and never hardcode secrets.
+- Keep IAM permissions least-privilege and scoped to the required Lambda behavior.
+- Keep API Gateway routes, request schemas, response schemas, status codes, and error shapes explicit.
+- Use Aurora MySQL-compatible access patterns approved by the Spec or data contract.
+- Do not introduce graph database behavior, WebSocket behavior, or durable chat history unless an approved Spec requires it.
+- Consider rate limiting, abuse protection, timeout limits, retry bounds, and cost impact for auth-sensitive, AI, crawl, or expensive endpoints.
+- Return consistent error responses without leaking stack traces, internal IDs, credentials, or provider details.
 
 ## Allowed Changes
 
-- Django apps, models, migrations, views, serializers/forms, services, selectors, permissions, tests, and backend documentation within this folder's scope.
+- Lambda handlers, services, repositories, validators, API contracts, SAM templates, backend tests, and backend documentation within this folder's scope.
 
 ## Forbidden Changes
 
 - Do not change frontend behavior from backend folders unless explicitly scoped.
-- Do not bypass authentication, authorization, validation, or migration review.
-- Do not commit real `.env` files, credentials, local databases, or generated secrets.
+- Do not bypass authentication, authorization, validation, IAM review, or API contract review.
+- Do not commit real `.env` files, credentials, local databases, generated secrets, or provider tokens.
+- Do not introduce EC2, Neo4j, Graph DB, WebSocket, or server-side in-progress chat persistence without an approved Spec.
 - Do not weaken root security, environment, or Workspace Boundary rules.
 
 ## Local Verification
 
 - Use project-defined backend commands when available.
-- If commands are unknown, inspect project scripts or Django management configuration before running tests.
+- If commands are unknown, inspect project scripts, SAM configuration, and test scripts before running checks.
 - Suggested checks once configured:
   - backend lint
-  - Django system checks
-  - migrations check
   - backend unit/API tests
-  - security-sensitive manual checks for auth, permissions, and validation
+  - SAM template validation
+  - Lambda handler tests
+  - API contract tests
+  - database query or migration checks when relevant
+  - security-sensitive manual checks for auth, permissions, IAM, validation, secrets, and logging
 
 ## Primary Agent Roles
 
-- Primary: Implementation Agent for backend Tasks and Subtasks.
-- Review: Review Agent with backend correctness, API contract, data integrity, and security focus.
-- Security-sensitive areas: settings, environment variables, authentication, authorization, permissions, password handling, tokens, sessions, migrations, file access, external APIs.
+- Primary: Implementation Agent for backend AWS SAM Tasks and Subtasks.
+- Review: Review Agent with backend correctness, API contract, data integrity, IAM, observability, and security focus.
+- Security-sensitive areas: environment variables, IAM, authentication, authorization, permissions, tokens, sessions, data access, API Gateway routes, external APIs, AI provider calls, logging.
 
 ## Handover Notes
 
-- Document API contracts, migration status, auth/permission assumptions, unverified edge cases, and required frontend coordination.
+- Document API contracts, SAM template assumptions, IAM assumptions, Aurora MySQL assumptions, unverified edge cases, and required frontend or RAG coordination.
 ````
 
 역할별 하위 `AGENTS.md` 생성은 이렇게 요청하면 됩니다.
@@ -261,7 +278,7 @@ frontend 영역의 로컬 규칙만 포함해줘.
 
 ```md
 backend/AGENTS.md를 생성해줘.
-루트 AGENTS.md의 Backend Django Folder-Level Template을 기반으로 작성하고,
+루트 AGENTS.md의 Backend AWS SAM Folder-Level Template을 기반으로 작성하고,
 backend 영역의 로컬 규칙만 포함해줘.
 루트 보안, 워크플로우, 환경 변수, Workspace Boundary 규칙은 약화하지 마.
 ```
@@ -275,5 +292,5 @@ Frontend React + Tailwind 템플릿을 기반으로 auth 프론트엔드 규칙�
 
 ```md
 backend/src/modules/auth/AGENTS.md를 생성해줘.
-Backend Django 템플릿을 기반으로 auth 백엔드 규칙만 작성해줘.
+Backend AWS SAM 템플릿을 기반으로 auth 백엔드 규칙만 작성해줘.
 ```

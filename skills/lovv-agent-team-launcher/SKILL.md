@@ -2,7 +2,7 @@
 name: lovv-agent-team-launcher
 description: Use when the user asks to launch, create, run, coordinate, or propose a Lovv agent team from a GitHub Issue, including short Korean invocations such as "Lovv #123 팀 제안해줘", "Lovv #123 제안 승인. 순차형으로 시작해줘", or "Owner Auto Team: Lovv #123 하이브리드로 실행해줘". Use this after or with the Lovv Issue Router proposal when the user explicitly wants real subagents or team execution.
 metadata:
-  version: "0.1.1"
+  version: "0.1.3"
 ---
 
 # Lovv Agent Team Launcher
@@ -39,11 +39,12 @@ If the user asks to create or run an agent team after approving a proposal, trea
 ## Core Workflow
 
 1. Read the root `AGENTS.md`.
-2. Read `docs/harnesses/lovv-issue-router-level1.md` when issue routing context is needed.
-3. Run or request the Level 1 proposal:
+2. Read `docs/projects/lovv-project-context.md`.
+3. Read `docs/harnesses/lovv-issue-router-level1.md` when issue routing context is needed.
+4. Run or request the Level 1 proposal:
    - `python3 scripts/lovv_issue_router.py <issue-number-or-url>`
-4. Choose an agent team preset from `references/team-presets.md`.
-5. Present the team proposal:
+5. Choose an agent team preset from `references/team-presets.md`.
+6. Present the team proposal:
    - Team Name
    - Execution Mode
    - Coordinator
@@ -51,11 +52,11 @@ If the user asks to create or run an agent team after approving a proposal, trea
    - Scope and Out of Scope
    - Execution Order
    - Stop Conditions
-6. Ask for user approval before launching, unless the user explicitly requested Owner Auto Team.
-7. If a supported tool-backed subagent harness is available, spawn only the approved team members.
-8. If no supported harness is available, continue by current-session role activation.
-9. Collect each agent final report and summarize integration status.
-10. Close, archive, terminate, or delete unused subagent contexts when the harness supports cleanup.
+7. Ask for user approval before launching, unless the user explicitly requested Owner Auto Team.
+8. If a supported tool-backed subagent harness is available, spawn only the approved team members.
+9. If no supported harness is available, continue by current-session role activation.
+10. Collect each agent final report and summarize integration status.
+11. Close, archive, terminate, or delete unused subagent contexts when the harness supports cleanup.
 
 ## Team Selection
 
@@ -65,7 +66,8 @@ Quick defaults:
 
 - New idea, unclear requirements, or product planning -> Planning Team.
 - Frontend UI, React, Tailwind, routing, state, accessibility -> Frontend Feature Team.
-- Django, API, DB, migrations, backend validation -> Backend API Team.
+- Lovv API, AWS SAM, Lambda, API Gateway, Aurora MySQL, DB, migrations, backend validation -> Backend API Team.
+- Lovv small-city API, city data loading, or map/backend integration -> Backend API Team with the Existing API Source Of Truth section from `docs/projects/lovv-project-context.md` as required context. Treat listed endpoint paths as placeholders until real SAM/API Gateway deployment, stage/base URL, auth/environment configuration, and DB readiness are verified.
 - Auth, token, secret, env, permissions, external API security -> Security Review Team.
 - Crawl, scrape, BeautifulSoup, Selenium, Scrapling, data extraction -> Crawl Data Team.
 - Merge readiness, final QA, release review -> Release Gate Team.

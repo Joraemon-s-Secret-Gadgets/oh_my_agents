@@ -18,6 +18,8 @@ Follow instructions in this order:
 
 When instructions conflict, the higher-priority instruction wins. Folder-level and PRO20x rules may add detail, but they must not weaken root-level security, workflow, environment, or Workspace Boundary rules.
 
+The root `AGENTS.md`, `AGENTS.ko.md`, `docs/projects/lovv-project-context.md`, `docs/projects/ko/lovv-project-context.md`, this PRO20x file, and shared agent Skills must stay aligned when Lovv stack, routing, persistence, RAG, database, crawl, infrastructure, agent creation, or orchestration assumptions change.
+
 ## User Language Preservation Rule
 
 When the user gives task instructions in Korean or another non-English language, do not discard, replace, or silently overwrite the original request.
@@ -28,16 +30,75 @@ The structured English contract improves agent reliability. The original user re
 
 Review Agent must compare completed work against both `User Request Original` and `Structured Agent Contract`.
 
+## Lovv Project Context
+
+This PRO20x `AGENTS.md` is for the Lovv project. Always use `docs/projects/lovv-project-context.md` as the project-specific routing source of truth. PRO20x users may keep the summary below in context, but must check the split project context file if it is newer or explicitly referenced by the user.
+
+The user defines the product feature, goal, user-visible behavior, exclusions, and MVP priority. Main Codex infers the technical route from Lovv project context, approved Specs, Tasks, GitHub Issues, and existing project files.
+
+Lovv default stack:
+
+- Frontend: React + TailwindCSS.
+- Backend/API: AWS SAM + AWS Lambda + Amazon API Gateway.
+- Backend mode: Serverless by default; do not assume EC2.
+- Database: Amazon Aurora MySQL-Compatible on Amazon RDS.
+- Graph DB: Not in current scope. Do not use Neo4j or another graph database unless an approved Spec explicitly adds it.
+- AI/RAG: RAG-based chatbot, recommendation, and itinerary generation when required by the feature.
+- RAG transport: Prefer HTTP REST and Lambda/API Gateway response streaming when streaming is required; do not assume WebSocket.
+- Persistence: Persist confirmed or final itineraries only by default. Do not persist in-progress chat messages or unfinished plan drafts server-side unless an approved Spec adds durable conversation or draft state.
+- Crawl: Python 3.12 with BeautifulSoup, Selenium, and Scrapling for approved crawl tasks.
+
+Lovv routing defaults:
+
+- API, endpoint, Lambda, SAM, API Gateway, serverless, or backend -> Backend AWS SAM domain.
+- DB, database, schema, migration, or data model -> Aurora MySQL-compatible data/API domain.
+- UI, React, TailwindCSS, route, component, hook, client state, form, accessibility, responsive behavior, frontend API integration, onboarding, chatbot screen, map UI, or itinerary UI -> Frontend domain.
+- Crawl, scrape, URL data collection, deep crawl, columns, BeautifulSoup, Selenium, or Scrapling -> Crawl Focus.
+
+Do not ask the user to choose the agent role, execution mode, backend framework, database type, or infrastructure layer when this context makes the route clear.
+
+Existing API source of truth:
+
+- Before creating new API contracts, Lambda handlers, API Gateway routes, SAM templates, or frontend API adapters, check the Existing API Source Of Truth section in `docs/projects/lovv-project-context.md`.
+- Current small-city API/data-boundary documents include `docs/specs/LOVV_SMALL_CITY_API_CONTRACT.md`, `docs/specs/LOVV_CITY_DATA_CONTRACT.md`, `docs/specs/TASK9_API_CONTRACT_SCOPE.md`, `docs/reports/TASK9_COMPLETION.md`, `docs/specs/TASK10_DATA_LOADING_SCOPE.md`, `docs/reports/TASK10_COMPLETION.md`, and `docs/specs/TASK6_MAP_PROVIDER_BACKEND_INTEGRATION_SUBTASKS.md`.
+- Treat Task 9/10 as existing API contract and frontend adapter-boundary evidence, not proof of a deployed AWS SAM backend.
+- Treat endpoint paths in those documents as placeholders, not confirmed Lovv API addresses, until the actual SAM/API Gateway base URL, stage, auth/environment configuration, and DB readiness are verified.
+- The current implemented path is frontend-only and the DB is under construction; do not implement live API calls until backend readiness is confirmed.
+- Do not invent conflicting endpoints, filters, pagination, response fields, metadata exposure rules, or adapter behavior unless a new approved Spec changes the contract.
+
 ## PRO20x Context Mode
 
 PRO20x Context Mode means:
 
 - Prefer this file as the single comprehensive agent operating guide.
 - Do not skip relevant agent-operation sections only to save tokens.
+- You may read the full planning, review, security, mode, folder-template, and agent creation rules when that improves precision.
 - You may use the full planning, review, security, and agent creation rules in this file without loading split `docs/agents/*` files first.
 - If a split document is newer or explicitly referenced by the user, check it before acting.
 - Do not load `AGENTS.ko.md` unless the user asks for Korean explanation, Korean docs are being edited, or synchronization is being checked.
 - Do not read heavy unmanaged files, `.git` internals, large logs, build artifacts, or large data files just because PRO20x mode is enabled.
+
+## PRO20x Precision Context Rule
+
+PRO20x prioritizes precision over token savings.
+
+Agents using PRO20x may read more context than the token-optimized root workflow when that improves correctness, review quality, security analysis, or architectural judgment.
+
+Allowed precision-oriented behavior:
+
+- Read this PRO20x file as the comprehensive operating guide.
+- Read relevant split `docs/agents/*` files when they are newer, more detailed, explicitly referenced, or useful for a precise task.
+- Read the full approved Spec when feature behavior, acceptance criteria, security, API contracts, data models, or cross-domain interactions require it.
+- Read relevant reports, task handoffs, run logs, and review notes when they are needed to reconstruct prior decisions.
+- Pass broader context to subagents when precision requires it, as long as the subagent scope remains bounded and non-overlapping.
+
+Limits that still apply:
+
+- Do not read `AGENTS.ko.md` unless Korean explanation, Korean documentation editing, or synchronization checking requires it.
+- Do not read secrets, real environment files, credentials, local databases, `.git` internals, large logs, build artifacts, generated bundles, or large data dumps unless the user explicitly requests that exact inspection and it is safe.
+- Do not use broad context loading as permission to modify unrelated files or weaken workspace boundaries.
+- Do not pass secrets, credentials, unrelated private data, or out-of-scope files to subagents.
+- If context is very large, prefer an indexed or staged read: identify relevant sections first, then expand only where precision requires it.
 
 ## Top-Level Principles
 
@@ -266,7 +327,7 @@ Allowed domain labels:
 
 - General: Shared utilities, docs, scripts, configuration-adjacent work, or unclear ownership.
 - Frontend: React, TailwindCSS, routes, components, hooks, client state, accessibility, and browser-facing behavior.
-- Backend: Django, APIs, models, migrations, serializers/forms, auth, permissions, validation, and data integrity.
+- Backend: AWS SAM APIs, Lambda handlers, API Gateway routes, Aurora MySQL data access, auth, permissions, validation, observability, and data integrity for Lovv; use framework-specific backend details only when project context or approved Spec says so.
 - Full-stack: User flows that tightly involve both frontend and backend behavior.
 
 Allowed focus labels:
@@ -1102,47 +1163,56 @@ Frontend security-sensitive areas:
 - Redirects.
 - User-generated content.
 
-### Backend Django Template
+### Backend AWS SAM Template
 
-Use for `backend/AGENTS.md` or Django app/module-level files.
+Use for Lovv `backend/AGENTS.md`, `api/AGENTS.md`, `sam/AGENTS.md`, Lambda function folders, backend module folders, API Gateway route areas, and Aurora MySQL data-access areas.
 
-Backend local rules:
+Backend AWS SAM local rules:
 
-- Prioritize Django app boundaries, API contracts, validation, authentication, authorization, data integrity, error handling, observability, and server-side security.
-- Framework: Django.
-- API Layer: Use the project's existing Django API pattern, such as Django REST Framework if already present.
-- Database: Use the configured project database.
+- Prioritize AWS SAM boundaries, Lambda handlers, API Gateway contracts, request/response validation, authentication, authorization, data integrity, observability, IAM safety, and server-side security.
+- Before creating or changing small-city API routes, Lambda handlers, SAM templates, request/response contracts, or frontend API adapters, read the Existing API Source Of Truth section in `docs/projects/lovv-project-context.md`.
+- Treat Task 9/10 small-city API documents as the current contract and adapter boundary, not as proof that a live backend endpoint already exists.
+- Treat endpoint paths in those documents as placeholders until the actual SAM/API Gateway base URL, stage, auth/environment configuration, and DB readiness are verified.
+- Do not implement live API calls while the related product path is still frontend-only or backend/DB readiness is unclear.
+- Runtime: AWS SAM with AWS Lambda.
+- API Gateway: Amazon API Gateway.
+- Database: Amazon Aurora MySQL-Compatible on Amazon RDS.
+- Compute: Serverless by default; do not assume EC2.
+- Graph DB: Not in current scope; do not introduce Neo4j or another graph database without an approved Spec.
 - Package Manager: Detect from project files before running commands.
-- Follow Django app boundaries and existing project structure.
-- Keep business logic out of views when it grows; prefer services, selectors, forms, serializers, managers, or existing local patterns.
+- Follow existing Lambda handler, service, repository, and validation patterns.
+- Keep API contracts aligned with the approved Spec and frontend data assumptions.
 - Validate all user input server-side.
 - Enforce authentication and authorization server-side.
 - Never log passwords, tokens, API keys, secrets, or sensitive user data.
-- Use Django migrations for model changes and review migrations before applying them.
-- Use Django settings and environment variables safely; never hardcode secrets.
-- Use Django's built-in password hashing and security mechanisms.
-- Consider rate limiting or abuse protection for auth-sensitive or costly endpoints.
-- Return consistent error responses without leaking stack traces or internal details.
+- Use environment variables safely and never hardcode secrets.
+- Keep IAM permissions least-privilege and scoped to the required Lambda behavior.
+- Keep API Gateway routes, request schemas, response schemas, status codes, and error shapes explicit.
+- Use Aurora MySQL-compatible access patterns approved by the Spec or data contract.
+- Do not introduce graph database behavior, WebSocket behavior, or durable chat history unless an approved Spec requires it.
+- Consider rate limiting, abuse protection, timeout limits, retry bounds, and cost impact for auth-sensitive, AI, crawl, or expensive endpoints.
+- Return consistent error responses without leaking stack traces, internal IDs, credentials, or provider details.
 
-Backend verification:
+Backend AWS SAM verification:
 
 - Use project-defined backend commands when available.
-- If commands are unknown, inspect project scripts or Django management configuration first.
-- Suggested checks: backend lint, Django system checks, migrations check, unit/API tests, manual security checks for auth, permissions, and validation.
+- If commands are unknown, inspect project scripts, SAM configuration, and test scripts before running checks.
+- Suggested checks: backend lint, unit/API tests, SAM template validation, Lambda handler tests, API contract tests, database query or migration checks when relevant, manual security checks for auth, permissions, IAM, validation, secrets, and logging.
 
-Backend security-sensitive areas:
+Backend AWS SAM security-sensitive areas:
 
-- Settings.
 - Environment variables.
+- IAM.
 - Authentication.
 - Authorization.
 - Permissions.
-- Password handling.
 - Tokens.
 - Sessions.
-- Migrations.
-- File access.
+- Data access.
+- API Gateway routes.
 - External APIs.
+- AI provider calls.
+- Logging.
 
 ## Task Completion & Handover
 

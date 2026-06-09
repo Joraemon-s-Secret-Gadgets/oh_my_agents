@@ -2,6 +2,14 @@
 
 사용자가 에이전트를 생성해 달라고 하거나, 특정 역할을 활성화해 달라고 하거나, 폴더별 `AGENTS.md` 파일 생성을 요청할 때 이 문서를 참고합니다.
 
+## Lovv Project Context Gate
+
+이 프로젝트에서 에이전트를 생성, 활성화, 라우팅하기 전에는 `docs/projects/lovv-project-context.md`를 읽습니다. 한국어 설명은 `docs/projects/ko/lovv-project-context.md`를 참고할 수 있습니다.
+
+사용자가 "API 짜야돼", "로그인 기능 구현해야 해", "RAG 챗봇 붙여야 해", "크롤링 해야 해"처럼 제품 목표를 말하면 이 문서를 기준으로 domain, stack, persistence assumption, execution mode를 추론합니다.
+
+Lovv 프로젝트 컨텍스트로 판단이 명확한 경우, 사용자에게 agent role, execution mode, backend framework, database type, infrastructure layer를 직접 고르라고 요구하지 않습니다.
+
 ## Agent Creation Semantics
 
 사용자가 "Review Agent 생성해줘", "Spec Agent 생성해줘"처럼 말하면, Main Codex는 먼저 지원되는 subagent 하네스를 통해 실제 tool-backed subagent를 생성하는 요청으로 해석해야 합니다.
@@ -175,7 +183,7 @@ subagent는 작업 범위를 명확히 하기 위해 표시 이름에 domain과 
 
 - General: shared utility, docs, scripts, 설정 인접 작업, ownership이 불명확한 작업입니다.
 - Frontend: React, TailwindCSS, route, component, hook, client state, accessibility, 브라우저에서 동작하는 기능입니다.
-- Backend: Django, API, model, migration, serializer/form, auth, permission, validation, data integrity입니다.
+- Backend: Lovv에서는 AWS SAM API, Lambda handler, API Gateway route, Aurora MySQL data access, auth, permission, validation, observability, data integrity입니다. framework-specific backend 세부사항은 프로젝트 컨텍스트나 승인된 Spec이 지정한 경우에만 사용합니다.
 - Full-stack: frontend와 backend 동작이 강하게 연결된 사용자 흐름입니다.
 
 허용되는 focus label은 다음과 같습니다.
@@ -239,6 +247,7 @@ QA Review Agent는 다음을 확인해야 합니다.
 - Implementation Agent: Task 또는 Subtask ID, Source of Truth, 허용된 write scope, acceptance criteria, verification command 또는 프로젝트 script에서 추론해도 된다는 허용입니다.
 - Review Agent: changed files, branch, PR, diff 같은 리뷰 대상, Source of Truth, correctness, security, UX, performance, all 같은 review focus입니다.
 - Frontend Domain: target files 또는 folders, UI states, API/data assumptions, responsive requirements, accessibility requirements, verification command 또는 browser check, out-of-scope behavior입니다.
+- Backend AWS SAM Domain: target Lambda function, API route, SAM template scope, request/response contract, small-city 또는 city-data API와 겹칠 경우 기존 API source-of-truth 문서, live call이 요청된 경우 실제 API 주소 또는 배포 준비 상태 근거, Aurora MySQL assumptions, auth/IAM assumptions, verification command, out-of-scope behavior입니다.
 
 ## Role Permission Matrix
 
@@ -428,7 +437,7 @@ Review Agent를 생성하려면 리뷰 대상을 확정해야 합니다.
 
 - General folder: `docs/agents/templates/folder-level.md`
 - Frontend React + Tailwind folder: `docs/agents/templates/frontend-react-tailwind.md`
-- Backend Django folder: `docs/agents/templates/backend-django.md`
+- Backend AWS SAM folder: `docs/agents/templates/backend-aws-sam.md`
 
 ## Folder-Level Template Creation Criteria
 
@@ -436,7 +445,7 @@ Review Agent를 생성하려면 리뷰 대상을 확정해야 합니다.
 
 - General: shared utility, common module, 문서 영역, script, 설정 인접 폴더, 또는 frontend/backend ownership이 명확하지 않은 폴더에 사용합니다.
 - Frontend React + Tailwind: `frontend/`, React route 폴더, UI feature 폴더, component library, hook, client utility, Tailwind styling 영역, 브라우저에서 동작하는 기능에 사용합니다.
-- Backend Django: `backend/`, Django app, API module, model, migration, serializer/form, permission, service, selector, server-side validation, data integrity 영역에 사용합니다.
+- Backend AWS SAM: Lovv의 `backend/`, `api/`, `sam/`, Lambda function 폴더, API module, API Gateway route 영역, backend service, validator, repository, Aurora MySQL data-access 영역, server-side validation, IAM-sensitive 영역, data integrity 영역에 사용합니다.
 
 폴더가 존재한다는 이유만으로 folder-level `AGENTS.md`를 만들지 않습니다. 앞으로의 에이전트 작업에서 안정적인 로컬 규칙이 실제로 모호성을 줄여줄 때만 생성합니다.
 
@@ -460,7 +469,7 @@ Review Agent를 생성하려면 리뷰 대상을 확정해야 합니다.
 
 - General 템플릿은 shared utility, docs 영역, common module, frontend/backend에 특화되지 않은 폴더에 사용합니다.
 - Frontend React + Tailwind 템플릿은 `frontend/` 또는 frontend feature 폴더에 사용합니다.
-- Backend Django 템플릿은 `backend/` 또는 Django app/module 폴더에 사용합니다.
+- Backend AWS SAM 템플릿은 Lovv backend/API 폴더에 사용합니다.
 
 어떤 템플릿이 맞는지 불명확하면 파일을 생성하기 전에 사용자에게 질문합니다.
 

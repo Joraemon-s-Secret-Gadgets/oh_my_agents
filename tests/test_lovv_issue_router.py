@@ -42,6 +42,12 @@ class LovvIssueRouterTest(unittest.TestCase):
         _, core_role, _, work_focus = choose_agent(target)
         self.assertEqual(choose_execution_mode(target, core_role, work_focus), "Sequential Mode")
 
+    def test_api_issue_uses_backend_aws_sam_context(self):
+        decision = make_decision(issue("API Gateway Lambda 엔드포인트 추가", labels=["api"]))
+        self.assertEqual(decision.display_name, "Backend Implementation Agent")
+        self.assertIn("backend/ or api/ or sam/", decision.scope)
+        self.assertIn("docs/projects/lovv-project-context.md", decision.required_context)
+
     def test_unknown_issue_defaults_to_spec_agent_and_missing_scope(self):
         decision = make_decision(issue("새 기능 아이디어"))
         self.assertEqual(decision.display_name, "Spec Agent")

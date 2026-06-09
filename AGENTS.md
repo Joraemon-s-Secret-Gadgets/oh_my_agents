@@ -27,6 +27,26 @@ The structured English contract improves agent reliability. The original user re
 
 Review Agent must compare completed work against both `User Request Original` and `Structured Agent Contract`.
 
+## Project Context Rule
+
+This `AGENTS.md` is for the Lovv project. Always load `docs/projects/lovv-project-context.md` before selecting an agent role, domain, execution mode, stack assumption, or harness route.
+
+The user is responsible for defining the product feature, goal, user-visible behavior, exclusions, and MVP priority. Main Codex is responsible for inferring the technical route from the Lovv project context, approved Specs, Tasks, GitHub Issues, and existing project files.
+
+Lovv default stack assumptions:
+
+- Frontend: React + TailwindCSS.
+- Backend/API: AWS SAM + AWS Lambda + Amazon API Gateway.
+- Database: Amazon Aurora MySQL-Compatible on Amazon RDS.
+- Backend mode: Serverless by default; do not assume EC2.
+- Graph DB: Out of current scope; do not use Neo4j or another graph database unless an approved Spec explicitly adds it.
+- RAG chatbot: Prefer HTTP REST and Lambda/API Gateway response streaming when streaming is required; do not assume WebSocket.
+- Persistence: Persist confirmed or final itineraries only by default. Do not persist in-progress chat messages or unfinished plan drafts server-side unless an approved Spec adds durable conversation or draft state.
+
+Do not ask the user to choose the agent role, execution mode, backend framework, or infrastructure layer when this project context makes the choice clear. If the user asks for API work, treat it as Backend AWS SAM work unless the user explicitly specifies another backend stack.
+
+Before creating a new API contract, route, Lambda handler, or SAM implementation, Backend AWS SAM agents must check the existing API source-of-truth documents listed in `docs/projects/lovv-project-context.md`. Existing Task 9/10 API and data-loading documents define the current small-city API contract boundary and must not be contradicted unless a new approved Spec changes that contract. These documents do not prove that the listed endpoint paths are actual deployed Lovv API addresses. The current implementation is frontend-only, and the database is still under construction; agents must verify the real SAM/API Gateway deployment, stage/base URL, auth/environment configuration, and DB readiness before implementing or using live API calls.
+
 ## Top-Level Principles
 
 These principles apply to all agents and override role-specific instructions.
@@ -126,6 +146,7 @@ Initial work intake:
 
 Load only the rules, specs, and source files required for the current role and Task/Subtask.
 
+- Always load `docs/projects/lovv-project-context.md` before choosing role/domain/mode/stack routing for this project.
 - Do not load all `docs/agents` files at startup.
 - Do not load `docs/prompts` files unless the current task explicitly asks for a prompt template.
 - Exception: If the current task involves crawling, scraping, URL extraction, deep crawling, BeautifulSoup, Selenium, or Scrapling, treat it as Crawl Focus and load `docs/prompts/crawl-task-prompt.md` before planning, implementation, or review.
@@ -135,6 +156,39 @@ Load only the rules, specs, and source files required for the current role and T
 - The Full Spec remains authoritative for requirements, acceptance criteria, API contracts, data models, security rules, and user-visible behavior.
 - Implementation Agent must first read the current Subtask instruction and must not read the entire Full Spec by default.
 - For detailed context-loading, Spec Summary, and Subtask context-packet rules, load `docs/agents/context-loading.md`.
+
+## Token Management Rule
+
+Agents must treat tokens as a shared project resource and actively reduce unnecessary context loading.
+
+Baseline context:
+
+- Always keep this root `AGENTS.md` available as the operating rule source.
+- Always load `docs/projects/lovv-project-context.md` before routing or agent creation.
+- Do not load `AGENTS.ko.md`, all `docs/agents/*`, all mode files, all Specs, all reports, all prompts, or all source files by default.
+
+Loading order:
+
+1. Read the user request and preserve it as `User Request Original`.
+2. Read this root `AGENTS.md` and `docs/projects/lovv-project-context.md`.
+3. Select exactly one execution mode and load only that mode file.
+4. Load domain rules only when the active Task enters that domain.
+5. Load review, security, crawl, frontend, Spec, or Task format files only when the active role or focus requires them.
+6. Read current Subtask instructions before reading Full Specs.
+7. Read only referenced Full Spec sections unless the Subtask is unclear or contradictory.
+
+Subagent context budget:
+
+- Main Codex must pass subagents only the bounded contract, source of truth paths, required sections, scope, constraints, verification commands, and stop conditions needed for that run.
+- Do not pass full `AGENTS.md` companion explanations, full Specs, full reports, full logs, or unrelated source files to subagents.
+- Prefer summaries, section references, changed-file lists, and targeted excerpts over large pasted context.
+- If a subagent needs more context, it must request the specific missing file, section, or command output instead of loading broad directories.
+
+Heavy-context limits:
+
+- Do not read entire `.git` internals, large logs, build artifacts, generated bundles, screenshots, crawl outputs, local databases, or large data files unless explicitly requested.
+- Use file size checks, targeted `rg`, partial reads, structured parsers, or summaries before opening large files.
+- For command output, capture only the relevant failure, summary, or verification lines when full output is not needed.
 
 ## Crawl Focus Trigger Rule
 
@@ -237,17 +291,19 @@ When creating folder-level `AGENTS.md` files, load the matching template:
 
 - General folder: `docs/agents/templates/folder-level.md`
 - Frontend React + Tailwind folder: `docs/agents/templates/frontend-react-tailwind.md`
-- Backend Django folder: `docs/agents/templates/backend-django.md`
+- Backend AWS SAM folder: `docs/agents/templates/backend-aws-sam.md`
 
 When the user asks to create an agent, activate a role, or create a folder-level `AGENTS.md`, load `docs/agents/agent-creation-guidelines.md` and follow its creation, naming, domain, and focus criteria before acting.
 
 ## File Synchronization Rule
 
-The root `AGENTS.md`, Korean explanation file `AGENTS.ko.md`, PRO20x full-context file `PRO20x/AGENTS.md`, and shared `oh-my-agents` Skill must stay aligned for agent operation rules.
+The root `AGENTS.md`, Korean explanation file `AGENTS.ko.md`, Lovv project context files under `docs/projects/`, PRO20x full-context file `PRO20x/AGENTS.md`, and shared `oh-my-agents` Skill must stay aligned for agent operation rules.
 
 When a rule in `AGENTS.md` is added, modified, or removed, the same change must be reflected in `AGENTS.ko.md` with a corresponding Korean explanation in the same update.
 
 When agent creation, naming, invocation, handoff, context-loading, or subagent orchestration rules change, also check whether `PRO20x/AGENTS.md` and `skills/oh-my-agents` need the same update.
+
+When Lovv stack, routing, persistence, RAG, database, crawl, or infrastructure assumptions change, update `docs/projects/lovv-project-context.md` and `docs/projects/ko/lovv-project-context.md` in the same pass.
 
 ## Agent Roles
 

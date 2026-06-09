@@ -5,6 +5,7 @@
 기본 로딩 규칙은 다음과 같습니다.
 
 - 루트 `AGENTS.md`와 현재 작업 파일에 가장 가까운 관련 하위 `AGENTS.md`만 읽습니다.
+- 이 프로젝트에서는 role, domain, execution mode, stack assumption, harness route를 고르기 전에 항상 `docs/projects/lovv-project-context.md`를 읽습니다.
 - `AGENTS.ko.md`는 기본으로 읽지 않습니다. 사용자가 한국어 설명을 요청하거나, 한국어 문서를 수정하거나, `AGENTS.md`와 `AGENTS.ko.md`의 동기화를 확인하는 작업일 때만 읽습니다. 단, 에이전트 문서를 수정하는 작업에서는 이 제한이 `File Synchronization Rule`보다 우선하지 않습니다.
 - 시작할 때 `docs/agents` 전체를 한 번에 읽지 않습니다.
 - 현재 작업이 프롬프트 템플릿을 명시적으로 요청하지 않으면 `docs/prompts` 파일을 읽지 않습니다.
@@ -12,6 +13,49 @@
 - 예외: Frontend domain 작업은 사용자가 프론트엔드 규칙을 명시적으로 요청하지 않았더라도 `docs/agents/frontend-agent-rules.md`를 읽어야 합니다. Frontend domain에는 UI, React, TailwindCSS, 브라우저 동작, route, component, hook, client state, form, accessibility, responsive behavior, frontend API integration이 포함됩니다.
 - 긴 파일을 열기 전에 `rg` 또는 섹션 단위 읽기로 필요한 부분을 먼저 찾습니다.
 - 전체 문서를 통째로 읽기보다 참조된 섹션, 짧은 Subtask packet, 현재 변경 파일을 우선합니다.
+
+## Token Management Rule
+
+이 프로젝트의 기본 컨텍스트는 루트 `AGENTS.md`와 `docs/projects/lovv-project-context.md`입니다.
+
+다음 파일과 범위는 시작할 때 통째로 읽지 않습니다.
+
+- `AGENTS.ko.md`
+- `docs/agents/` 전체
+- 모든 execution mode 파일
+- 모든 Spec 또는 report
+- 모든 prompt template
+- source folder 전체
+- 대용량 unmanaged file, log, generated output, data dump
+
+컨텍스트는 다음 순서로 읽습니다.
+
+1. 사용자 요청과 보존된 `User Request Original`
+2. 루트 `AGENTS.md`
+3. `docs/projects/lovv-project-context.md`
+4. 선택된 execution mode 파일 하나
+5. 현재 역할에 필요한 role-specific rule file
+6. 현재 Subtask packet 또는 승인된 Spec의 참조 섹션
+7. target file, changed file, diff
+
+subagent를 생성할 때는 넓은 문서 대신 작은 context packet을 전달합니다.
+
+- Role, domain, focus, execution mode
+- Source of truth path와 required section
+- Allowed scope와 forbidden scope
+- Acceptance criteria
+- Verification command
+- Stop condition과 escalation rule
+- 관련된 이전 결정의 짧은 요약
+
+subagent가 추가 컨텍스트가 필요하면 특정 파일, 섹션, command output을 요청해야 합니다. broad directory, Full Spec 전체, report 전체, 관련 없는 source file을 기본으로 읽으면 안 됩니다.
+
+큰 파일이나 command output을 다룰 때는 다음을 따릅니다.
+
+- 읽기 전에 size check 또는 targeted search를 먼저 합니다.
+- 관련 section 또는 line range만 읽습니다.
+- log, crawl output, screenshot, browser output, test output은 handoff 전에 요약합니다.
+- actionable error, verification result, decision-relevant evidence만 남깁니다.
 
 ## Crawl Focus Loading
 
@@ -33,18 +77,32 @@ Frontend domain 작업에서는 다음을 따릅니다.
 - client environment variables, auth UI, token handling, redirects, user-generated content, external scripts, dependency 변경이 있으면 `docs/agents/security-review-checklist.md`를 읽습니다.
 - 큰 design reference, screenshot, browser log를 다른 에이전트에게 넘길 때는 먼저 요약합니다.
 
+## Backend AWS SAM Domain Loading
+
+Backend AWS SAM 또는 API domain 작업에서는 다음을 따릅니다.
+
+- 계획, 구현, 리뷰 전에 `docs/projects/lovv-project-context.md`를 읽습니다.
+- small-city API, city data loading, map/backend integration, API Gateway route, Lambda handler, SAM template, frontend API adapter를 건드리면 `docs/projects/lovv-project-context.md`의 Existing API Source Of Truth 섹션을 읽습니다.
+- 현재 Task/Subtask에 맞는 API source-of-truth 문서만 읽고, 모든 report나 Spec을 기본으로 통째로 읽지 않습니다.
+- Task 9/10 API 문서는 현재 contract와 adapter boundary의 기준이지, 실제 backend가 배포되었다는 증거가 아닙니다.
+- 해당 문서의 endpoint path는 실제 SAM/API Gateway base URL, stage, auth/environment configuration, DB readiness가 확인되기 전까지 placeholder로 봅니다.
+- 현재 구현이 FE-only 상태이거나 backend/DB readiness가 모호하면 live API call을 구현하지 않습니다.
+- 새로 승인된 Spec이 contract를 바꾸지 않는 한 기존 문서와 충돌하는 endpoint, response shape, filter, pagination rule, metadata 노출 규칙, adapter 동작을 만들지 않습니다.
+
 ## Role-Based Loading
 
 `Spec Agent`가 읽어야 하는 것은 다음과 같습니다.
 
 - 루트 `AGENTS.md`
 - 사용자 요청과 관련 제품 맥락
+- `docs/projects/lovv-project-context.md`
 - 현재 Spec 작성에 필요한 기존 Spec 또는 소스 섹션
 - Spec 또는 Task 관련 섹션을 작성할 때 `docs/agents/spec-task-format.md`
 
 `Task Agent`가 읽어야 하는 것은 다음과 같습니다.
 
 - 루트 `AGENTS.md`
+- `docs/projects/lovv-project-context.md`
 - 승인된 Full Spec 또는 필요한 Full Spec 섹션
 - 기존 Spec Summary가 있으면 해당 Summary
 - `docs/agents/spec-task-format.md`
@@ -53,6 +111,7 @@ Frontend domain 작업에서는 다음을 따릅니다.
 `Implementation Agent`가 읽어야 하는 것은 다음과 같습니다.
 
 - 루트 `AGENTS.md`
+- Subtask가 stack routing, API, RAG, database, crawl, infrastructure, persistence, cross-domain behavior를 건드리면 `docs/projects/lovv-project-context.md`
 - 대상 파일에 관련된 하위 `AGENTS.md`가 있으면 해당 파일
 - 현재 Subtask 지시서
 - `Must Read Before Implementation`에 명시된 Full Spec 섹션
@@ -61,6 +120,7 @@ Frontend domain 작업에서는 다음을 따릅니다.
 `Review Agent`가 읽어야 하는 것은 다음과 같습니다.
 
 - 루트 `AGENTS.md`
+- stack routing, API, RAG, database, crawl, infrastructure, persistence, cross-domain behavior를 리뷰하면 `docs/projects/lovv-project-context.md`
 - 현재 Subtask 지시서
 - 변경된 파일
 - 동작 검증에 필요한 acceptance criteria와 관련 Full Spec 섹션

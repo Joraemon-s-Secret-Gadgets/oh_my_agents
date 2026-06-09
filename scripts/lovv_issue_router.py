@@ -151,8 +151,23 @@ def choose_agent(issue: dict[str, Any]) -> tuple[str, str, str, str]:
     is_frontend = has_any(labels, {"frontend", "front", "ui", "react", "tailwind"}) or contains_any(
         blob, ("frontend", "front", "ui", "react", "tailwind", "화면", "프론트", "컴포넌트")
     )
-    is_backend = has_any(labels, {"backend", "api", "django", "db", "database", "server"}) or contains_any(
-        blob, ("backend", "api", "django", "database", "db", "서버", "백엔드")
+    is_backend = has_any(
+        labels,
+        {"backend", "api", "lambda", "sam", "api-gateway", "db", "database", "server"},
+    ) or contains_any(
+        blob,
+        (
+            "backend",
+            "api",
+            "lambda",
+            "sam",
+            "api gateway",
+            "api-gateway",
+            "database",
+            "db",
+            "서버",
+            "백엔드",
+        ),
     )
     is_security = has_any(labels, {"security", "auth", "secret"}) or contains_any(
         blob, ("security", "auth", "token", "secret", "password", "보안", "인증", "인가")
@@ -226,7 +241,7 @@ def infer_scope(issue: dict[str, Any], domain_focus: str, work_focus: str) -> li
     if domain_focus == "Frontend":
         scope.extend(["frontend/", "docs/specs/ when planning output is needed"])
     elif domain_focus == "Backend":
-        scope.extend(["backend/", "database/ when API or data changes are involved"])
+        scope.extend(["backend/ or api/ or sam/", "database/ or SQL/data-access files when API or data changes are involved"])
     elif domain_focus == "Crawl" or work_focus == "Crawl":
         scope.extend(["scripts/ or backend/ crawl-related files", "docs/prompts/crawl-task-prompt.md"])
     elif has_any(labels, {"docs", "spec", "task"}):
@@ -239,6 +254,7 @@ def infer_scope(issue: dict[str, Any], domain_focus: str, work_focus: str) -> li
 def required_context(domain_focus: str, core_role: str, work_focus: str, execution_mode: str) -> list[str]:
     context = [
         "AGENTS.md",
+        "docs/projects/lovv-project-context.md",
         "docs/agents/agent-creation-guidelines.md",
         f"docs/agents/modes/{execution_mode.split()[0].lower()}.md",
     ]

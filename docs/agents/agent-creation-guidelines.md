@@ -2,6 +2,14 @@
 
 Use this guide when the user asks to create an agent, activate a role, or create a folder-level `AGENTS.md` file.
 
+## Lovv Project Context Gate
+
+Before creating, activating, or routing an agent in this project, load `docs/projects/lovv-project-context.md`.
+
+Use that file to infer the domain, stack, persistence assumptions, and execution mode when the user gives a product goal such as "API 짜야돼", "로그인 기능 구현해야 해", "RAG 챗봇 붙여야 해", or "크롤링 해야 해".
+
+Do not ask the user to choose the agent role, execution mode, backend framework, database type, or infrastructure layer when the Lovv project context makes the route clear.
+
 ## Agent Creation Semantics
 
 When the user says "create a Review Agent", "create a Spec Agent", or similar, Main Codex must first treat it as a request to create a real tool-backed subagent when a supported subagent harness is available.
@@ -175,7 +183,7 @@ Allowed domain labels:
 
 - General: Shared utilities, docs, scripts, configuration-adjacent work, or unclear ownership.
 - Frontend: React, TailwindCSS, routes, components, hooks, client state, accessibility, and browser-facing behavior.
-- Backend: Django, APIs, models, migrations, serializers/forms, auth, permissions, validation, and data integrity.
+- Backend: AWS SAM APIs, Lambda handlers, API Gateway routes, Aurora MySQL data access, auth, permissions, validation, observability, and data integrity for Lovv; use framework-specific backend details only when project context or approved Spec says so.
 - Full-stack: User flows that tightly involve both frontend and backend behavior.
 
 Allowed focus labels:
@@ -239,6 +247,7 @@ Role-specific minimum inputs:
 - Implementation Agent: Task or Subtask ID, Source of Truth, allowed write scope, acceptance criteria, verification command or permission to infer one from project scripts.
 - Review Agent: Review target such as changed files, branch, PR, or diff; Source of Truth; review focus such as correctness, security, UX, performance, or all.
 - Frontend Domain: Target files or folders, UI states, API/data assumptions, responsive requirements, accessibility requirements, verification command or browser check, and out-of-scope behavior.
+- Backend AWS SAM Domain: Target Lambda function, API route, SAM template scope, request/response contract, existing API source-of-truth documents when the task overlaps small-city or city-data APIs, actual API address or deployment-readiness evidence when live calls are requested, Aurora MySQL assumptions, auth/IAM assumptions, verification command, and out-of-scope behavior.
 
 ## Role Permission Matrix
 
@@ -428,7 +437,7 @@ Use these templates only for folder-level `AGENTS.md` files:
 
 - General folder: `docs/agents/templates/folder-level.md`
 - Frontend React + Tailwind folder: `docs/agents/templates/frontend-react-tailwind.md`
-- Backend Django folder: `docs/agents/templates/backend-django.md`
+- Backend AWS SAM folder: `docs/agents/templates/backend-aws-sam.md`
 
 ## Folder-Level Template Creation Criteria
 
@@ -436,7 +445,7 @@ Use the template that matches the folder's stable ownership:
 
 - General: Use for shared utilities, common modules, documentation areas, scripts, configuration-adjacent folders, or any folder without a clear frontend/backend ownership model.
 - Frontend React + Tailwind: Use for `frontend/`, React route folders, UI feature folders, component libraries, hooks, client utilities, Tailwind styling areas, and browser-facing behavior.
-- Backend Django: Use for `backend/`, Django apps, API modules, models, migrations, serializers/forms, permissions, services, selectors, server-side validation, and data integrity areas.
+- Backend AWS SAM: Use for `backend/`, `api/`, `sam/`, Lambda function folders, API modules, API Gateway route areas, backend services, validators, repositories, Aurora MySQL data-access areas, server-side validation, IAM-sensitive areas, and data integrity areas in Lovv.
 
 Do not create a folder-level `AGENTS.md` only because a folder exists. Create one only when stable local rules will reduce ambiguity for future agents.
 
@@ -460,7 +469,7 @@ Do not create one when:
 
 - Use the General template for shared utilities, docs areas, common modules, or folders without a frontend/backend-specific stack.
 - Use the Frontend React + Tailwind template for `frontend/` or frontend feature folders.
-- Use the Backend Django template for `backend/` or Django app/module folders.
+- Use the Backend AWS SAM template for Lovv backend/API folders.
 
 If the correct template is unclear, ask the user before creating the file.
 

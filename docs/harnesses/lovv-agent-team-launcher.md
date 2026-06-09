@@ -70,12 +70,13 @@ Owner Auto Team: Lovv #123 하이브리드로 실행해줘
 ## 기본 흐름
 
 1. Issue Router로 GitHub Issue를 읽습니다.
-2. `User Request Original`과 `Structured Agent Contract`를 만듭니다.
-3. Team preset을 선택합니다.
-4. Team proposal을 사용자에게 보여줍니다.
-5. 사용자가 승인하면 실제 subagent 생성 또는 role activation fallback을 진행합니다.
-6. 모든 agent final report를 취합합니다.
-7. 사용하지 않는 agent context를 정리합니다.
+2. `docs/projects/lovv-project-context.md`를 기준으로 Lovv stack, routing, persistence assumption을 확인합니다.
+3. `User Request Original`과 `Structured Agent Contract`를 만듭니다.
+4. Team preset을 선택합니다.
+5. Team proposal을 사용자에게 보여줍니다.
+6. 사용자가 승인하면 실제 subagent 생성 또는 role activation fallback을 진행합니다.
+7. 모든 agent final report를 취합합니다.
+8. 사용하지 않는 agent context를 정리합니다.
 
 ## Team Preset
 
@@ -83,7 +84,7 @@ Owner Auto Team: Lovv #123 하이브리드로 실행해줘
 | --- | --- |
 | Planning Team | 신규 기능, 요구사항, Spec, Task 분해 |
 | Frontend Feature Team | React, Tailwind, UI, route, state, 접근성 |
-| Backend API Team | Django, API, DB, migration, validation |
+| Backend API Team | AWS SAM, Lambda, API Gateway, Aurora MySQL, validation |
 | Security Review Team | auth, token, secret, env, permission |
 | Crawl Data Team | crawl, scrape, BeautifulSoup, Selenium, Scrapling |
 | Release Gate Team | merge 전 최종 review, QA, security gate |

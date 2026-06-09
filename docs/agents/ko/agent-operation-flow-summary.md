@@ -145,7 +145,7 @@ Frontend
 - accessibility, responsive UI, client-side secret 노출 방지
 
 Backend
-- Django, API, model, migration, serializer/form
+- Lovv 기본값: AWS SAM, Lambda, API Gateway, Aurora MySQL
 - server-side validation, authentication, authorization
 - permission, error response, data integrity, settings, secrets
 
@@ -209,10 +209,14 @@ Stop Condition
 ## 8. 토큰 절감 원칙
 
 ```md
+- 기본 컨텍스트는 AGENTS.md + docs/projects/lovv-project-context.md
 - AGENTS.ko.md는 팀원 설명용이며 기본 로딩하지 않음
 - docs/agents/* 전체를 한 번에 읽지 않음
+- 선택된 execution mode 파일 하나만 읽음
+- domain/focus 문서는 필요한 경우에만 읽음
 - 현재 역할과 작업에 필요한 문서만 읽음
 - Full Spec 전체보다 현재 Subtask 지시서를 우선 읽음
+- subagent에게는 source path, required section, scope, 검증 명령만 전달
 - docs/prompts/*는 해당 prompt 작업일 때만 읽음
 - 대용량 로그, .git 내부, 빌드 산출물, 큰 데이터 파일은 통째로 읽지 않음
 ```

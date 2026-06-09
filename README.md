@@ -82,16 +82,29 @@ Codex tool-backed subagent harness
 - `Sequential Mode`: 보안, DB, 인증, 인가, 결제, migration, 되돌리기 어려운 작업, 요구사항이 모호한 작업에 사용합니다.
 - `Parallel Mode`: 사용자가 명시적으로 요청했거나 write scope가 명확히 분리되어 결과를 안전하게 통합할 수 있을 때만 사용합니다.
 
+## 토큰 관리 기본값
+
+이 저장소는 Lovv 전용이므로 기본 컨텍스트는 루트 `AGENTS.md`와 `docs/projects/lovv-project-context.md`입니다.
+
+그 외 문서는 현재 작업에 필요할 때만 읽습니다.
+
+- 실행 모드 파일은 선택된 하나만 읽습니다.
+- Frontend, Crawl, Review, Security, Spec/Task format 문서는 해당 role, domain, focus가 필요할 때만 읽습니다.
+- `AGENTS.ko.md`는 한국어 설명, 한국어 문서 수정, 동기화 확인이 필요할 때만 읽습니다.
+- subagent에게는 Full Spec 전체나 전체 보고서를 넘기지 않고, source of truth path, 필요한 섹션, scope, 검증 명령, stop condition만 전달합니다.
+- 큰 log, generated output, crawl output, build artifact, `.git` 내부 파일은 통째로 읽지 않습니다.
+
 ## 권장 사용 흐름
 
 1. 루트 `AGENTS.md`를 읽습니다.
-2. 에이전트 역할을 생성하거나 활성화하는 작업이라면 `docs/agents/agent-creation-guidelines.md`를 읽습니다.
-3. 사용자의 원문 요청을 `User Request Original`로 보존합니다.
-4. 실행 가능한 지시는 영어 `Structured Agent Contract`로 정리합니다.
-5. 실행 모드를 하나만 선택합니다.
-6. 선택된 역할, 도메인, focus에 필요한 규칙만 읽습니다.
-7. 에이전트의 최종 보고를 수집합니다.
-8. harness가 지원하는 경우, 사용이 끝났거나 응답이 없는 agent context를 정리합니다.
+2. 이 저장소는 Lovv 전용이므로 `docs/projects/lovv-project-context.md`를 읽어 stack, routing, persistence assumption을 확인합니다.
+3. 에이전트 역할을 생성하거나 활성화하는 작업이라면 `docs/agents/agent-creation-guidelines.md`를 읽습니다.
+4. 사용자의 원문 요청을 `User Request Original`로 보존합니다.
+5. 실행 가능한 지시는 영어 `Structured Agent Contract`로 정리합니다.
+6. 실행 모드를 하나만 선택합니다.
+7. 선택된 역할, 도메인, focus에 필요한 규칙만 읽습니다.
+8. 에이전트의 최종 보고를 수집합니다.
+9. harness가 지원하는 경우, 사용이 끝났거나 응답이 없는 agent context를 정리합니다.
 
 사용자 작업 흐름은 다음을 기본으로 합니다.
 
@@ -163,7 +176,7 @@ $lovv-agent-team-launcher Lovv #123 팀 제안해줘
 | --- | --- |
 | Planning Team | 신규 기능, 요구사항, Spec, Task 분해 |
 | Frontend Feature Team | React, Tailwind, UI, route, state, 접근성 |
-| Backend API Team | Django, API, DB, migration, validation |
+| Backend API Team | AWS SAM, Lambda, API Gateway, Aurora MySQL, validation |
 | Security Review Team | auth, token, secret, env, permission |
 | Crawl Data Team | crawl, scrape, BeautifulSoup, Selenium, Scrapling |
 | Release Gate Team | merge 전 최종 review, QA, security gate |
@@ -182,8 +195,9 @@ $lovv-agent-team-launcher Lovv #123 팀 제안해줘
 
 - `AGENTS.md`: 루트 프로젝트 에이전트 규칙입니다.
 - `AGENTS.ko.md`: 사용자가 이해하기 위한 한국어 설명서입니다.
-- `PRO20x/AGENTS.md`: PRO20x 사용자를 위한 full-context 버전입니다.
+- `PRO20x/AGENTS.md`: 토큰 절약보다 정밀도를 우선하는 full-context 버전입니다.
 - `docs/agents/`: 토큰 절약을 위해 분리된 agent rule 파일입니다.
+- `docs/projects/`: Lovv 전용 기술 스택, 라우팅, 저장 정책, RAG, 크롤링 기준입니다.
 - `docs/agents/modes/`: Sequential, Hybrid, Parallel 실행 모드 문서입니다.
 - `docs/harnesses/`: GitHub Issue 기반 harness 같은 팀 운영 도구 문서입니다.
 - `docs/prompts/`: crawl prompt 같은 작업별 프롬프트 템플릿입니다.
